@@ -1,16 +1,5 @@
 {
-  "version": 2,
-  "functions": {
-    "api/index.js": {
-      "maxDuration": 30,
-      "memory": 1024,
-      "includeFiles": "{data/catalog-index.json.gz,apps/web/public/**,packages/shared/src/**}"
-    }
-  },
-  "rewrites": [
-    {
-      "source": "/(.*)",
-      "destination": "/api/index.js"
-    }
-  ]
+  "framework": "nextjs",
+  "buildCommand": "npm --workspace=@svg-hub/web run build",
+  "outputDirectory": "apps/web/.next"
 }

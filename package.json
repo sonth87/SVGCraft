@@ -1,16 +1,18 @@
 {
-  "name": "svg-hub-monorepo",
-  "version": "1.0.0",
+  "name": "svgcraft",
+  "version": "2.0.0",
   "private": true,
-  "description": "Monorepo for SVG Crawler Studio (SVGRepo + theSVG.org) and theSVG-style Web Showcase Portal",
+  "description": "SVGCraft — Next.js App Router Vector Icon Library, Inspector, Code Studio & Cloudflare R2 Platform",
   "workspaces": [
     "packages/*",
     "apps/*"
   ],
   "scripts": {
-    "start": "node scripts/dev.js",
-    "dev": "node scripts/dev.js",
-    "start:web": "node --max-old-space-size=8192 apps/web/src/server.js",
+    "dev": "npm --workspace=@svg-hub/web run dev",
+    "build": "npm --workspace=@svg-hub/web run build",
+    "start": "npm --workspace=@svg-hub/web run start",
+    "start:web": "npm --workspace=@svg-hub/web run dev",
+    "start:all": "node scripts/dev.js",
     "start:crawler": "node --max-old-space-size=8192 apps/crawler/src/server.js",
     "build:index": "node --max-old-space-size=8192 scripts/build-catalog-index.js",
     "r2:sync": "node --max-old-space-size=8192 scripts/sync-to-r2.js",
@@ -18,6 +20,9 @@
   },
   "dependencies": {
     "express": "^4.21.2",
-    "playwright-core": "^1.51.0"
+    "next": "^14.2.35",
+    "playwright-core": "^1.51.0",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
   }
 }

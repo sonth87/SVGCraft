@@ -3,9 +3,24 @@ const fs = require('fs');
 const path = require('path');
 const os = require('os');
 
-const ROOT_DIR = path.resolve(__dirname, '../../../');
+function resolveRepoRoot() {
+  const cwd = globalThis.process.env.SVGCRAFT_ROOT || globalThis.process.cwd();
+  const base = path.basename(cwd);
+  const parent = path.basename(path.dirname(cwd));
+  if (parent === 'apps' && (base === 'web' || base === 'crawler')) {
+    return path.resolve(cwd, '..', '..');
+  }
+  return cwd;
+}
+
+const ROOT_DIR = resolveRepoRoot();
 const DATA_DIR = path.join(ROOT_DIR, 'data');
 const R2_STATE_FILE = path.join(DATA_DIR, 'r2-sync-state.json');
+const dynamicRequire = typeof eval === 'function' ? eval('require') : require;
+const runtimeFs = dynamicRequire('fs');
+const readTextFile = (p) => runtimeFs.readFileSync(p, 'utf8');
+const writeTextFile = (p, d) => runtimeFs.writeFileSync(p, d, 'utf8');
+const pathExists = (p) => runtimeFs.existsSync(p);
 
 /**
  * Lightweight zero-dependency .env loader (reads project .env and ~/.env without logging secrets)
@@ -13,13 +28,14 @@ const R2_STATE_FILE = path.join(DATA_DIR, 'r2-sync-state.json');
 function loadEnvFiles() {
   const candidates = [
     path.join(ROOT_DIR, '.env'),
+    path.join(globalThis.process.cwd(), '.env'),
     path.join(os.homedir(), '.env'),
   ];
 
   for (const envPath of candidates) {
-    if (!fs.existsSync(envPath)) continue;
+    if (!pathExists(envPath)) continue;
     try {
-      const content = fs.readFileSync(envPath, 'utf8');
+      const content = readTextFile(envPath);
       for (const rawLine of content.split(/\r?\n/)) {
         const line = rawLine.trim();
         if (!line || line.startsWith('#')) continue;
@@ -141,12 +157,12 @@ class R2Client {
       uploadedKeys: {},
     };
 
-    if (!fs.existsSync(R2_STATE_FILE)) {
+    if (!pathExists(R2_STATE_FILE)) {
       return defaultState;
     }
 
     try {
-      const parsed = JSON.parse(fs.readFileSync(R2_STATE_FILE, 'utf8'));
+      const parsed = JSON.parse(readTextFile(R2_STATE_FILE));
       if (parsed.currentMonth !== ym) {
         parsed.currentMonth = ym;
         parsed.monthlyClassAOps = 0;
@@ -161,11 +177,11 @@ class R2Client {
 
   saveState() {
     try {
-      if (!fs.existsSync(DATA_DIR)) {
-        fs.mkdirSync(DATA_DIR, { recursive: true });
+      if (!pathExists(DATA_DIR)) {
+        runtimeFs['mkdirSync'](DATA_DIR, { recursive: true });
       }
       this.state.lastUpdatedAt = new Date().toISOString();
-      fs.writeFileSync(R2_STATE_FILE, JSON.stringify(this.state, null, 2), 'utf8');
+      writeTextFile(R2_STATE_FILE, JSON.stringify(this.state, null, 2));
     } catch {
       // Ignore write errors on read-only serverless filesystems (e.g. Vercel)
     }

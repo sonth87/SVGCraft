@@ -1,14 +1,17 @@
 {
   "name": "@svg-hub/web",
-  "version": "1.0.0",
-  "description": "theSVG-style Web Portal for browsing, searching, filtering, and discovering similar SVG icons",
-  "main": "src/server.js",
+  "version": "2.0.0",
+  "private": true,
+  "description": "SVGCraft — Next.js App Router Vector Icon Library, Inspector, Code Studio & Cloudflare R2 Platform",
   "scripts": {
-    "start": "node src/server.js",
-    "dev": "node --watch src/server.js"
+    "dev": "next dev -p 3000",
+    "build": "next build",
+    "start": "next start -p 3000"
   },
   "dependencies": {
     "@svg-hub/shared": "*",
-    "express": "^4.21.2"
+    "next": "^14.2.35",
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
   }
 }

@@ -14,16 +14,31 @@ const { loadEnvFiles } = require('./r2Client');
 
 loadEnvFiles();
 
-const ROOT_DIR = path.resolve(__dirname, '../../..');
+function resolveRepoRoot() {
+  const cwd = globalThis.process.env.SVGCRAFT_ROOT || globalThis.process.cwd();
+  const base = path.basename(cwd);
+  const parent = path.basename(path.dirname(cwd));
+  if (parent === 'apps' && (base === 'web' || base === 'crawler')) {
+    return path.resolve(cwd, '..', '..');
+  }
+  return cwd;
+}
+
+const ROOT_DIR = resolveRepoRoot();
+const dynamicRequire = typeof eval === 'function' ? eval('require') : require;
+const runtimeFs = dynamicRequire('fs');
 const DATA_DIR = path.join(ROOT_DIR, 'data');
 const OUTPUT_DIR = path.join(ROOT_DIR, 'output');
 const STATE_FILE = path.join(DATA_DIR, 'crawl-state.json');
-const CATALOG_INDEX_GZ_FILE = path.join(DATA_DIR, 'catalog-index.json.gz');
+const LOCAL_APP_CATALOG_GZ = path.resolve(process.cwd(), 'data', 'catalog-index.json.gz');
+const CATALOG_INDEX_GZ_FILE = fs.existsSync(LOCAL_APP_CATALOG_GZ)
+  ? LOCAL_APP_CATALOG_GZ
+  : path.join(DATA_DIR, 'catalog-index.json.gz');
 
 function ensureDir(dirPath) {
   try {
-    if (!fs.existsSync(dirPath)) {
-      fs.mkdirSync(dirPath, { recursive: true });
+    if (!runtimeFs['existsSync'](dirPath)) {
+      runtimeFs['mkdirSync'](dirPath, { recursive: true });
     }
   } catch {
     // Ignore on read-only serverless filesystems (e.g. Vercel)
@@ -76,8 +91,8 @@ class StateManager {
 
   loadState() {
     try {
-      if (fs.existsSync(STATE_FILE)) {
-        const raw = fs.readFileSync(STATE_FILE, 'utf8');
+      if (runtimeFs['existsSync'](STATE_FILE)) {
+        const raw = runtimeFs['readFileSync'](STATE_FILE, 'utf8');
         const parsed = JSON.parse(raw);
         return {
           ...this.getDefaultState(),
@@ -96,7 +111,7 @@ class StateManager {
 
   saveState() {
     ensureDir(DATA_DIR);
-    fs.writeFileSync(STATE_FILE, JSON.stringify(this.state, null, 2), 'utf8');
+    runtimeFs['writeFileSync'](STATE_FILE, JSON.stringify(this.state, null, 2), 'utf8');
   }
 
   getSiteState(siteId) {
@@ -152,9 +167,9 @@ class StateManager {
       return this._activeCollectionMem.meta;
     }
     const metaPath = this.getCollectionMetadataPath(siteId, collectionSlug);
-    if (fs.existsSync(metaPath)) {
+    if (runtimeFs['existsSync'](metaPath)) {
       try {
-        return JSON.parse(fs.readFileSync(metaPath, 'utf8'));
+        return JSON.parse(runtimeFs['readFileSync'](metaPath, 'utf8'));
       } catch {
         return null;
       }
@@ -183,7 +198,7 @@ class StateManager {
     const key = `${siteId}/${collectionInfo.slug}`;
     this._activeCollectionMem = { key, meta: merged };
 
-    fs.writeFileSync(
+    runtimeFs['writeFileSync'](
       this.getCollectionMetadataPath(siteId, collectionInfo.slug),
       JSON.stringify(merged, null, 2),
       'utf8'
@@ -196,7 +211,7 @@ class StateManager {
     const safeIconSlug = String(iconSlug || 'icon').replace(/[^a-zA-Z0-9-_]/g, '-');
     const fileName = iconId ? `${safeIconSlug}-${iconId}.svg` : `${safeIconSlug}.svg`;
     const filePath = path.join(colDir, 'icons', fileName);
-    return fs.existsSync(filePath) && fs.statSync(filePath).size > 20;
+    return runtimeFs['existsSync'](filePath) && runtimeFs['statSync'](filePath).size > 20;
   }
 
   /**
@@ -211,7 +226,7 @@ class StateManager {
     const fileName = iconData.id ? `${safeIconSlug}-${iconData.id}.svg` : `${safeIconSlug}.svg`;
     const filePath = path.join(iconsDir, fileName);
 
-    fs.writeFileSync(filePath, svgContent, 'utf8');
+    runtimeFs['writeFileSync'](filePath, svgContent, 'utf8');
 
     const variantsMap = {
       default: `icons/${fileName}`,
@@ -223,7 +238,7 @@ class StateManager {
         const varFileName = iconData.id
           ? `${safeIconSlug}-${iconData.id}.${varName}.svg`
           : `${safeIconSlug}.${varName}.svg`;
-        fs.writeFileSync(path.join(iconsDir, varFileName), varSvgXml, 'utf8');
+        runtimeFs['writeFileSync'](path.join(iconsDir, varFileName), varSvgXml, 'utf8');
         variantsMap[varName] = `icons/${varFileName}`;
       }
     }
@@ -295,7 +310,7 @@ class StateManager {
     meta.collection.downloadedIconsCount = meta.icons.length;
     meta.collection.updatedAt = new Date().toISOString();
 
-    fs.writeFileSync(
+    runtimeFs['writeFileSync'](
       this.getCollectionMetadataPath(siteId, collectionSlug),
       JSON.stringify(meta, null, 2),
       'utf8'
@@ -360,11 +375,11 @@ class StateManager {
    */
   _getCachedCollectionListEntry(sId, cSlug) {
     const metaPath = this.getCollectionMetadataPath(sId, cSlug);
-    if (!fs.existsSync(metaPath)) return null;
+    if (!runtimeFs['existsSync'](metaPath)) return null;
 
     let stat;
     try {
-      stat = fs.statSync(metaPath);
+      stat = runtimeFs['statSync'](metaPath);
     } catch {
       return null;
     }
@@ -406,11 +421,11 @@ class StateManager {
 
   _getCachedCollectionEntry(sId, cSlug) {
     const metaPath = this.getCollectionMetadataPath(sId, cSlug);
-    if (!fs.existsSync(metaPath)) return null;
+    if (!runtimeFs['existsSync'](metaPath)) return null;
 
     let stat;
     try {
-      stat = fs.statSync(metaPath);
+      stat = runtimeFs['statSync'](metaPath);
     } catch {
       return null;
     }
@@ -449,22 +464,22 @@ class StateManager {
 
   listCrawledCollections(siteId = null, limit = 36) {
     ensureDir(OUTPUT_DIR);
-    if (!fs.existsSync(OUTPUT_DIR)) return [];
+    if (!runtimeFs['existsSync'](OUTPUT_DIR)) return [];
     const results = [];
     const siteDirs = siteId
       ? [siteId]
-      : fs.readdirSync(OUTPUT_DIR).filter((d) => {
+      : runtimeFs['readdirSync'](OUTPUT_DIR).filter((d) => {
           const full = path.join(OUTPUT_DIR, d);
-          return fs.existsSync(full) && fs.statSync(full).isDirectory();
+          return runtimeFs['existsSync'](full) && runtimeFs['statSync'](full).isDirectory();
         });
 
     for (const sId of siteDirs) {
       const sitePath = path.join(OUTPUT_DIR, sId);
-      if (!fs.existsSync(sitePath)) continue;
+      if (!runtimeFs['existsSync'](sitePath)) continue;
 
-      const colDirs = fs.readdirSync(sitePath).filter((d) => {
+      const colDirs = runtimeFs['readdirSync'](sitePath).filter((d) => {
         const full = path.join(sitePath, d);
-        return fs.existsSync(full) && fs.statSync(full).isDirectory();
+        return runtimeFs['existsSync'](full) && runtimeFs['statSync'](full).isDirectory();
       });
 
       for (const cSlug of colDirs) {
@@ -579,17 +594,17 @@ class StateManager {
     const entries = [];
     let signatureSum = 0;
 
-    if (fs.existsSync(OUTPUT_DIR)) {
-      const siteDirs = fs.readdirSync(OUTPUT_DIR).filter((d) => {
+    if (runtimeFs['existsSync'](OUTPUT_DIR)) {
+      const siteDirs = runtimeFs['readdirSync'](OUTPUT_DIR).filter((d) => {
         const full = path.join(OUTPUT_DIR, d);
-        return fs.existsSync(full) && fs.statSync(full).isDirectory();
+        return runtimeFs['existsSync'](full) && runtimeFs['statSync'](full).isDirectory();
       });
 
       for (const sId of siteDirs) {
         const sitePath = path.join(OUTPUT_DIR, sId);
-        const colDirs = fs.readdirSync(sitePath).filter((d) => {
+        const colDirs = runtimeFs['readdirSync'](sitePath).filter((d) => {
           const full = path.join(sitePath, d);
-          return fs.existsSync(full) && fs.statSync(full).isDirectory();
+          return runtimeFs['existsSync'](full) && runtimeFs['statSync'](full).isDirectory();
         });
 
         for (const cSlug of colDirs) {
@@ -889,8 +904,8 @@ class StateManager {
     for (const [varName, relPath] of Object.entries(mergedTarget.variants || { default: mergedTarget.relativePath })) {
       const fullPath = path.join(colDir, relPath);
       variantAssetUrls[varName] = this.buildAssetUrl(siteId, collectionSlug, relPath);
-      if (fs.existsSync(fullPath)) {
-        svgVariantsContent[varName] = fs.readFileSync(fullPath, 'utf8');
+      if (runtimeFs['existsSync'](fullPath)) {
+        svgVariantsContent[varName] = runtimeFs['readFileSync'](fullPath, 'utf8');
       }
     }
 

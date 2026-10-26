@@ -1,4 +1,8 @@
 (() => {
+  if (typeof window !== 'undefined') {
+    if (window.__svgcraftInitialized) return;
+    window.__svgcraftInitialized = true;
+  }
   // ============================================================================
   // SVG & LUCIDE ICON REGISTRY (Zero Emoji Policy)
   // Combines clean Lucide strokes with bespoke multi-layered vector icons

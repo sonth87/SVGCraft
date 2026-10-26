@@ -2,12 +2,15 @@ const { spawn } = require('child_process');
 const path = require('path');
 
 const ROOT = path.resolve(__dirname, '..');
+const WEB_DIR = path.join(ROOT, 'apps/web');
+const NEXT_BIN = require.resolve('next/dist/bin/next', { paths: [WEB_DIR, ROOT] });
+
 let isShuttingDown = false;
 const activeChildren = new Map();
 
-function runProcess(name, scriptPath, envVars = {}) {
-  const child = spawn(process.execPath, ['--max-old-space-size=8192', scriptPath], {
-    cwd: ROOT,
+function runProcess(name, args, cwd = ROOT, envVars = {}) {
+  const child = spawn(process.execPath, ['--max-old-space-size=8192', ...args], {
+    cwd,
     env: { ...process.env, ...envVars },
     stdio: 'inherit',
   });
@@ -16,10 +19,10 @@ function runProcess(name, scriptPath, envVars = {}) {
 
   child.on('exit', (code) => {
     if (!isShuttingDown && code !== 0 && code !== null) {
-      console.error(`⚠️ [${name}] exited with code ${code}. Tự động khởi động lại sau 2s...`);
+      console.error(`[${name}] exited with code ${code}. Restarting in 2s...`);
       setTimeout(() => {
         if (!isShuttingDown) {
-          runProcess(name, scriptPath, envVars);
+          runProcess(name, args, cwd, envVars);
         }
       }, 2000);
     }
@@ -29,39 +32,13 @@ function runProcess(name, scriptPath, envVars = {}) {
 }
 
 console.log('\n====================================================================');
-console.log('🚀 Khởi động Monorepo SVG Hub (Web Portal + Crawler Studio)');
-console.log('   ✨ Web Thư Viện SVG (UI theSVG.org): http://localhost:3000');
-console.log('   🤖 Crawler Studio (SVGRepo + theSVG): http://localhost:3456');
+console.log('SVGCraft Monorepo (Next.js App Router Web + Crawler Studio)');
+console.log('   Web Portal (Next.js):  http://localhost:3000');
+console.log('   Crawler Studio:        http://localhost:3456');
 console.log('====================================================================\n');
 
-runProcess('web', path.join(ROOT, 'apps/web/src/server.js'));
-runProcess('crawler', path.join(ROOT, 'apps/crawler/src/server.js'));
-
-// Auto-restart web server when backend files in apps/web/src or packages/shared/src change
-const fs = require('fs');
-let restartTimer = null;
-function watchBackendDir(dirPath) {
-  if (!fs.existsSync(dirPath)) return;
-  fs.watch(dirPath, { recursive: true }, (eventType, filename) => {
-    if (!filename || !filename.endsWith('.js')) return;
-    clearTimeout(restartTimer);
-    restartTimer = setTimeout(() => {
-      const webProc = activeChildren.get('web');
-      if (webProc && !isShuttingDown) {
-        console.log(`🔄 [web] Phát hiện thay đổi (${filename}), đang khởi động lại...`);
-        webProc.kill('SIGTERM');
-        setTimeout(() => {
-          if (!isShuttingDown) {
-            runProcess('web', path.join(ROOT, 'apps/web/src/server.js'));
-          }
-        }, 300);
-      }
-    }, 250);
-  });
-}
-
-watchBackendDir(path.join(ROOT, 'apps/web/src'));
-watchBackendDir(path.join(ROOT, 'packages/shared/src'));
+runProcess('web', [NEXT_BIN, 'dev', '-p', '3000'], WEB_DIR);
+runProcess('crawler', [path.join(ROOT, 'apps/crawler/src/server.js')], ROOT);
 
 function shutdown() {
   isShuttingDown = true;
@@ -77,4 +54,3 @@ function shutdown() {
 
 process.on('SIGINT', shutdown);
 process.on('SIGTERM', shutdown);
-

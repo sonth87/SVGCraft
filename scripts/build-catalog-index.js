@@ -52,6 +52,13 @@ function main() {
 
   fs.writeFileSync(CATALOG_INDEX_GZ_FILE, compressed);
 
+  const path = require('path');
+  const webDataDir = path.resolve(__dirname, '../apps/web/data');
+  if (!fs.existsSync(webDataDir)) {
+    fs.mkdirSync(webDataDir, { recursive: true });
+  }
+  fs.writeFileSync(path.join(webDataDir, 'catalog-index.json.gz'), compressed);
+
   console.log(
     `[Catalog Indexer] Hoàn tất! Đã đóng gói ${allIcons.length.toLocaleString()} icons (${collections.length.toLocaleString()} bộ sưu tập).`
   );
