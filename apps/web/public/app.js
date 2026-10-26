@@ -133,9 +133,65 @@
   const TONES = ['auto', 'dark', 'light', 'checker'];
   let currentToneIdx = 0;
 
-  const PAGE_SIZE = 120;
+  const PAGE_SIZE = 72;
   let currentOffset = 0;
   let totalMatched = 0;
+  let lastScrollFetchTs = 0;
+  let activeIconsAbortController = null;
+
+  // Client-side in-memory LRU caches to eliminate duplicate API & SVG network requests
+  const apiJsonCache = new Map();
+  const svgTextCache = new Map();
+  const MAX_CACHE_ENTRIES = 60;
+
+  function setCacheEntry(map, key, val) {
+    if (map.size >= MAX_CACHE_ENTRIES) {
+      const oldestKey = map.keys().next().value;
+      map.delete(oldestKey);
+    }
+    map.set(key, val);
+  }
+
+  async function apiFetchJson(url, { signal, bypassCache = false } = {}) {
+    if (!bypassCache && apiJsonCache.has(url)) {
+      return apiJsonCache.get(url);
+    }
+    const res = await fetch(url, {
+      signal,
+      headers: {
+        'X-SVGCraft-Client': 'web-v2',
+        Accept: 'application/json',
+      },
+    });
+    if (res.status === 429) {
+      showToast('Bạn thao tác quá nhanh, vui lòng đợi vài giây...');
+      throw new Error('Rate limited (429)');
+    }
+    if (!res.ok) {
+      throw new Error(`HTTP ${res.status}`);
+    }
+    const data = await res.json();
+    setCacheEntry(apiJsonCache, url, data);
+    return data;
+  }
+
+  async function fetchSvgTextCached(url) {
+    if (!url) return '';
+    if (svgTextCache.has(url)) {
+      return svgTextCache.get(url);
+    }
+    const res = await fetch(url);
+    if (res.status === 429) {
+      showToast('Bạn thao tác quá nhanh, vui lòng đợi vài giây...');
+      return '';
+    }
+    if (!res.ok) return '';
+    const text = await res.text();
+    if (text && text.includes('<svg')) {
+      setCacheEntry(svgTextCache, url, text);
+    }
+    return text;
+  }
 
   let filters = {
     q: '',
@@ -565,9 +621,8 @@
   // ============================================================================
   // LOAD CATALOG SUMMARY & POPULATE SIDEBAR + FILTER DROPDOWNS
   // ============================================================================
-  async function loadSummary() {
-    const res = await fetch('/api/catalog/summary');
-    catalogSummary = await res.json();
+  async function loadSummary(bypassCache = false) {
+    catalogSummary = await apiFetchJson('/api/catalog/summary', { bypassCache });
 
     countFavorites.textContent = favorites.size;
     badgeTotalCollections.textContent = catalogSummary.totalCollections || (catalogSummary.collections || []).length;
@@ -1064,14 +1119,20 @@
   let isLoadingMore = false;
 
   // Load icons from API (supports resetOffset=true for new filter or resetOffset=false for infinite scroll append)
-  async function loadIcons(resetOffset = true) {
+  async function loadIcons(resetOffset = true, { bypassCache = false } = {}) {
     if (!resetOffset && isLoadingMore) return;
     if (resetOffset) {
       currentOffset = 0;
+      if (activeIconsAbortController) {
+        activeIconsAbortController.abort();
+      }
+      activeIconsAbortController = new AbortController();
     } else {
       isLoadingMore = true;
       loadMoreLabel.textContent = 'Đang tự động tải thêm icon...';
     }
+
+    const signal = resetOffset && activeIconsAbortController ? activeIconsAbortController.signal : undefined;
 
     try {
       const params = new URLSearchParams({
@@ -1087,8 +1148,7 @@
         limit: String(PAGE_SIZE),
       });
 
-      const res = await fetch(`/api/catalog/icons?${params.toString()}`);
-      const data = await res.json();
+      const data = await apiFetchJson(`/api/catalog/icons?${params.toString()}`, { signal, bypassCache });
       let items = data.items || [];
       totalMatched = data.total || items.length;
 
@@ -1123,13 +1183,17 @@
       } else {
         loadMoreWrap.style.display = 'none';
       }
+    } catch (err) {
+      if (err && err.name === 'AbortError') return;
     } finally {
       isLoadingMore = false;
     }
   }
 
   function triggerLoadNextBatch() {
+    const now = Date.now();
     if (
+      now - lastScrollFetchTs < 650 ||
       isLoadingMore ||
       activeDetailIconKey !== null ||
       activeCollectionState !== null ||
@@ -1138,6 +1202,7 @@
     ) {
       return;
     }
+    lastScrollFetchTs = now;
     currentOffset += PAGE_SIZE;
     loadIcons(false);
   }
@@ -1156,7 +1221,7 @@
           }
         }
       },
-      { root: null, rootMargin: '550px 0px', threshold: 0.01 }
+      { root: null, rootMargin: '420px 0px', threshold: 0.01 }
     );
     infiniteObserver.observe(loadMoreWrap);
   }
@@ -1234,7 +1299,8 @@
     if (copySvgBtn) {
       e.stopPropagation();
       const url = copySvgBtn.dataset.copySvg;
-      const svgText = await fetch(url).then((r) => r.text());
+      const svgText = await fetchSvgTextCached(url);
+      if (!svgText) return;
       await navigator.clipboard.writeText(svgText);
       showToast('Đã copy mã SVG vào Clipboard');
       return;
@@ -1245,7 +1311,8 @@
       e.stopPropagation();
       const url = copyJsxBtn.dataset.copyJsx;
       const compName = toPascalCaseComponentName(copyJsxBtn.dataset.title || 'Icon');
-      const svgText = await fetch(url).then((r) => r.text());
+      const svgText = await fetchSvgTextCached(url);
+      if (!svgText) return;
       await navigator.clipboard.writeText(svgToJsx(svgText, compName));
       showToast(`Đã copy component <${compName} /> (JSX)`);
       return;
@@ -1295,15 +1362,15 @@
       offset: '0',
     });
 
-    const res = await fetch(
-      `/api/catalog/collection/${encodeURIComponent(safeSite)}/${encodeURIComponent(collectionSlug)}?${queryInit.toString()}`
-    );
-    if (!res.ok) {
+    let data;
+    try {
+      data = await apiFetchJson(
+        `/api/catalog/collection/${encodeURIComponent(safeSite)}/${encodeURIComponent(collectionSlug)}?${queryInit.toString()}`
+      );
+    } catch {
       showToast('Không tìm thấy bộ sưu tập này');
       return;
     }
-
-    const data = await res.json();
     const col = data.collection;
     activeDetailIconKey = null;
     activeCollectionState = {
@@ -1450,10 +1517,9 @@
           offset: String(activeCollectionState.offset),
           limit: String(PAGE_SIZE),
         });
-        const r = await fetch(
+        const d = await apiFetchJson(
           `/api/catalog/collection/${encodeURIComponent(activeCollectionState.site)}/${encodeURIComponent(activeCollectionState.slug)}?${params.toString()}`
         );
-        const d = await r.json();
         const newItems = d.items || [];
         activeCollectionState.total = d.total || 0;
 
@@ -1498,9 +1564,11 @@
       clearTimeout(colSearchTimer);
       colSearchTimer = setTimeout(() => {
         if (!activeCollectionState) return;
-        activeCollectionState.q = colLocalSearchInput.value.trim();
+        const nextQ = colLocalSearchInput.value.trim();
+        if (nextQ === activeCollectionState.q) return;
+        activeCollectionState.q = nextQ;
         fetchCollectionFiltered(true);
-      }, 150);
+      }, 280);
     });
 
     colStyleFilterGroup.addEventListener('click', (e) => {
@@ -1537,15 +1605,16 @@
   }
 
   async function openDetailPage(site, collectionSlug, idOrSlug, pushHistory = true) {
-    const res = await fetch(
-      `/api/catalog/icon/${encodeURIComponent(site)}/${encodeURIComponent(collectionSlug)}/${encodeURIComponent(idOrSlug)}`
-    );
-    if (!res.ok) {
+    let data;
+    try {
+      data = await apiFetchJson(
+        `/api/catalog/icon/${encodeURIComponent(site)}/${encodeURIComponent(collectionSlug)}/${encodeURIComponent(idOrSlug)}`
+      );
+    } catch {
       showToast('Không tìm thấy dữ liệu chi tiết cho icon này');
       return;
     }
 
-    const data = await res.json();
     const { icon, svgVariantsContent = {}, variantAssetUrls = {}, recommendations = {} } = data;
     const favKey = `${icon.site}:${icon.collectionSlug}:${icon.id || icon.slug}`;
     activeDetailIconKey = favKey;
@@ -1574,7 +1643,7 @@
       try {
         const fallbackUrl = variantAssetUrls[activeVariant] || icon.assetUrl;
         if (fallbackUrl) {
-          const fetchedSvg = await fetch(fallbackUrl).then((r) => (r.ok ? r.text() : ''));
+          const fetchedSvg = await fetchSvgTextCached(fallbackUrl);
           if (fetchedSvg && fetchedSvg.includes('<svg')) {
             svgVariantsContent[activeVariant] = fetchedSvg;
             data.rawSvg = fetchedSvg;
@@ -2469,7 +2538,9 @@
   searchInput.addEventListener('input', () => {
     clearTimeout(searchTimer);
     searchTimer = setTimeout(() => {
-      filters.q = searchInput.value.trim();
+      const nextQ = searchInput.value.trim();
+      if (nextQ === filters.q) return;
+      filters.q = nextQ;
       updateNavActiveStates();
       if (activeDetailIconKey || activeCollectionState) {
         showCatalogView(true);
@@ -2477,7 +2548,7 @@
         syncCatalogUrl(false);
       }
       loadIcons(true);
-    }, 180);
+    }, 320);
   });
 
   sortSelect.addEventListener('change', () => {
@@ -2487,15 +2558,19 @@
   });
 
   let isSyncing = false;
+  let lastManualReloadTs = 0;
 
   btnReloadCatalog.addEventListener('click', async () => {
-    if (isSyncing) return;
+    const now = Date.now();
+    if (isSyncing || now - lastManualReloadTs < 5000) return;
+    lastManualReloadTs = now;
     isSyncing = true;
     reloadSpinIcon.classList.add('spin-anim');
     reloadBtnText.textContent = 'Đang đồng bộ...';
     btnReloadCatalog.disabled = true;
     try {
-      await loadSummary();
+      apiJsonCache.clear();
+      await loadSummary(true);
       if (activeCollectionState) {
         await openCollectionPage(activeCollectionState.site, activeCollectionState.slug, false, {
           q: activeCollectionState.q,
@@ -2503,7 +2578,7 @@
           sort: activeCollectionState.sort,
         });
       } else if (!activeDetailIconKey) {
-        await loadIcons(true);
+        await loadIcons(true, { bypassCache: true });
       }
       showToast(`Đã đồng bộ kho SVGCraft (${(catalogSummary?.totalIcons || 0).toLocaleString()} icons)`);
     } finally {
@@ -2631,46 +2706,11 @@
     await loadIcons(true);
   }
 
-  let lastSummaryDurationMs = 0;
-
-  async function scheduleAutoSync() {
-    const intervalMs = lastSummaryDurationMs > 3000 ? 90000 : 15000;
-    setTimeout(async () => {
-      if (!isSyncing && !document.hidden) {
-        isSyncing = true;
-        try {
-          const prevTotal = catalogSummary?.totalIcons || 0;
-          const t0 = performance.now();
-          await loadSummary();
-          lastSummaryDurationMs = performance.now() - t0;
-          const newTotal = catalogSummary?.totalIcons || 0;
-          if (
-            newTotal !== prevTotal &&
-            filters.sort === 'recent' &&
-            !filters.q &&
-            !activeDetailIconKey &&
-            !activeCollectionState
-          ) {
-            await loadIcons(true);
-          }
-        } catch {
-          // Ignore transient network errors during background poll
-        } finally {
-          isSyncing = false;
-        }
-      }
-      scheduleAutoSync();
-    }, intervalMs);
-  }
-
   async function init() {
     restoreSavedThemeAndTone();
     initAlphabetBar();
-    const t0 = performance.now();
     await loadSummary();
-    lastSummaryDurationMs = performance.now() - t0;
     await handleInitialOrPopStateRoute();
-    scheduleAutoSync();
   }
 
   init();

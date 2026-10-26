@@ -8,8 +8,14 @@ export async function GET(request) {
     const { searchParams } = new URL(request.url);
     const stateManager = getStateManager();
 
+    const rawLimit = Number(searchParams.get('limit')) || 72;
+    const rawOffset = Number(searchParams.get('offset')) || 0;
+    const safeLimit = Math.min(Math.max(1, rawLimit), 96);
+    const safeOffset = Math.min(Math.max(0, rawOffset), 12000);
+    const safeQ = String(searchParams.get('q') || '').slice(0, 80);
+
     const result = stateManager.queryIcons({
-      q: searchParams.get('q') || '',
+      q: safeQ,
       category: searchParams.get('category') || '',
       styleType: searchParams.get('styleType') || '',
       iconType: searchParams.get('iconType') || '',
@@ -18,8 +24,8 @@ export async function GET(request) {
       gridSize: searchParams.get('gridSize') || '',
       letter: searchParams.get('letter') || '',
       sort: searchParams.get('sort') || 'recent',
-      offset: Number(searchParams.get('offset')) || 0,
-      limit: Number(searchParams.get('limit')) || 120,
+      offset: safeOffset,
+      limit: safeLimit,
     });
 
     return NextResponse.json(result, {

@@ -9,13 +9,19 @@ export async function GET(request, { params }) {
     const { searchParams } = new URL(request.url);
     const stateManager = getStateManager();
 
+    const rawLimit = Number(searchParams.get('limit')) || 72;
+    const rawOffset = Number(searchParams.get('offset')) || 0;
+    const safeLimit = Math.min(Math.max(1, rawLimit), 96);
+    const safeOffset = Math.min(Math.max(0, rawOffset), 12000);
+    const safeQ = String(searchParams.get('q') || '').slice(0, 80);
+
     const data = stateManager.getCollectionDetails(site, collection, {
-      q: searchParams.get('q') || '',
+      q: safeQ,
       styleType: searchParams.get('styleType') || '',
       category: searchParams.get('category') || '',
       sort: searchParams.get('sort') || 'az',
-      offset: Number(searchParams.get('offset')) || 0,
-      limit: Number(searchParams.get('limit')) || 120,
+      offset: safeOffset,
+      limit: safeLimit,
     });
 
     if (!data) {
