@@ -541,14 +541,14 @@ class StateManager {
       const siteId = siteCode === 1 ? 'thesvg' : 'svgrepo';
       const colObj = colMap.get(`${siteId}:${colSlug}`);
       const safeIconSlug = String(slug || 'icon').replace(/[^a-zA-Z0-9-_]/g, '-');
-      const fileName = id && siteId !== 'thesvg' ? `${safeIconSlug}-${id}.svg` : `${safeIconSlug}.svg`;
+      const fileName = id ? `${safeIconSlug}-${id}.svg` : `${safeIconSlug}.svg`;
       const relativePath = `icons/${fileName}`;
 
       const variants = { default: relativePath };
       if (Array.isArray(varKeys)) {
         for (const vk of varKeys) {
           if (vk === 'default') continue;
-          const vFile = id && siteId !== 'thesvg' ? `${safeIconSlug}-${id}.${vk}.svg` : `${safeIconSlug}.${vk}.svg`;
+          const vFile = id ? `${safeIconSlug}-${id}.${vk}.svg` : `${safeIconSlug}.${vk}.svg`;
           variants[vk] = `icons/${vFile}`;
         }
       }

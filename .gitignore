@@ -16,7 +16,7 @@ yarn-debug.log*
 yarn-error.log*
 
 # Crawled raw SVG files (stored on Cloudflare R2, not in Git)
-output/
+/output/
 
 # Local runtime & crawler state / browser profiles
 data/browser-profile-*/
