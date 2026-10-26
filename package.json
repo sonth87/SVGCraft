@@ -1,0 +1,23 @@
+{
+  "name": "svg-hub-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Monorepo for SVG Crawler Studio (SVGRepo + theSVG.org) and theSVG-style Web Showcase Portal",
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "scripts": {
+    "start": "node scripts/dev.js",
+    "dev": "node scripts/dev.js",
+    "start:web": "node --max-old-space-size=8192 apps/web/src/server.js",
+    "start:crawler": "node --max-old-space-size=8192 apps/crawler/src/server.js",
+    "build:index": "node --max-old-space-size=8192 scripts/build-catalog-index.js",
+    "r2:sync": "node --max-old-space-size=8192 scripts/sync-to-r2.js",
+    "r2:dry-run": "node --max-old-space-size=8192 scripts/sync-to-r2.js --dry-run"
+  },
+  "dependencies": {
+    "express": "^4.21.2",
+    "playwright-core": "^1.51.0"
+  }
+}

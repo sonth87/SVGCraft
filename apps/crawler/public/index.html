@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SVG Crawler Studio — Điều khiển Crawl Tự Động</title>
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <div class="brand-icon">BOT</div>
+      <div>
+        <h1>SVG Crawler Studio &amp; Human Simulator</h1>
+        <p>Hỗ trợ crawl SVGRepo.com &amp; theSVG.org với phân loại Category / Style tự động</p>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:12px">
+      <a href="http://localhost:3000" target="_blank" class="btn-secondary btn-sm" style="text-decoration:none;padding:8px 14px;border-radius:999px;font-weight:600">
+        🌐 Mở Trang Web Thư Viện SVG (Port 3000) ↗
+      </a>
+      <div id="statusBadge" class="status-badge" data-status="idle" role="status" aria-live="polite">
+        <span class="status-dot"></span>
+        <span id="statusText">Sẵn sàng (Idle)</span>
+      </div>
+    </div>
+  </header>
+
+  <main class="dashboard-layout">
+    <section aria-label="Cấu hình Crawl">
+      <div class="card">
+        <div class="card-title">
+          <span>1. Chọn Trang &amp; Phạm Vi Crawl</span>
+        </div>
+
+        <div class="form-group">
+          <label for="siteSelect">Trang web mục tiêu (Target Site)</label>
+          <select id="siteSelect"></select>
+          <p id="siteDescription" style="font-size:0.76rem;color:var(--text-muted);margin-top:5px"></p>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="categorySelect">Danh mục / Bộ sưu tập</label>
+            <select id="categorySelect">
+              <option value="all">Tất cả</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="startListPage">Trang bắt đầu</label>
+            <input type="number" id="startListPage" min="1" value="1" />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="maxListPages">Giới hạn số trang DS (0 = Hết)</label>
+            <input type="number" id="maxListPages" min="0" value="0" />
+          </div>
+          <div class="form-group">
+            <label for="maxCollectionsPerPage">Số Collection / lần (0 = Hết)</label>
+            <input type="number" id="maxCollectionsPerPage" min="0" value="0" />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="maxPagesPerCollection">Giới hạn số trang/lượt cuộn mỗi Collection (0 = Toàn bộ)</label>
+          <input type="number" id="maxPagesPerCollection" min="0" value="0" />
+        </div>
+
+        <label class="checkbox-label">
+          <input type="checkbox" id="skipCompletedCollections" checked />
+          <span>Bỏ qua các Collection đã crawl hoàn tất trước đó</span>
+        </label>
+      </div>
+
+      <div class="card">
+        <div class="card-title">
+          <span>2. Giả Lập Thao Tác Người Dùng Tự Nhiên</span>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="postLoadDelayMin">Chờ sau khi tải trang Min (ms)</label>
+            <input type="number" id="postLoadDelayMin" min="300" step="100" value="1800" />
+          </div>
+          <div class="form-group">
+            <label for="postLoadDelayMax">Chờ sau khi tải trang Max (ms)</label>
+            <input type="number" id="postLoadDelayMax" min="500" step="100" value="4000" />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="actionGapMin">Khoảng nghỉ thao tác Min (ms)</label>
+            <input type="number" id="actionGapMin" min="200" step="100" value="900" />
+          </div>
+          <div class="form-group">
+            <label for="actionGapMax">Khoảng nghỉ thao tác Max (ms)</label>
+            <input type="number" id="actionGapMax" min="400" step="100" value="2500" />
+          </div>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label for="downloadGapMin">Trễ giữa mỗi SVG Min (ms)</label>
+            <input type="number" id="downloadGapMin" min="20" step="20" value="120" />
+          </div>
+          <div class="form-group">
+            <label for="downloadGapMax">Trễ giữa mỗi SVG Max (ms)</label>
+            <input type="number" id="downloadGapMax" min="50" step="50" value="400" />
+          </div>
+        </div>
+
+        <label class="checkbox-label">
+          <input type="checkbox" id="enableMouseMovement" checked />
+          <span>Giả lập di chuột theo đường cong Bezier &amp; hover tự nhiên</span>
+        </label>
+
+        <label class="checkbox-label">
+          <input type="checkbox" id="enableRandomScroll" checked />
+          <span>Tự động cuộn trang xem danh sách SVG như người thật</span>
+        </label>
+
+        <label class="checkbox-label">
+          <input type="checkbox" id="showVisualCursor" checked />
+          <span>Hiển thị chấm con trỏ chuột ảo trên trình duyệt Chrome</span>
+        </label>
+
+        <label class="checkbox-label">
+          <input type="checkbox" id="headlessMode" />
+          <span>Chạy ẩn trình duyệt (Headless Mode)</span>
+        </label>
+
+        <div class="btn-group">
+          <button type="button" id="btnStart" class="btn-primary">▶️ Bắt đầu Crawl</button>
+          <button type="button" id="btnPause" class="btn-warning" disabled>⏸️ Tạm dừng</button>
+          <button type="button" id="btnResume" class="btn-primary" style="display:none">▶️ Tiếp tục</button>
+          <button type="button" id="btnStop" class="btn-danger" disabled>🛑 Dừng</button>
+        </div>
+
+        <div class="btn-group">
+          <button type="button" id="btnResetCheckpoint" class="btn-secondary btn-sm" style="width:100%">
+            🔄 Đặt lại trạng thái Checkpoint cho trang đang chọn
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <section aria-label="Tiến độ và Kết quả">
+      <div class="stats-grid">
+        <div class="stat-box">
+          <div class="stat-label">Trang / Bước hiện tại</div>
+          <div class="stat-value" id="statListPage">#1</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">Collection đang duyệt</div>
+          <div class="stat-value" id="statCurrentCol" style="font-size:1rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">—</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">Tổng Collection đã xong</div>
+          <div class="stat-value" id="statTotalCols">0</div>
+        </div>
+        <div class="stat-box">
+          <div class="stat-label">Tổng SVG đã tải (Site này)</div>
+          <div class="stat-value" id="statTotalIcons">0</div>
+        </div>
+      </div>
+
+      <div class="progress-section">
+        <div class="progress-header">
+          <strong id="currentActionLabel">Sẵn sàng bắt đầu phiên crawl...</strong>
+          <span id="collectionProgressNumbers" style="color:var(--text-muted)">0 / 0 SVG</span>
+        </div>
+        <progress id="collectionProgressBar" max="100" value="0" aria-label="Tiến độ tải SVG trong collection"></progress>
+      </div>
+
+      <div class="card">
+        <div class="card-title">
+          <span>⚡ SVG Vừa Tải Trực Tiếp (Real-time Feed)</span>
+          <span id="sessionCounterBadge" class="badge">Phiên này: 0 SVG</span>
+        </div>
+        <div id="liveIconsStrip" class="live-icons-strip scroller">
+          <span style="color:var(--text-muted);font-size:0.85rem">Các icon SVG tải về sẽ hiển thị trực tiếp tại đây...</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">
+          <span>📋 Nhật Ký Hoạt Động Trực Tiếp (Live Logs)</span>
+          <button type="button" id="btnClearLogs" class="btn-secondary btn-sm">Xóa log hiển thị</button>
+        </div>
+        <div id="logsContainer" class="logs-container scroller"></div>
+      </div>
+
+      <div class="card">
+        <div class="card-title">
+          <span>🗂️ Các Collection Đã Lưu Chung (output/)</span>
+          <button type="button" id="btnRefreshCollections" class="btn-secondary btn-sm">🔄 Làm mới danh sách</button>
+        </div>
+        <div id="collectionsGrid" class="collections-grid"></div>
+      </div>
+    </section>
+  </main>
+
+  <dialog id="collectionModal">
+    <div class="modal-header">
+      <div>
+        <h2 id="modalTitle" style="font-size:1.1rem">Chi tiết Collection</h2>
+        <p id="modalSubtitle" style="font-size:0.82rem;color:var(--text-muted)"></p>
+      </div>
+      <button type="button" id="btnCloseModal" class="btn-secondary btn-sm">✕ Đóng</button>
+    </div>
+    <div class="modal-body scroller" id="modalBody"></div>
+  </dialog>
+
+  <script src="/app.js"></script>
+</body>
+</html>

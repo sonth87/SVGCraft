@@ -1,0 +1,14 @@
+{
+  "name": "@svg-hub/web",
+  "version": "1.0.0",
+  "description": "theSVG-style Web Portal for browsing, searching, filtering, and discovering similar SVG icons",
+  "main": "src/server.js",
+  "scripts": {
+    "start": "node src/server.js",
+    "dev": "node --watch src/server.js"
+  },
+  "dependencies": {
+    "@svg-hub/shared": "*",
+    "express": "^4.21.2"
+  }
+}

@@ -1,0 +1,6 @@
+{
+  "name": "@svg-hub/shared",
+  "version": "1.0.0",
+  "description": "Shared storage, SVG metadata parser, taxonomy classifier, and similarity engine",
+  "main": "src/index.js"
+}

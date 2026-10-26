@@ -1,0 +1,32 @@
+# Environment & Secrets (NEVER COMMIT)
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*secret*
+*credentials*
+
+# Dependencies
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Crawled raw SVG files (stored on Cloudflare R2, not in Git)
+output/
+
+# Local runtime & crawler state / browser profiles
+data/browser-profile-*/
+data/crawl-state.json
+data/r2-sync-state.json
+
+# Keep compact catalog index for Vercel deployment
+!data/catalog-index.json.gz
+
+# OS & Editor files
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+.vercel/
