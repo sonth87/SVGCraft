@@ -45,6 +45,139 @@ function ensureDir(dirPath) {
   }
 }
 
+function cleanCollectionDisplayName(rawName, slug = '') {
+  const raw = String(rawName || slug || '').trim();
+  if (slug === 'brands-popular' || /^thesvg\s+brand\s+icons/i.test(raw)) {
+    return 'Popular Brand Logos (Full Set)';
+  }
+  return raw
+    .replace(/\s+PAGE\s*\d+\b/gi, '')
+    .replace(/\btheSVG\b/gi, 'Brand')
+    .replace(/\s{2,}/g, ' ')
+    .trim();
+}
+
+const VIRTUAL_BRAND_DEFINITIONS = [
+  {
+    slug: 'brand-openai',
+    name: 'OpenAI & ChatGPT Ecosystem',
+    primaryCategory: 'ai',
+    regex: /\b(openai|chatgpt|gpt|dall-e|whisper|sora)\b/i,
+  },
+  {
+    slug: 'brand-github',
+    name: 'GitHub & Git Ecosystem',
+    primaryCategory: 'dev',
+    regex: /\b(github|gitlab|git|bitbucket|octocat|dependabot|codespaces|gitea)\b/i,
+  },
+  {
+    slug: 'brand-docker',
+    name: 'Docker & Container Ecosystem',
+    primaryCategory: 'cloud',
+    regex: /\b(docker|podman|containerd|portainer|rancher|helm)\b/i,
+  },
+  {
+    slug: 'brand-cloudflare',
+    name: 'Cloudflare, Netlify & Edge Hosting',
+    primaryCategory: 'cloud',
+    regex: /\b(cloudflare|netlify|heroku|digitalocean|linode|vultr|render|railway|fly-io|fastly|akamai)\b/i,
+  },
+  {
+    slug: 'brand-firebase',
+    name: 'Firebase, Supabase & BaaS',
+    primaryCategory: 'cloud',
+    regex: /\b(firebase|supabase|appwrite|pocketbase|amplify|auth0|clerk)\b/i,
+  },
+  {
+    slug: 'brand-linux',
+    name: 'Linux Distros & Open Source OS',
+    primaryCategory: 'dev',
+    regex: /\b(linux|ubuntu|debian|fedora|arch-linux|centos|redhat|kali|alpine|nixos|suse|manjaro|raspbian|freebsd|tux|gnome|kde)\b/i,
+  },
+  {
+    slug: 'brand-react',
+    name: 'React, Next.js & Modern Web',
+    primaryCategory: 'dev',
+    regex: /\b(react|nextjs|next-js|redux|remix|gatsby|preact|react-router|tailwind|tailwindcss|vite|astro|solidjs)\b/i,
+  },
+  {
+    slug: 'brand-vue',
+    name: 'Vue, Nuxt, Angular & Svelte',
+    primaryCategory: 'dev',
+    regex: /\b(vue|vuejs|nuxt|nuxtjs|pinia|vuetify|vitepress|angular|svelte)\b/i,
+  },
+  {
+    slug: 'brand-js-ts',
+    name: 'JavaScript, TypeScript & Node.js',
+    primaryCategory: 'dev',
+    regex: /\b(javascript|typescript|nodejs|node-js|npm|pnpm|yarn|bun|deno|webpack|babel|eslint|prettier)\b/i,
+  },
+  {
+    slug: 'brand-python',
+    name: 'Python, PyTorch & Data Science',
+    primaryCategory: 'ai',
+    regex: /\b(python|django|flask|fastapi|pytorch|tensorflow|pandas|numpy|jupyter|anaconda|scikit|keras|huggingface|opencv)\b/i,
+  },
+  {
+    slug: 'brand-database',
+    name: 'PostgreSQL, MongoDB, Redis & Databases',
+    primaryCategory: 'cloud',
+    regex: /\b(postgresql|postgres|mysql|mariadb|mongodb|redis|sqlite|cassandra|neo4j|dynamodb|cockroachdb|Clickhouse|prisma|drizzle|elasticsearch)\b/i,
+  },
+  {
+    slug: 'brand-crypto',
+    name: 'Bitcoin, Ethereum & Web3 Brands',
+    primaryCategory: 'finance',
+    regex: /\b(bitcoin|btc|ethereum|eth|solana|binance|polygon|tether|usdt|cardano|ripple|xrp|dogecoin|polkadot|litecoin|avalanche|chainlink|uniswap|metamask|coinbase)\b/i,
+  },
+  {
+    slug: 'brand-payments',
+    name: 'Stripe, PayPal, Visa & FinTech',
+    primaryCategory: 'finance',
+    regex: /\b(stripe|paypal|visa|mastercard|amex|american-express|apple-pay|google-pay|alipay|wechat-pay|wise|revolut|klarna|shopify|adyen|braintree)\b/i,
+  },
+  {
+    slug: 'brand-figma',
+    name: 'Figma, Canva, Blender & Creative Tools',
+    primaryCategory: 'design',
+    regex: /\b(figma|sketch|canva|framer|invision|zeplin|dribbble|behance|blender|unity|unreal)\b/i,
+  },
+  {
+    slug: 'brand-social',
+    name: 'YouTube, Discord, X & Social Media',
+    primaryCategory: 'communication',
+    regex: /\b(youtube|tiktok|discord|telegram|whatsapp|instagram|facebook|twitter|linkedin|reddit|pinterest|snapchat|twitch|threads|mastodon|bluesky|spotify)\b/i,
+  },
+  {
+    slug: 'brand-gaming',
+    name: 'Steam, PlayStation, Xbox & Gaming',
+    primaryCategory: 'brand',
+    regex: /\b(steam|playstation|xbox|nintendo|epic-games|riot|blizzard|ubisoft|ea|activision|itch-io|roblox|minecraft|valorant)\b/i,
+  },
+  {
+    slug: 'brand-hardware',
+    name: 'NVIDIA, Intel, AMD & Semiconductors',
+    primaryCategory: 'brand',
+    regex: /\b(nvidia|intel|amd|arm|qualcomm|samsung|lg|dell|hp|lenovo|asus|acer|msi|raspberry-pi|arduino| logitech|razer|corsair)\b/i,
+  },
+  {
+    slug: 'brand-productivity',
+    name: 'Notion, Slack, Linear & Workspace',
+    primaryCategory: 'interface',
+    regex: /\b(notion|slack|linear|asana|trello|monday|clickup|airtable|obsidian|evernote|zoom|miro|loom|calendly|intercom|zendesk|hubspot)\b/i,
+  },
+];
+
+function isBrandPoolIcon(ic) {
+  return (
+    ic.iconType === 'brand-logo' ||
+    ic.category === 'brand' ||
+    ic.collectionSlug === 'brands-popular' ||
+    ic.collectionSlug.startsWith('family-') ||
+    /brand|logo/i.test(ic.collectionSlug)
+  );
+}
+
 class StateManager {
   constructor() {
     ensureDir(DATA_DIR);
@@ -402,11 +535,12 @@ class StateManager {
     const meta = this.loadCollectionMetadata(sId, cSlug);
     if (!meta) return null;
 
+    const resolvedSlug = meta.collection?.slug || cSlug;
     const colInfo = {
       site: sId,
       ...meta.collection,
-      slug: meta.collection?.slug || cSlug,
-      name: meta.collection?.name || cSlug,
+      slug: resolvedSlug,
+      name: cleanCollectionDisplayName(meta.collection?.name || cSlug, resolvedSlug),
       downloadedIconsCount: (meta.icons || []).length,
     };
 
@@ -448,11 +582,12 @@ class StateManager {
     const meta = this.loadCollectionMetadata(sId, cSlug);
     if (!meta) return null;
 
+    const resolvedSlug = meta.collection?.slug || cSlug;
     const colInfo = {
       site: sId,
       ...meta.collection,
-      slug: meta.collection?.slug || cSlug,
-      name: meta.collection?.name || cSlug,
+      slug: resolvedSlug,
+      name: cleanCollectionDisplayName(meta.collection?.name || cSlug, resolvedSlug),
       downloadedIconsCount: (meta.icons || []).length,
     };
 
@@ -535,8 +670,8 @@ class StateManager {
       const colObj = {
         site,
         slug,
-        name: name || slug,
-        author: author || (site === 'thesvg' ? 'theSVG' : 'SVG Repo'),
+        name: cleanCollectionDisplayName(name || slug, slug),
+        author: author || 'Open Source',
         license: license || 'MIT / CC0',
         downloadedIconsCount: count || 0,
         totalIcons: count || 0,
@@ -574,13 +709,13 @@ class StateManager {
         rawCategory: '',
         styleType: styleType || 'filled',
         iconType: iconType || 'ui-icon',
-        author: colObj?.author || (siteId === 'thesvg' ? 'theSVG' : 'SVG Repo'),
+        author: colObj?.author || 'Open Source',
         license: colObj?.license || 'MIT / CC0',
         tags: extractTagsFromText(slug, title, colSlug),
         _ts: 1700000000000 - idx,
         site: siteId,
         collectionSlug: colSlug,
-        collectionName: colObj?.name || colSlug,
+        collectionName: colObj?.name || cleanCollectionDisplayName(colSlug, colSlug),
         assetUrl: this.buildAssetUrl(siteId, colSlug, relativePath),
       };
     });
@@ -692,9 +827,12 @@ class StateManager {
       }
     }
 
+    const brandsDir = this.getBrandsDirectory();
+
     const summary = {
       totalIcons: allIcons.length,
       totalCollections: collections.length,
+      totalBrands: brandsDir.length,
       categories: CATEGORY_DEFINITIONS.map((c) => ({
         id: c.id,
         label: c.label,
@@ -820,21 +958,44 @@ class StateManager {
     }
 
     const { allIcons, collections } = this.loadAllEnrichedIcons();
-    const foundCol = collections.find(
-      (c) => c.slug === collectionSlug && (!targetSite || targetSite === 'any' || c.site === targetSite)
-    ) || collections.find((c) => c.slug === collectionSlug);
+    const virtualBrand = VIRTUAL_BRAND_DEFINITIONS.find((b) => b.slug === collectionSlug);
 
-    if (!entry && foundCol) {
-      targetSite = foundCol.site;
-      entry = this._getCachedCollectionEntry(targetSite, collectionSlug);
+    let colInfo = null;
+    let allColIcons = [];
+
+    if (virtualBrand) {
+      targetSite = 'any';
+      allColIcons = allIcons.filter(
+        (ic) => isBrandPoolIcon(ic) && virtualBrand.regex.test(`${ic.slug} ${ic.title}`)
+      );
+      colInfo = {
+        site: 'any',
+        slug: virtualBrand.slug,
+        name: virtualBrand.name,
+        author: 'Open Source',
+        license: 'Brand Trademarks / MIT',
+        downloadedIconsCount: allColIcons.length,
+        totalIcons: allColIcons.length,
+      };
+    } else {
+      const foundCol =
+        collections.find(
+          (c) => c.slug === collectionSlug && (!targetSite || targetSite === 'any' || c.site === targetSite)
+        ) || collections.find((c) => c.slug === collectionSlug);
+
+      if (!entry && foundCol) {
+        targetSite = foundCol.site;
+        entry = this._getCachedCollectionEntry(targetSite, collectionSlug);
+      }
+
+      if (!entry && !foundCol) return null;
+
+      colInfo = entry ? entry.colInfo : foundCol;
+      allColIcons = entry
+        ? entry.enrichedIcons || []
+        : allIcons.filter((ic) => ic.site === targetSite && ic.collectionSlug === collectionSlug);
     }
 
-    if (!entry && !foundCol) return null;
-
-    const colInfo = entry ? entry.colInfo : foundCol;
-    const allColIcons = entry
-      ? entry.enrichedIcons || []
-      : allIcons.filter((ic) => ic.site === targetSite && ic.collectionSlug === collectionSlug);
     const query = String(q || '').trim().toLowerCase();
 
     const styleCounts = {};
@@ -897,9 +1058,10 @@ class StateManager {
 
     const colAggMap = new Map();
     for (const c of collections) {
+      const cleanName = cleanCollectionDisplayName(c.name || c.slug, c.slug);
       colAggMap.set(`${c.site}:${c.slug}`, {
         slug: c.slug,
-        name: c.name || c.slug,
+        name: cleanName,
         license: c.license || 'MIT / CC0',
         author: c.author || 'Open Source',
         count: 0,
@@ -907,7 +1069,7 @@ class StateManager {
         styleCounts: {},
         typeCounts: {},
         sampleIcons: [],
-        keywordSet: new Set([String(c.name || '').toLowerCase(), String(c.slug || '').toLowerCase()]),
+        keywordSet: new Set([String(cleanName).toLowerCase(), String(c.slug || '').toLowerCase()]),
       });
     }
 
@@ -915,9 +1077,10 @@ class StateManager {
       const key = `${ic.site}:${ic.collectionSlug}`;
       let agg = colAggMap.get(key);
       if (!agg) {
+        const cleanName = cleanCollectionDisplayName(ic.collectionName || ic.collectionSlug, ic.collectionSlug);
         agg = {
           slug: ic.collectionSlug,
-          name: ic.collectionName || ic.collectionSlug,
+          name: cleanName,
           license: ic.license || 'MIT / CC0',
           author: ic.author || 'Open Source',
           count: 0,
@@ -925,7 +1088,7 @@ class StateManager {
           styleCounts: {},
           typeCounts: {},
           sampleIcons: [],
-          keywordSet: new Set([String(ic.collectionName || '').toLowerCase(), String(ic.collectionSlug || '').toLowerCase()]),
+          keywordSet: new Set([String(cleanName).toLowerCase(), String(ic.collectionSlug || '').toLowerCase()]),
         };
         colAggMap.set(key, agg);
       }
@@ -992,9 +1155,121 @@ class StateManager {
   }
 
   /**
-   * Filter, search, sort, and paginate collections for SVGRepo-style Category/Collection view mode
+   * Build and cache Brand Ecosystems & Logo Collections Directory for 'brands' view mode
+   */
+  getBrandsDirectory() {
+    const { allIcons } = this.loadAllEnrichedIcons();
+    if (this._catalogSnapshot && this._catalogSnapshot.brandsDirectory) {
+      return this._catalogSnapshot.brandsDirectory;
+    }
+
+    const allCollectionsDir = this.getCollectionsDirectory();
+    const brandsList = [];
+    const seenSlugs = new Set();
+
+    // 1. Official Brand Families (family-google, family-microsoft, family-apple, family-adobe, family-aws, etc.)
+    const cloudBrandSlugs = new Set(['aws', 'azure', 'gcp', 'k8s', 'auth-badges']);
+    for (const col of allCollectionsDir) {
+      if (col.slug.startsWith('family-') || cloudBrandSlugs.has(col.slug)) {
+        seenSlugs.add(col.slug);
+        brandsList.push({
+          ...col,
+          isBrandGroup: true,
+          brandTier: col.slug.startsWith('family-') ? 1 : 2,
+        });
+      }
+    }
+
+    // 2. Curated Virtual Brand Ecosystems (OpenAI, GitHub, Docker, Cloudflare, React, Crypto, Payments, etc.)
+    const brandPool = allIcons.filter(isBrandPoolIcon);
+    for (const vDef of VIRTUAL_BRAND_DEFINITIONS) {
+      const matched = brandPool.filter((ic) => vDef.regex.test(`${ic.slug} ${ic.title}`));
+      if (matched.length === 0) continue;
+
+      const categoryCounts = {};
+      const styleCounts = {};
+      const typeCounts = {};
+      const sampleIcons = [];
+      const keywordSet = new Set([vDef.name.toLowerCase(), vDef.slug.toLowerCase()]);
+
+      for (const ic of matched) {
+        if (ic.category) categoryCounts[ic.category] = (categoryCounts[ic.category] || 0) + 1;
+        if (ic.styleType) styleCounts[ic.styleType] = (styleCounts[ic.styleType] || 0) + 1;
+        if (ic.iconType) typeCounts[ic.iconType] = (typeCounts[ic.iconType] || 0) + 1;
+        if (sampleIcons.length < 8) {
+          sampleIcons.push({
+            id: ic.id,
+            slug: ic.slug,
+            title: ic.title,
+            assetUrl: ic.assetUrl,
+            styleType: ic.styleType,
+            category: ic.category,
+          });
+        }
+        if (keywordSet.size < 40 && ic.title) {
+          keywordSet.add(String(ic.title).toLowerCase());
+        }
+      }
+
+      const sortedCats = Object.entries(categoryCounts).sort((a, b) => b[1] - a[1]);
+      const sortedStyles = Object.entries(styleCounts).sort((a, b) => b[1] - a[1]);
+
+      seenSlugs.add(vDef.slug);
+      brandsList.push({
+        slug: vDef.slug,
+        name: vDef.name,
+        license: 'Brand Trademarks / MIT',
+        count: matched.length,
+        primaryCategory: vDef.primaryCategory || sortedCats[0]?.[0] || 'brand',
+        primaryStyle: sortedStyles[0]?.[0] || 'multicolor',
+        primaryIconType: 'brand-logo',
+        categories: sortedCats.map(([id, count]) => ({ id, count })),
+        styles: sortedStyles.map(([id, count]) => ({ id, count })),
+        categoryCounts,
+        styleCounts,
+        typeCounts,
+        sampleIcons,
+        isBrandGroup: true,
+        brandTier: 1,
+        _searchText: Array.from(keywordSet).join(' '),
+      });
+    }
+
+    // 3. Dedicated Brand & Company Logo Packs from the catalog
+    for (const col of allCollectionsDir) {
+      if (seenSlugs.has(col.slug)) continue;
+      const isBrandCol =
+        col.primaryCategory === 'brand' ||
+        col.primaryIconType === 'brand-logo' ||
+        /\b(brand|brands|logo|logos)\b/i.test(col.slug) ||
+        /\b(brand|brands|logo|logos)\b/i.test(col.name);
+      if (isBrandCol) {
+        seenSlugs.add(col.slug);
+        brandsList.push({
+          ...col,
+          isBrandGroup: true,
+          brandTier: 3,
+        });
+      }
+    }
+
+    brandsList.sort((a, b) => {
+      if (a.brandTier !== b.brandTier) return a.brandTier - b.brandTier;
+      return b.count - a.count;
+    });
+
+    if (this._catalogSnapshot) {
+      this._catalogSnapshot.brandsDirectory = brandsList;
+    }
+
+    return brandsList;
+  }
+
+  /**
+   * Filter, search, sort, and paginate collections or brands
    */
   queryCollections({
+    mode = 'collections',
     q = '',
     category = '',
     styleType = '',
@@ -1004,7 +1279,8 @@ class StateManager {
     offset = 0,
     limit = 24,
   } = {}) {
-    const directory = this.getCollectionsDirectory();
+    const isBrandsMode = mode === 'brands';
+    const directory = isBrandsMode ? this.getBrandsDirectory() : this.getCollectionsDirectory();
     const query = String(q || '').trim().toLowerCase();
 
     const filtered = directory.filter((col) => {
@@ -1034,6 +1310,13 @@ class StateManager {
         if (aPrimary !== bPrimary) return bPrimary - aPrimary;
         return (b.categoryCounts[category] || 0) - (a.categoryCounts[category] || 0);
       });
+    } else if (isBrandsMode) {
+      filtered.sort((a, b) => {
+        if ((a.brandTier || 3) !== (b.brandTier || 3)) {
+          return (a.brandTier || 3) - (b.brandTier || 3);
+        }
+        return b.count - a.count;
+      });
     } else {
       filtered.sort((a, b) => b.count - a.count);
     }
@@ -1041,7 +1324,9 @@ class StateManager {
     const total = filtered.length;
     const safeOffset = Number(offset) || 0;
     const safeLimit = Number(limit) || 24;
-    const items = filtered.slice(safeOffset, safeOffset + safeLimit).map(({ _searchText, categoryCounts, styleCounts, typeCounts, ...publicCol }) => publicCol);
+    const items = filtered
+      .slice(safeOffset, safeOffset + safeLimit)
+      .map(({ _searchText, categoryCounts, styleCounts, typeCounts, ...publicCol }) => publicCol);
 
     return {
       total,

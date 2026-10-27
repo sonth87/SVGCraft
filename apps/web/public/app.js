@@ -91,6 +91,8 @@
   const navAllIcons = document.getElementById('navAllIcons');
   const navCollectionsDirectory = document.getElementById('navCollectionsDirectory');
   const sidebarCountCollections = document.getElementById('sidebarCountCollections');
+  const navBrandsDirectory = document.getElementById('navBrandsDirectory');
+  const sidebarCountBrands = document.getElementById('sidebarCountBrands');
   const navFavorites = document.getElementById('navFavorites');
   const sidebarCategories = document.getElementById('sidebarCategories');
   const btnResetCategory = document.getElementById('btnResetCategory');
@@ -124,6 +126,7 @@
   const viewModeSwitcher = document.getElementById('viewModeSwitcher');
   const btnViewModeIcons = document.getElementById('btnViewModeIcons');
   const btnViewModeCollections = document.getElementById('btnViewModeCollections');
+  const btnViewModeBrands = document.getElementById('btnViewModeBrands');
   const resultsUnitLabel = document.getElementById('resultsUnitLabel');
 
   const alphabetBar = document.getElementById('alphabetBar');
@@ -143,7 +146,7 @@
 
   const PAGE_SIZE = 72;
   const COLLECTIONS_PAGE_SIZE = 36;
-  let viewMode = 'icons'; // 'icons' | 'collections'
+  let viewMode = 'icons'; // 'icons' | 'collections' | 'brands'
   let currentOffset = 0;
   let totalMatched = 0;
   let lastScrollFetchTs = 0;
@@ -641,6 +644,9 @@
     if (sidebarCountCollections) {
       sidebarCountCollections.textContent = totalColsCount.toLocaleString();
     }
+    if (sidebarCountBrands) {
+      sidebarCountBrands.textContent = (catalogSummary.totalBrands || 79).toLocaleString();
+    }
 
     // 1. Left Sidebar: Categories only (with custom SVG icons)
     sidebarCategories.innerHTML = (catalogSummary.categories || [])
@@ -710,22 +716,35 @@
         viewMode === 'collections' && !activeCollectionState && !filters.onlyFavorites
       );
     }
+    if (navBrandsDirectory) {
+      navBrandsDirectory.classList.toggle(
+        'active',
+        viewMode === 'brands' && !activeCollectionState && !filters.onlyFavorites
+      );
+    }
     navFavorites.classList.toggle('active', filters.onlyFavorites);
     btnResetCategory.style.display = filters.category ? 'inline-block' : 'none';
 
-    if (btnViewModeIcons && btnViewModeCollections) {
-      const isColMode = viewMode === 'collections';
-      btnViewModeIcons.classList.toggle('active', !isColMode);
-      btnViewModeIcons.setAttribute('aria-selected', String(!isColMode));
-      btnViewModeCollections.classList.toggle('active', isColMode);
-      btnViewModeCollections.setAttribute('aria-selected', String(isColMode));
+    const isDirMode = viewMode === 'collections' || viewMode === 'brands';
+    if (btnViewModeIcons) {
+      btnViewModeIcons.classList.toggle('active', viewMode === 'icons');
+      btnViewModeIcons.setAttribute('aria-selected', String(viewMode === 'icons'));
+    }
+    if (btnViewModeCollections) {
+      btnViewModeCollections.classList.toggle('active', viewMode === 'collections');
+      btnViewModeCollections.setAttribute('aria-selected', String(viewMode === 'collections'));
+    }
+    if (btnViewModeBrands) {
+      btnViewModeBrands.classList.toggle('active', viewMode === 'brands');
+      btnViewModeBrands.setAttribute('aria-selected', String(viewMode === 'brands'));
     }
     if (resultsUnitLabel) {
-      resultsUnitLabel.textContent = viewMode === 'collections' ? 'bộ sưu tập' : 'icons';
+      resultsUnitLabel.textContent =
+        viewMode === 'brands' ? 'thương hiệu' : viewMode === 'collections' ? 'bộ sưu tập' : 'icons';
     }
     if (iconsGrid && collectionsDirectoryGrid) {
-      iconsGrid.style.display = viewMode === 'collections' ? 'none' : 'grid';
-      collectionsDirectoryGrid.style.display = viewMode === 'collections' ? 'grid' : 'none';
+      iconsGrid.style.display = isDirMode ? 'none' : 'grid';
+      collectionsDirectoryGrid.style.display = isDirMode ? 'grid' : 'none';
     }
 
     sidebarCategories.querySelectorAll('[data-filter-cat]').forEach((el) => {
@@ -937,9 +956,11 @@
     if (chips.length === 0) {
       activeFiltersBar.style.display = 'none';
       heroHeading.textContent =
-        viewMode === 'collections'
-          ? 'Khám phá Bộ sưu tập Vector theo Chủ đề & Phong cách.'
-          : '500.000+ Vector Icons. Inspect. Customize. Ship.';
+        viewMode === 'brands'
+          ? 'Khám phá Logo & Hệ sinh thái Thương hiệu.'
+          : viewMode === 'collections'
+            ? 'Khám phá Bộ sưu tập Vector theo Chủ đề & Phong cách.'
+            : '500.000+ Vector Icons. Inspect. Customize. Ship.';
       return;
     }
 
@@ -963,7 +984,9 @@
   // ============================================================================
   function buildCatalogUrlFromFilters() {
     const params = new URLSearchParams();
-    if (viewMode === 'collections') params.set('view', 'collections');
+    if (viewMode === 'collections' || viewMode === 'brands') {
+      params.set('view', viewMode);
+    }
     if (filters.q) params.set('q', filters.q);
     if (filters.category) params.set('category', filters.category);
     if (filters.styleType) params.set('style', filters.styleType);
@@ -1017,7 +1040,8 @@
 
   function readCatalogFiltersFromUrl() {
     const params = new URLSearchParams(window.location.search);
-    viewMode = params.get('view') === 'collections' ? 'collections' : 'icons';
+    const urlView = params.get('view');
+    viewMode = urlView === 'collections' || urlView === 'brands' ? urlView : 'icons';
     filters = {
       q: params.get('q') || '',
       category: params.get('category') || '',
@@ -1143,8 +1167,8 @@
   }
 
   function setCatalogViewMode(nextMode) {
-    if (nextMode !== 'icons' && nextMode !== 'collections') return;
-    if (nextMode === 'collections' && filters.onlyFavorites) {
+    if (nextMode !== 'icons' && nextMode !== 'collections' && nextMode !== 'brands') return;
+    if ((nextMode === 'collections' || nextMode === 'brands') && filters.onlyFavorites) {
       filters.onlyFavorites = false;
     }
     viewMode = nextMode;
@@ -1175,7 +1199,8 @@
     updateNavActiveStates();
     if (pushHistory) {
       syncCatalogUrl(true);
-      const activeGrid = viewMode === 'collections' ? collectionsDirectoryGrid : iconsGrid;
+      const isDirMode = viewMode === 'collections' || viewMode === 'brands';
+      const activeGrid = isDirMode ? collectionsDirectoryGrid : iconsGrid;
       if (activeGrid && !activeGrid.children.length) {
         loadCatalogData(true);
       }
@@ -1185,15 +1210,17 @@
   let isLoadingMore = false;
 
   async function loadCatalogData(resetOffset = true, opts = {}) {
-    if (viewMode === 'collections') {
+    if (viewMode === 'collections' || viewMode === 'brands') {
       return loadCollectionsDirectory(resetOffset, opts);
     }
     return loadIcons(resetOffset, opts);
   }
 
-  // Load SVGRepo-style Collections Directory from API
+  // Load SVGRepo-style Collections or Brands Directory from API
   async function loadCollectionsDirectory(resetOffset = true, { bypassCache = false } = {}) {
     if (!resetOffset && isLoadingMore) return;
+    const isBrands = viewMode === 'brands';
+    const unitNoun = isBrands ? 'thương hiệu' : 'bộ sưu tập';
     if (resetOffset) {
       currentOffset = 0;
       if (activeIconsAbortController) {
@@ -1202,13 +1229,14 @@
       activeIconsAbortController = new AbortController();
     } else {
       isLoadingMore = true;
-      loadMoreLabel.textContent = 'Đang tự động tải thêm bộ sưu tập...';
+      loadMoreLabel.textContent = `Đang tự động tải thêm ${unitNoun}...`;
     }
 
     const signal = resetOffset && activeIconsAbortController ? activeIconsAbortController.signal : undefined;
 
     try {
       const params = new URLSearchParams({
+        mode: isBrands ? 'brands' : 'collections',
         q: filters.q,
         category: filters.category,
         styleType: filters.styleType,
@@ -1236,7 +1264,7 @@
 
       if (currentCollections.length < totalMatched) {
         loadMoreWrap.style.display = 'flex';
-        loadMoreLabel.textContent = `Cuộn xuống để tải thêm (${currentCollections.length.toLocaleString()} / ${totalMatched.toLocaleString()} bộ sưu tập)`;
+        loadMoreLabel.textContent = `Cuộn xuống để tải thêm (${currentCollections.length.toLocaleString()} / ${totalMatched.toLocaleString()} ${unitNoun})`;
       } else {
         loadMoreWrap.style.display = 'none';
       }
@@ -1296,16 +1324,17 @@
 
   function renderCollectionsDirectoryGrid(cols, append = false) {
     if (!collectionsDirectoryGrid) return;
+    const isBrands = viewMode === 'brands';
     if (!append && !cols.length) {
       collectionsDirectoryGrid.innerHTML = `
         <div style="grid-column:1/-1;text-align:center;padding:56px 20px;color:var(--text-muted);border:1px dashed var(--border-subtle);border-radius:16px">
           <div style="display:inline-flex;padding:12px;border-radius:12px;background:var(--bg-card);margin-bottom:10px;color:var(--brand-orange)">
-            ${ICONS.folder}
+            ${isBrands ? ICONS.hexagon : ICONS.folder}
           </div>
-          <p style="font-size:1rem;font-weight:600;color:var(--text-main);margin-bottom:6px">Không tìm thấy Bộ sưu tập nào khớp bộ lọc</p>
-          <p style="font-size:0.83rem;margin-bottom:16px">Hãy thử chọn chủ đề khác hoặc đặt lại bộ lọc để xem toàn bộ ${
-            (catalogSummary?.totalCollections || 1567).toLocaleString()
-          } bộ sưu tập.</p>
+          <p style="font-size:1rem;font-weight:600;color:var(--text-main);margin-bottom:6px">Không tìm thấy ${
+            isBrands ? 'Thương hiệu' : 'Bộ sưu tập'
+          } nào khớp bộ lọc</p>
+          <p style="font-size:0.83rem;margin-bottom:16px">Hãy thử chọn chủ đề khác hoặc đặt lại bộ lọc để xem toàn bộ danh sách.</p>
           <button type="button" class="pill-btn active" id="btnEmptyColResetFilters">Đặt lại bộ lọc</button>
         </div>
       `;
@@ -1420,7 +1449,7 @@
     ) {
       return;
     }
-    if (viewMode === 'collections') {
+    if (viewMode === 'collections' || viewMode === 'brands') {
       if (currentCollections.length >= totalMatched) return;
       lastScrollFetchTs = now;
       currentOffset += COLLECTIONS_PAGE_SIZE;
@@ -2722,6 +2751,12 @@
   if (navCollectionsDirectory) {
     navCollectionsDirectory.addEventListener('click', () => {
       setCatalogViewMode('collections');
+    });
+  }
+
+  if (navBrandsDirectory) {
+    navBrandsDirectory.addEventListener('click', () => {
+      setCatalogViewMode('brands');
     });
   }
 

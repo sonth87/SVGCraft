@@ -15,6 +15,7 @@ export async function GET(request) {
     const safeQ = String(searchParams.get('q') || '').slice(0, 80);
 
     const result = stateManager.queryCollections({
+      mode: searchParams.get('mode') === 'brands' ? 'brands' : 'collections',
       q: safeQ,
       category: searchParams.get('category') || '',
       styleType: searchParams.get('styleType') || '',

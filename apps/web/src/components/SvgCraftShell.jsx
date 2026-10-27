@@ -273,7 +273,7 @@ export default function SvgCraftShell() {
                       <rect width="7" height="7" x="14" y="14" rx="1.5" />
                       <rect width="7" height="7" x="3" y="14" rx="1.5" />
                     </svg>
-                    <span>Dàn trải Icons</span>
+                    <span>Icons</span>
                   </button>
                   <button
                     type="button"
@@ -297,7 +297,31 @@ export default function SvgCraftShell() {
                       <path d="M20 20a2 2 0 0 0 2-2V8a2 2 0 0 0-2-2h-7.9a2 2 0 0 1-1.69-.9L9.6 3.9A2 2 0 0 0 7.93 3H4a2 2 0 0 0-2 2v13a2 2 0 0 0 2 2Z" />
                       <path d="M2 10h20" />
                     </svg>
-                    <span>Theo Chủ đề &amp; Bộ sưu tập</span>
+                    <span>Bộ sưu tập</span>
+                  </button>
+                  <button
+                    type="button"
+                    className="view-mode-btn"
+                    id="btnViewModeBrands"
+                    data-view-mode="brands"
+                    role="tab"
+                    aria-selected="false"
+                  >
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      width="14"
+                      height="14"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      strokeWidth="2"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                    >
+                      <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z" />
+                      <circle cx="12" cy="12" r="3" />
+                    </svg>
+                    <span>Thương hiệu</span>
                   </button>
                 </div>
 
