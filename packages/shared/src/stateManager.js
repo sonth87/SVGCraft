@@ -57,124 +57,371 @@ function cleanCollectionDisplayName(rawName, slug = '') {
     .trim();
 }
 
-const VIRTUAL_BRAND_DEFINITIONS = [
+const BRAND_ECOSYSTEM_DEFINITIONS = [
+  // Tier 1: Flagship Tech Corporations & AI Ecosystems
+  {
+    slug: 'family-google',
+    name: 'Google (Gmail, YouTube, Android, Chrome, Gemini)',
+    primaryCategory: 'brand',
+    tier: 1,
+    regex:
+      /\b(google|gmail|youtube|android|chrome|chromium|firebase|flutter|golang|angular|tensorflow|gemini|bard|waymo|waze|fitbit|nest|chromecast|adsense|adwords|playstore|google-play|google-drive|google-maps|google-meet|google-photos|google-cloud)\b/i,
+  },
+  {
+    slug: 'family-microsoft',
+    name: 'Microsoft (Windows, VS Code, Office, Xbox, GitHub)',
+    primaryCategory: 'brand',
+    tier: 1,
+    regex:
+      /\b(microsoft|windows|xbox|vscode|visual-studio|github|linkedin|skype|bing|office|outlook|onedrive|sharepoint|teams|powerbi|dotnet|typescript|npm|nuget|hololens|edge)\b/i,
+  },
+  {
+    slug: 'family-apple',
+    name: 'Apple (macOS, iOS, iPhone, Safari, Xcode, Swift)',
+    primaryCategory: 'brand',
+    tier: 1,
+    regex:
+      /\b(apple|ios|macos|mac|iphone|ipad|ipod|itunes|icloud|safari|swift|xcode|app-store|appstore|airplay|airpods|apple-pay|apple-music|apple-tv|siri|testflight|watchos|homekit|finder)\b/i,
+  },
+  {
+    slug: 'family-amazon',
+    name: 'Amazon (Prime, Twitch, Alexa, Kindle, Audible)',
+    primaryCategory: 'brand',
+    tier: 1,
+    regex: /\b(amazon|prime|twitch|audible|kindle|alexa|goodreads|imdb|whole-foods|ring|zappos)\b/i,
+  },
+  {
+    slug: 'family-meta',
+    name: 'Meta (Facebook, Instagram, WhatsApp, Threads, React)',
+    primaryCategory: 'brand',
+    tier: 1,
+    regex: /\b(meta|facebook|instagram|whatsapp|messenger|threads|oculus|pytorch|react|graphql)\b/i,
+  },
+  {
+    slug: 'family-adobe',
+    name: 'Adobe (Photoshop, Illustrator, Premiere, Lightroom)',
+    primaryCategory: 'design',
+    tier: 1,
+    regex:
+      /\b(adobe|photoshop|illustrator|indesign|premiere|after-effects|lightroom|xd|acrobat|creative-cloud|behance|dreamweaver|audition|animate|magento|frame-io)\b/i,
+  },
   {
     slug: 'brand-openai',
-    name: 'OpenAI & ChatGPT Ecosystem',
+    name: 'OpenAI (ChatGPT, GPT-4, Sora, Whisper, DALL·E)',
     primaryCategory: 'ai',
+    tier: 1,
     regex: /\b(openai|chatgpt|gpt|dall-e|whisper|sora)\b/i,
   },
   {
-    slug: 'brand-github',
-    name: 'GitHub & Git Ecosystem',
+    slug: 'family-anthropic',
+    name: 'Anthropic & Claude AI',
+    primaryCategory: 'ai',
+    tier: 1,
+    regex: /\b(anthropic|claude)\b/i,
+  },
+  {
+    slug: 'family-xai',
+    name: 'xAI, Grok & X (Twitter)',
+    primaryCategory: 'ai',
+    tier: 1,
+    regex: /\b(xai|grok|twitter|x-corp|periscope|tweetdeck)\b/i,
+  },
+  {
+    slug: 'family-vercel',
+    name: 'Vercel, Next.js & Turborepo',
     primaryCategory: 'dev',
-    regex: /\b(github|gitlab|git|bitbucket|octocat|dependabot|codespaces|gitea)\b/i,
+    tier: 1,
+    regex: /\b(vercel|nextjs|next-js|turborepo|turbo|v0|swr|zeit)\b/i,
+  },
+  {
+    slug: 'family-jetbrains',
+    name: 'JetBrains (IntelliJ, WebStorm, PyCharm, Kotlin)',
+    primaryCategory: 'dev',
+    tier: 1,
+    regex:
+      /\b(jetbrains|intellij|pycharm|webstorm|phpstorm|goland|rider|clion|rubymine|datagrip|kotlin|resharper|youtrack|teamcity|fleet)\b/i,
+  },
+  {
+    slug: 'family-ibm',
+    name: 'IBM, Red Hat & HashiCorp (Terraform, Vault, Consul)',
+    primaryCategory: 'cloud',
+    tier: 1,
+    regex:
+      /\b(ibm|redhat|red-hat|hashicorp|terraform|vagrant|vault|consul|nomad|packer|openshift|watson|fedora|ansible)\b/i,
+  },
+  {
+    slug: 'family-atlassian',
+    name: 'Atlassian (Jira, Confluence, Trello, Bitbucket)',
+    primaryCategory: 'dev',
+    tier: 1,
+    regex: /\b(atlassian|jira|confluence|trello|bitbucket|sourcetree|bamboo|opsgenie|statuspage|loom)\b/i,
+  },
+  {
+    slug: 'family-salesforce',
+    name: 'Salesforce (Slack, Heroku, Tableau, MuleSoft)',
+    primaryCategory: 'cloud',
+    tier: 1,
+    regex: /\b(salesforce|slack|heroku|tableau|mulesoft)\b/i,
+  },
+  {
+    slug: 'family-oracle',
+    name: 'Oracle (Java, MySQL, VirtualBox, NetSuite)',
+    primaryCategory: 'cloud',
+    tier: 1,
+    regex: /\b(oracle|mysql|java|virtualbox|netsuite)\b/i,
+  },
+  {
+    slug: 'family-cisco',
+    name: 'Cisco (Webex, Splunk, Meraki, AppDynamics)',
+    primaryCategory: 'security',
+    tier: 1,
+    regex: /\b(cisco|webex|splunk|meraki|appdynamics)\b/i,
+  },
+  {
+    slug: 'family-elastic',
+    name: 'Elastic (Elasticsearch, Kibana, Logstash)',
+    primaryCategory: 'cloud',
+    tier: 1,
+    regex: /\b(elastic|elasticsearch|kibana|logstash|beats)\b/i,
+  },
+  {
+    slug: 'family-bytedance',
+    name: 'ByteDance (TikTok, CapCut, Lark, Douyin)',
+    primaryCategory: 'communication',
+    tier: 1,
+    regex: /\b(bytedance|tiktok|douyin|capcut|lark|pico)\b/i,
+  },
+  {
+    slug: 'family-tencent',
+    name: 'Tencent (WeChat, Riot Games, Valorant, Epic)',
+    primaryCategory: 'communication',
+    tier: 1,
+    regex: /\b(tencent|wechat|weixin|qq|riot|valorant|league-of-legends|pubg|epic-games)\b/i,
+  },
+  {
+    slug: 'family-alibaba',
+    name: 'Alibaba (AliExpress, Alipay, Taobao, DingTalk)',
+    primaryCategory: 'finance',
+    tier: 1,
+    regex: /\b(alibaba|aliexpress|alipay|taobao|tmall|dingtalk|ant-design)\b/i,
+  },
+  {
+    slug: 'family-sony',
+    name: 'Sony & PlayStation',
+    primaryCategory: 'brand',
+    tier: 1,
+    regex: /\b(sony|playstation|ps4|ps5|vaio|walkman|crunchyroll)\b/i,
+  },
+  {
+    slug: 'family-disney',
+    name: 'Disney (Pixar, Marvel, Star Wars, Hulu, ESPN)',
+    primaryCategory: 'brand',
+    tier: 1,
+    regex: /\b(disney|pixar|marvel|star-wars|starwars|hulu|espn|national-geographic)\b/i,
+  },
+
+  // Tier 1.5: Cloud Infrastructure & Architecture Brand Suites
+  { slug: 'aws', name: 'AWS (Amazon Web Services)', primaryCategory: 'cloud', tier: 1, exactCol: 'aws' },
+  { slug: 'azure', name: 'Microsoft Azure Cloud', primaryCategory: 'cloud', tier: 1, exactCol: 'azure' },
+  { slug: 'gcp', name: 'Google Cloud Platform (GCP)', primaryCategory: 'cloud', tier: 1, exactCol: 'gcp' },
+  { slug: 'k8s', name: 'Kubernetes (K8s) & CNCF', primaryCategory: 'cloud', tier: 1, exactCol: 'k8s' },
+
+  // Tier 2: Developer, Design, Finance, Hardware & Consumer Brand Ecosystems
+  {
+    slug: 'brand-github',
+    name: 'GitHub, GitLab & Git Ecosystem',
+    primaryCategory: 'dev',
+    tier: 2,
+    regex: /\b(github|gitlab|git|bitbucket|octocat|dependabot|codespaces|gitea|sourcetree)\b/i,
   },
   {
     slug: 'brand-docker',
-    name: 'Docker & Container Ecosystem',
+    name: 'Docker, Podman & Container Tools',
     primaryCategory: 'cloud',
+    tier: 2,
     regex: /\b(docker|podman|containerd|portainer|rancher|helm)\b/i,
   },
   {
     slug: 'brand-cloudflare',
-    name: 'Cloudflare, Netlify & Edge Hosting',
+    name: 'Cloudflare, Netlify, DigitalOcean & Edge',
     primaryCategory: 'cloud',
+    tier: 2,
     regex: /\b(cloudflare|netlify|heroku|digitalocean|linode|vultr|render|railway|fly-io|fastly|akamai)\b/i,
   },
   {
     slug: 'brand-firebase',
-    name: 'Firebase, Supabase & BaaS',
+    name: 'Firebase, Supabase, Auth0 & BaaS',
     primaryCategory: 'cloud',
+    tier: 2,
     regex: /\b(firebase|supabase|appwrite|pocketbase|amplify|auth0|clerk)\b/i,
   },
   {
     slug: 'brand-linux',
-    name: 'Linux Distros & Open Source OS',
+    name: 'Linux (Ubuntu, Debian, Arch, Kali, RedHat)',
     primaryCategory: 'dev',
-    regex: /\b(linux|ubuntu|debian|fedora|arch-linux|centos|redhat|kali|alpine|nixos|suse|manjaro|raspbian|freebsd|tux|gnome|kde)\b/i,
+    tier: 2,
+    regex:
+      /\b(linux|ubuntu|debian|fedora|arch-linux|centos|redhat|kali|alpine|nixos|suse|manjaro|raspbian|freebsd|tux|gnome|kde)\b/i,
   },
   {
     slug: 'brand-react',
-    name: 'React, Next.js & Modern Web',
+    name: 'React, Next.js, Tailwind & Modern Web',
     primaryCategory: 'dev',
-    regex: /\b(react|nextjs|next-js|redux|remix|gatsby|preact|react-router|tailwind|tailwindcss|vite|astro|solidjs)\b/i,
+    tier: 2,
+    regex:
+      /\b(react|nextjs|next-js|redux|remix|gatsby|preact|react-router|tailwind|tailwindcss|vite|astro|solidjs)\b/i,
   },
   {
     slug: 'brand-vue',
-    name: 'Vue, Nuxt, Angular & Svelte',
+    name: 'Vue.js, Nuxt, Angular & Svelte',
     primaryCategory: 'dev',
+    tier: 2,
     regex: /\b(vue|vuejs|nuxt|nuxtjs|pinia|vuetify|vitepress|angular|svelte)\b/i,
   },
   {
     slug: 'brand-js-ts',
-    name: 'JavaScript, TypeScript & Node.js',
+    name: 'JavaScript, TypeScript, Node.js, Bun & Deno',
     primaryCategory: 'dev',
+    tier: 2,
     regex: /\b(javascript|typescript|nodejs|node-js|npm|pnpm|yarn|bun|deno|webpack|babel|eslint|prettier)\b/i,
   },
   {
     slug: 'brand-python',
-    name: 'Python, PyTorch & Data Science',
+    name: 'Python, PyTorch, TensorFlow & HuggingFace',
     primaryCategory: 'ai',
-    regex: /\b(python|django|flask|fastapi|pytorch|tensorflow|pandas|numpy|jupyter|anaconda|scikit|keras|huggingface|opencv)\b/i,
+    tier: 2,
+    regex:
+      /\b(python|django|flask|fastapi|pytorch|tensorflow|pandas|numpy|jupyter|anaconda|scikit|keras|huggingface|opencv)\b/i,
+  },
+  {
+    slug: 'brand-backend-langs',
+    name: 'Go, Rust, PHP, Laravel & Ruby',
+    primaryCategory: 'dev',
+    tier: 2,
+    regex: /\b(golang|rust|cargo|php|laravel|symfony|wordpress|ruby|rails|elixir|phoenix|scala|clojure|haskell|erlang)\b/i,
   },
   {
     slug: 'brand-database',
     name: 'PostgreSQL, MongoDB, Redis & Databases',
     primaryCategory: 'cloud',
-    regex: /\b(postgresql|postgres|mysql|mariadb|mongodb|redis|sqlite|cassandra|neo4j|dynamodb|cockroachdb|Clickhouse|prisma|drizzle|elasticsearch)\b/i,
-  },
-  {
-    slug: 'brand-crypto',
-    name: 'Bitcoin, Ethereum & Web3 Brands',
-    primaryCategory: 'finance',
-    regex: /\b(bitcoin|btc|ethereum|eth|solana|binance|polygon|tether|usdt|cardano|ripple|xrp|dogecoin|polkadot|litecoin|avalanche|chainlink|uniswap|metamask|coinbase)\b/i,
-  },
-  {
-    slug: 'brand-payments',
-    name: 'Stripe, PayPal, Visa & FinTech',
-    primaryCategory: 'finance',
-    regex: /\b(stripe|paypal|visa|mastercard|amex|american-express|apple-pay|google-pay|alipay|wechat-pay|wise|revolut|klarna|shopify|adyen|braintree)\b/i,
+    tier: 2,
+    regex:
+      /\b(postgresql|postgres|mysql|mariadb|mongodb|redis|sqlite|cassandra|neo4j|dynamodb|cockroachdb|clickhouse|prisma|drizzle|elasticsearch)\b/i,
   },
   {
     slug: 'brand-figma',
-    name: 'Figma, Canva, Blender & Creative Tools',
+    name: 'Figma, Canva, Sketch, Framer & Dribbble',
     primaryCategory: 'design',
-    regex: /\b(figma|sketch|canva|framer|invision|zeplin|dribbble|behance|blender|unity|unreal)\b/i,
+    tier: 2,
+    regex: /\b(figma|sketch|canva|framer|invision|zeplin|dribbble|behance)\b/i,
+  },
+  {
+    slug: 'brand-3d-engines',
+    name: 'Blender, Unity, Unreal Engine & Autodesk',
+    primaryCategory: 'design',
+    tier: 2,
+    regex: /\b(blender|unity|unreal|godot|autodesk|maya|3ds-max|cinema4d|houdini|zbrush)\b/i,
+  },
+  {
+    slug: 'brand-payments',
+    name: 'Stripe, PayPal, Visa, Mastercard & FinTech',
+    primaryCategory: 'finance',
+    tier: 2,
+    regex:
+      /\b(stripe|paypal|visa|mastercard|amex|american-express|apple-pay|google-pay|alipay|wechat-pay|wise|revolut|klarna|adyen|braintree)\b/i,
+  },
+  {
+    slug: 'brand-ecommerce',
+    name: 'Shopify, WooCommerce, Magento & E-Commerce',
+    primaryCategory: 'finance',
+    tier: 2,
+    regex: /\b(shopify|woocommerce|magento|prestashop|bigcommerce|opencart|squarespace|wix|webflow|etsy|ebay)\b/i,
+  },
+  {
+    slug: 'brand-crypto',
+    name: 'Bitcoin, Ethereum, Solana, Binance & Web3',
+    primaryCategory: 'finance',
+    tier: 2,
+    regex:
+      /\b(bitcoin|btc|ethereum|eth|solana|binance|polygon|tether|usdt|cardano|ripple|xrp|dogecoin|polkadot|litecoin|avalanche|chainlink|uniswap|metamask|coinbase)\b/i,
   },
   {
     slug: 'brand-social',
-    name: 'YouTube, Discord, X & Social Media',
+    name: 'YouTube, Discord, Telegram, LinkedIn & Social',
     primaryCategory: 'communication',
-    regex: /\b(youtube|tiktok|discord|telegram|whatsapp|instagram|facebook|twitter|linkedin|reddit|pinterest|snapchat|twitch|threads|mastodon|bluesky|spotify)\b/i,
+    tier: 2,
+    regex:
+      /\b(youtube|tiktok|discord|telegram|whatsapp|instagram|facebook|twitter|linkedin|reddit|pinterest|snapchat|twitch|threads|mastodon|bluesky)\b/i,
+  },
+  {
+    slug: 'brand-music',
+    name: 'Spotify, SoundCloud, Apple Music & Audio',
+    primaryCategory: 'communication',
+    tier: 2,
+    regex: /\b(spotify|soundcloud|shazam|deezer|tidal|pandora|audible|lastfm|bandcamp|audacity)\b/i,
   },
   {
     slug: 'brand-gaming',
-    name: 'Steam, PlayStation, Xbox & Gaming',
+    name: 'Steam, Xbox, Nintendo, PlayStation & Gaming',
     primaryCategory: 'brand',
-    regex: /\b(steam|playstation|xbox|nintendo|epic-games|riot|blizzard|ubisoft|ea|activision|itch-io|roblox|minecraft|valorant)\b/i,
+    tier: 2,
+    regex:
+      /\b(steam|playstation|xbox|nintendo|epic-games|riot|blizzard|ubisoft|activision|itch-io|roblox|minecraft|valorant|origin|gog)\b/i,
   },
   {
     slug: 'brand-hardware',
-    name: 'NVIDIA, Intel, AMD & Semiconductors',
+    name: 'NVIDIA, Intel, AMD, Samsung & Hardware',
     primaryCategory: 'brand',
-    regex: /\b(nvidia|intel|amd|arm|qualcomm|samsung|lg|dell|hp|lenovo|asus|acer|msi|raspberry-pi|arduino| logitech|razer|corsair)\b/i,
+    tier: 2,
+    regex:
+      /\b(nvidia|intel|amd|arm|qualcomm|samsung|lg|dell|hp|lenovo|asus|acer|msi|raspberry-pi|arduino|logitech|razer|corsair)\b/i,
   },
   {
     slug: 'brand-productivity',
-    name: 'Notion, Slack, Linear & Workspace',
+    name: 'Notion, Slack, Linear, Zoom & Workspace',
     primaryCategory: 'interface',
-    regex: /\b(notion|slack|linear|asana|trello|monday|clickup|airtable|obsidian|evernote|zoom|miro|loom|calendly|intercom|zendesk|hubspot)\b/i,
+    tier: 2,
+    regex:
+      /\b(notion|slack|linear|asana|trello|monday|clickup|airtable|obsidian|evernote|zoom|miro|loom|calendly|intercom|zendesk|hubspot)\b/i,
+  },
+  {
+    slug: 'brand-browsers',
+    name: 'Chrome, Firefox, Safari, Arc, Brave & Opera',
+    primaryCategory: 'interface',
+    tier: 2,
+    regex: /\b(chrome|firefox|safari|edge|opera|brave|vivaldi|arc|tor-browser|chromium|duckduckgo)\b/i,
+  },
+  {
+    slug: 'brand-automotive',
+    name: 'Tesla, BMW, Mercedes, Porsche & Automotive',
+    primaryCategory: 'brand',
+    tier: 2,
+    regex:
+      /\b(tesla|bmw|mercedes|audi|porsche|ferrari|lamborghini|toyota|honda|ford|chevrolet|volkswagen|volvo|hyundai|kia|nissan|mazda|subaru|jaguar|bentley|bugatti|rolls-royce|maserati|aston-martin|mclaren|lexus|jeep|peugeot|renault|fiat)\b/i,
   },
 ];
 
+const STRICT_BRAND_COLLECTIONS = new Set([
+  'brands-popular',
+  'brand-icons',
+  'popular-company-logo-icons',
+  'tech-brand-logos',
+  'colored-svg-logos',
+  'lawnicons-line-brand-icons',
+  'colored-brand-icons',
+  'cryptocurrency-vector-logos',
+  'cryptocurrency-colored-icon-logos',
+  'car-labels-flat-logos',
+  'browser-logo-vectors',
+  'social-media-brand-icons',
+  'google-app-logos',
+]);
+
 function isBrandPoolIcon(ic) {
   return (
+    ic.site === 'thesvg' ||
     ic.iconType === 'brand-logo' ||
-    ic.category === 'brand' ||
-    ic.collectionSlug === 'brands-popular' ||
-    ic.collectionSlug.startsWith('family-') ||
-    /brand|logo/i.test(ic.collectionSlug)
+    STRICT_BRAND_COLLECTIONS.has(ic.collectionSlug)
   );
 }
 
@@ -958,20 +1205,26 @@ class StateManager {
     }
 
     const { allIcons, collections } = this.loadAllEnrichedIcons();
-    const virtualBrand = VIRTUAL_BRAND_DEFINITIONS.find((b) => b.slug === collectionSlug);
+    const brandDef = BRAND_ECOSYSTEM_DEFINITIONS.find((b) => b.slug === collectionSlug && b.regex);
 
     let colInfo = null;
     let allColIcons = [];
 
-    if (virtualBrand) {
+    if (brandDef) {
       targetSite = 'any';
-      allColIcons = allIcons.filter(
-        (ic) => isBrandPoolIcon(ic) && virtualBrand.regex.test(`${ic.slug} ${ic.title}`)
+      const primaryFamilyIcons = allIcons.filter((ic) => ic.collectionSlug === brandDef.slug);
+      const primaryKeys = new Set(primaryFamilyIcons.map((ic) => `${ic.collectionSlug}:${ic.id || ic.slug}`));
+      const extraBrandIcons = allIcons.filter(
+        (ic) =>
+          !primaryKeys.has(`${ic.collectionSlug}:${ic.id || ic.slug}`) &&
+          isBrandPoolIcon(ic) &&
+          brandDef.regex.test(`${ic.slug} ${ic.title}`)
       );
+      allColIcons = [...primaryFamilyIcons, ...extraBrandIcons];
       colInfo = {
         site: 'any',
-        slug: virtualBrand.slug,
-        name: virtualBrand.name,
+        slug: brandDef.slug,
+        name: brandDef.name,
         author: 'Open Source',
         license: 'Brand Trademarks / MIT',
         downloadedIconsCount: allColIcons.length,
@@ -1020,7 +1273,7 @@ class StateManager {
       return true;
     });
 
-    if (sort === 'az') {
+    if (sort === 'az' && !brandDef) {
       filtered.sort((a, b) => (a.title || a.slug).localeCompare(b.title || b.slug));
     } else if (sort === 'za') {
       filtered.sort((a, b) => (b.title || b.slug).localeCompare(a.title || a.slug));
@@ -1155,7 +1408,8 @@ class StateManager {
   }
 
   /**
-   * Build and cache Brand Ecosystems & Logo Collections Directory for 'brands' view mode
+   * Build and cache Curated Brand Ecosystems Directory for 'brands' view mode
+   * Contains strictly real Brands & Tech Ecosystems (no generic UI or illustration collections)
    */
   getBrandsDirectory() {
     const { allIcons } = this.loadAllEnrichedIcons();
@@ -1164,33 +1418,39 @@ class StateManager {
     }
 
     const allCollectionsDir = this.getCollectionsDirectory();
-    const brandsList = [];
-    const seenSlugs = new Set();
-
-    // 1. Official Brand Families (family-google, family-microsoft, family-apple, family-adobe, family-aws, etc.)
-    const cloudBrandSlugs = new Set(['aws', 'azure', 'gcp', 'k8s', 'auth-badges']);
-    for (const col of allCollectionsDir) {
-      if (col.slug.startsWith('family-') || cloudBrandSlugs.has(col.slug)) {
-        seenSlugs.add(col.slug);
-        brandsList.push({
-          ...col,
-          isBrandGroup: true,
-          brandTier: col.slug.startsWith('family-') ? 1 : 2,
-        });
-      }
-    }
-
-    // 2. Curated Virtual Brand Ecosystems (OpenAI, GitHub, Docker, Cloudflare, React, Crypto, Payments, etc.)
     const brandPool = allIcons.filter(isBrandPoolIcon);
-    for (const vDef of VIRTUAL_BRAND_DEFINITIONS) {
-      const matched = brandPool.filter((ic) => vDef.regex.test(`${ic.slug} ${ic.title}`));
+    const brandsList = [];
+
+    for (const bDef of BRAND_ECOSYSTEM_DEFINITIONS) {
+      if (bDef.exactCol) {
+        const col = allCollectionsDir.find((c) => c.slug === bDef.exactCol);
+        if (col) {
+          brandsList.push({
+            ...col,
+            name: bDef.name || col.name,
+            primaryCategory: bDef.primaryCategory || col.primaryCategory,
+            isBrandGroup: true,
+            brandTier: bDef.tier || 1,
+          });
+        }
+        continue;
+      }
+
+      const primaryFamilyIcons = allIcons.filter((ic) => ic.collectionSlug === bDef.slug);
+      const primaryKeys = new Set(primaryFamilyIcons.map((ic) => `${ic.collectionSlug}:${ic.id || ic.slug}`));
+      const extraMatched = brandPool.filter(
+        (ic) =>
+          !primaryKeys.has(`${ic.collectionSlug}:${ic.id || ic.slug}`) &&
+          bDef.regex.test(`${ic.slug} ${ic.title}`)
+      );
+      const matched = [...primaryFamilyIcons, ...extraMatched];
       if (matched.length === 0) continue;
 
       const categoryCounts = {};
       const styleCounts = {};
       const typeCounts = {};
       const sampleIcons = [];
-      const keywordSet = new Set([vDef.name.toLowerCase(), vDef.slug.toLowerCase()]);
+      const keywordSet = new Set([bDef.name.toLowerCase(), bDef.slug.toLowerCase()]);
 
       for (const ic of matched) {
         if (ic.category) categoryCounts[ic.category] = (categoryCounts[ic.category] || 0) + 1;
@@ -1206,7 +1466,7 @@ class StateManager {
             category: ic.category,
           });
         }
-        if (keywordSet.size < 40 && ic.title) {
+        if (keywordSet.size < 45 && ic.title) {
           keywordSet.add(String(ic.title).toLowerCase());
         }
       }
@@ -1214,13 +1474,12 @@ class StateManager {
       const sortedCats = Object.entries(categoryCounts).sort((a, b) => b[1] - a[1]);
       const sortedStyles = Object.entries(styleCounts).sort((a, b) => b[1] - a[1]);
 
-      seenSlugs.add(vDef.slug);
       brandsList.push({
-        slug: vDef.slug,
-        name: vDef.name,
+        slug: bDef.slug,
+        name: bDef.name,
         license: 'Brand Trademarks / MIT',
         count: matched.length,
-        primaryCategory: vDef.primaryCategory || sortedCats[0]?.[0] || 'brand',
+        primaryCategory: bDef.primaryCategory || sortedCats[0]?.[0] || 'brand',
         primaryStyle: sortedStyles[0]?.[0] || 'multicolor',
         primaryIconType: 'brand-logo',
         categories: sortedCats.map(([id, count]) => ({ id, count })),
@@ -1230,33 +1489,10 @@ class StateManager {
         typeCounts,
         sampleIcons,
         isBrandGroup: true,
-        brandTier: 1,
+        brandTier: bDef.tier || 1,
         _searchText: Array.from(keywordSet).join(' '),
       });
     }
-
-    // 3. Dedicated Brand & Company Logo Packs from the catalog
-    for (const col of allCollectionsDir) {
-      if (seenSlugs.has(col.slug)) continue;
-      const isBrandCol =
-        col.primaryCategory === 'brand' ||
-        col.primaryIconType === 'brand-logo' ||
-        /\b(brand|brands|logo|logos)\b/i.test(col.slug) ||
-        /\b(brand|brands|logo|logos)\b/i.test(col.name);
-      if (isBrandCol) {
-        seenSlugs.add(col.slug);
-        brandsList.push({
-          ...col,
-          isBrandGroup: true,
-          brandTier: 3,
-        });
-      }
-    }
-
-    brandsList.sort((a, b) => {
-      if (a.brandTier !== b.brandTier) return a.brandTier - b.brandTier;
-      return b.count - a.count;
-    });
 
     if (this._catalogSnapshot) {
       this._catalogSnapshot.brandsDirectory = brandsList;

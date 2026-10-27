@@ -645,7 +645,7 @@
       sidebarCountCollections.textContent = totalColsCount.toLocaleString();
     }
     if (sidebarCountBrands) {
-      sidebarCountBrands.textContent = (catalogSummary.totalBrands || 79).toLocaleString();
+      sidebarCountBrands.textContent = (catalogSummary.totalBrands || 49).toLocaleString();
     }
 
     // 1. Left Sidebar: Categories only (with custom SVG icons)
