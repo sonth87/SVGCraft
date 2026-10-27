@@ -61,7 +61,16 @@ class StateManager {
     if (r2Public && !/\.r2\.cloudflarestorage\.com/i.test(r2Public)) {
       return `${r2Public}/${encodeURIComponent(siteId)}/${encodeURIComponent(colSlug)}/${relativePath}`;
     }
-    return `/output/${encodeURIComponent(siteId)}/${encodeURIComponent(colSlug)}/${relativePath}`;
+    const rawFile = path.basename(String(relativePath || ''));
+    // Strip duplicated slug-id pattern (e.g. "zoom-badge-zoom-badge.svg" -> "zoom-badge.svg")
+    const cleanFile = rawFile.replace(/^([a-zA-Z0-9-_]+?)-\1(\.[a-zA-Z0-9-_]+)?\.svg$/, '$1$2.svg');
+    return `/svg/${encodeURIComponent(colSlug)}/${encodeURIComponent(cleanFile)}`;
+  }
+
+  resolveCollectionSite(collectionSlug) {
+    const { collections } = this.loadAllEnrichedIcons();
+    const found = collections.find((c) => c.slug === collectionSlug);
+    return found ? found.site : null;
   }
 
   getDefaultState() {
@@ -878,32 +887,204 @@ class StateManager {
   }
 
   /**
+   * Build and cache enriched Collections Directory for SVGRepo-style Category/Collection view mode
+   */
+  getCollectionsDirectory() {
+    const { allIcons, collections } = this.loadAllEnrichedIcons();
+    if (this._catalogSnapshot && this._catalogSnapshot.collectionsDirectory) {
+      return this._catalogSnapshot.collectionsDirectory;
+    }
+
+    const colAggMap = new Map();
+    for (const c of collections) {
+      colAggMap.set(`${c.site}:${c.slug}`, {
+        slug: c.slug,
+        name: c.name || c.slug,
+        license: c.license || 'MIT / CC0',
+        author: c.author || 'Open Source',
+        count: 0,
+        categoryCounts: {},
+        styleCounts: {},
+        typeCounts: {},
+        sampleIcons: [],
+        keywordSet: new Set([String(c.name || '').toLowerCase(), String(c.slug || '').toLowerCase()]),
+      });
+    }
+
+    for (const ic of allIcons) {
+      const key = `${ic.site}:${ic.collectionSlug}`;
+      let agg = colAggMap.get(key);
+      if (!agg) {
+        agg = {
+          slug: ic.collectionSlug,
+          name: ic.collectionName || ic.collectionSlug,
+          license: ic.license || 'MIT / CC0',
+          author: ic.author || 'Open Source',
+          count: 0,
+          categoryCounts: {},
+          styleCounts: {},
+          typeCounts: {},
+          sampleIcons: [],
+          keywordSet: new Set([String(ic.collectionName || '').toLowerCase(), String(ic.collectionSlug || '').toLowerCase()]),
+        };
+        colAggMap.set(key, agg);
+      }
+
+      agg.count += 1;
+      if (ic.category) agg.categoryCounts[ic.category] = (agg.categoryCounts[ic.category] || 0) + 1;
+      if (ic.styleType) agg.styleCounts[ic.styleType] = (agg.styleCounts[ic.styleType] || 0) + 1;
+      if (ic.iconType) agg.typeCounts[ic.iconType] = (agg.typeCounts[ic.iconType] || 0) + 1;
+
+      if (agg.sampleIcons.length < 8) {
+        agg.sampleIcons.push({
+          id: ic.id,
+          slug: ic.slug,
+          title: ic.title,
+          assetUrl: ic.assetUrl,
+          styleType: ic.styleType,
+          category: ic.category,
+        });
+      }
+      if (agg.keywordSet.size < 35) {
+        if (ic.title) agg.keywordSet.add(String(ic.title).toLowerCase());
+        if (ic.category) agg.keywordSet.add(String(ic.category).toLowerCase());
+      }
+    }
+
+    const directory = [];
+    for (const agg of colAggMap.values()) {
+      if (agg.count === 0) continue;
+
+      const sortedCats = Object.entries(agg.categoryCounts).sort((a, b) => b[1] - a[1]);
+      const sortedStyles = Object.entries(agg.styleCounts).sort((a, b) => b[1] - a[1]);
+      const sortedTypes = Object.entries(agg.typeCounts).sort((a, b) => b[1] - a[1]);
+
+      const primaryCategory = sortedCats[0]?.[0] || 'interface';
+      const primaryStyle = sortedStyles[0]?.[0] || 'outlined';
+      const primaryIconType = sortedTypes[0]?.[0] || 'ui-icon';
+
+      directory.push({
+        slug: agg.slug,
+        name: agg.name,
+        license: agg.license,
+        count: agg.count,
+        primaryCategory,
+        primaryStyle,
+        primaryIconType,
+        categories: sortedCats.map(([id, count]) => ({ id, count })),
+        styles: sortedStyles.map(([id, count]) => ({ id, count })),
+        categoryCounts: agg.categoryCounts,
+        styleCounts: agg.styleCounts,
+        typeCounts: agg.typeCounts,
+        sampleIcons: agg.sampleIcons,
+        _searchText: Array.from(agg.keywordSet).join(' '),
+      });
+    }
+
+    // Default order: rich multi-icon collections first
+    directory.sort((a, b) => b.count - a.count);
+
+    if (this._catalogSnapshot) {
+      this._catalogSnapshot.collectionsDirectory = directory;
+    }
+
+    return directory;
+  }
+
+  /**
+   * Filter, search, sort, and paginate collections for SVGRepo-style Category/Collection view mode
+   */
+  queryCollections({
+    q = '',
+    category = '',
+    styleType = '',
+    iconType = '',
+    letter = '',
+    sort = 'popular',
+    offset = 0,
+    limit = 24,
+  } = {}) {
+    const directory = this.getCollectionsDirectory();
+    const query = String(q || '').trim().toLowerCase();
+
+    const filtered = directory.filter((col) => {
+      if (category && col.primaryCategory !== category && !col.categoryCounts[category]) return false;
+      if (styleType && col.primaryStyle !== styleType && !col.styleCounts[styleType]) return false;
+      if (iconType && !col.typeCounts[iconType]) return false;
+      if (letter) {
+        const firstChar = (col.name || col.slug || '').charAt(0).toUpperCase();
+        if (letter === '#') {
+          if (/[A-Z]/.test(firstChar)) return false;
+        } else if (firstChar !== letter.toUpperCase()) {
+          return false;
+        }
+      }
+      if (query && !col._searchText.includes(query)) return false;
+      return true;
+    });
+
+    if (sort === 'az') {
+      filtered.sort((a, b) => (a.name || a.slug).localeCompare(b.name || b.slug));
+    } else if (sort === 'za') {
+      filtered.sort((a, b) => (b.name || b.slug).localeCompare(a.name || a.slug));
+    } else if (category) {
+      filtered.sort((a, b) => {
+        const aPrimary = a.primaryCategory === category ? 1 : 0;
+        const bPrimary = b.primaryCategory === category ? 1 : 0;
+        if (aPrimary !== bPrimary) return bPrimary - aPrimary;
+        return (b.categoryCounts[category] || 0) - (a.categoryCounts[category] || 0);
+      });
+    } else {
+      filtered.sort((a, b) => b.count - a.count);
+    }
+
+    const total = filtered.length;
+    const safeOffset = Number(offset) || 0;
+    const safeLimit = Number(limit) || 24;
+    const items = filtered.slice(safeOffset, safeOffset + safeLimit).map(({ _searchText, categoryCounts, styleCounts, typeCounts, ...publicCol }) => publicCol);
+
+    return {
+      total,
+      offset: safeOffset,
+      limit: safeLimit,
+      items,
+    };
+  }
+
+  /**
    * Get single icon details + raw SVG XML + React/JSX code + Recommendations (similar, sameStyle, sameCollection)
    */
   getIconWithRecommendations(siteId, collectionSlug, iconIdOrSlug) {
     const { allIcons } = this.loadAllEnrichedIcons();
-    const target = allIcons.find(
-      (ic) =>
-        ic.site === siteId &&
-        ic.collectionSlug === collectionSlug &&
-        (String(ic.id) === String(iconIdOrSlug) || ic.slug === iconIdOrSlug)
-    );
+    const target =
+      allIcons.find(
+        (ic) =>
+          (!siteId || siteId === 'any' || ic.site === siteId) &&
+          ic.collectionSlug === collectionSlug &&
+          (String(ic.id) === String(iconIdOrSlug) || ic.slug === iconIdOrSlug)
+      ) ||
+      allIcons.find(
+        (ic) =>
+          ic.collectionSlug === collectionSlug &&
+          (String(ic.id) === String(iconIdOrSlug) || ic.slug === iconIdOrSlug)
+      );
 
     if (!target) return null;
 
-    const colMeta = this.loadCollectionMetadata(siteId, collectionSlug);
+    const resolvedSite = target.site;
+    const colMeta = this.loadCollectionMetadata(resolvedSite, collectionSlug);
     const fullDiskIcon = (colMeta?.icons || []).find(
       (ic) => String(ic.id) === String(iconIdOrSlug) || ic.slug === iconIdOrSlug
     );
     const mergedTarget = fullDiskIcon ? { ...fullDiskIcon, ...target } : { ...target };
 
-    const colDir = this.getCollectionDir(siteId, collectionSlug);
+    const colDir = this.getCollectionDir(resolvedSite, collectionSlug);
     const svgVariantsContent = {};
     const variantAssetUrls = {};
 
     for (const [varName, relPath] of Object.entries(mergedTarget.variants || { default: mergedTarget.relativePath })) {
       const fullPath = path.join(colDir, relPath);
-      variantAssetUrls[varName] = this.buildAssetUrl(siteId, collectionSlug, relPath);
+      variantAssetUrls[varName] = this.buildAssetUrl(resolvedSite, collectionSlug, relPath);
       if (runtimeFs['existsSync'](fullPath)) {
         svgVariantsContent[varName] = runtimeFs['readFileSync'](fullPath, 'utf8');
       }

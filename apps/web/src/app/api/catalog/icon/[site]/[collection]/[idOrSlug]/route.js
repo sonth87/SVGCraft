@@ -16,9 +16,10 @@ export async function GET(request, { params }) {
 
     // Fetch raw SVG XML from Cloudflare R2 on demand when running on Vercel without local output/ directory
     if (!data.rawSvg && data.icon) {
+      const resolvedSite = data.icon.site || site;
       const variants = data.icon.variants || { default: data.icon.relativePath };
       for (const [varName, relPath] of Object.entries(variants)) {
-        const key = `${site}/${collection}/${relPath}`;
+        const key = `${resolvedSite}/${collection}/${relPath}`;
         const fetched = await r2Client.getSvgObject(key).catch(() => null);
         if (fetched && fetched.includes('<svg')) {
           data.svgVariantsContent[varName] = fetched;

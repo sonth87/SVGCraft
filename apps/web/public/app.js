@@ -89,6 +89,8 @@
 
   const countFavorites = document.getElementById('countFavorites');
   const navAllIcons = document.getElementById('navAllIcons');
+  const navCollectionsDirectory = document.getElementById('navCollectionsDirectory');
+  const sidebarCountCollections = document.getElementById('sidebarCountCollections');
   const navFavorites = document.getElementById('navFavorites');
   const sidebarCategories = document.getElementById('sidebarCategories');
   const btnResetCategory = document.getElementById('btnResetCategory');
@@ -119,12 +121,18 @@
   const brandGlowBackdrop = document.getElementById('brandGlowBackdrop');
   const brandGlowOrb = document.getElementById('brandGlowOrb');
 
+  const viewModeSwitcher = document.getElementById('viewModeSwitcher');
+  const btnViewModeIcons = document.getElementById('btnViewModeIcons');
+  const btnViewModeCollections = document.getElementById('btnViewModeCollections');
+  const resultsUnitLabel = document.getElementById('resultsUnitLabel');
+
   const alphabetBar = document.getElementById('alphabetBar');
   const activeFiltersBar = document.getElementById('activeFiltersBar');
   const showingCount = document.getElementById('showingCount');
   const totalMatchedCount = document.getElementById('totalMatchedCount');
   const heroHeading = document.getElementById('heroHeading');
   const iconsGrid = document.getElementById('iconsGrid');
+  const collectionsDirectoryGrid = document.getElementById('collectionsDirectoryGrid');
   const loadMoreWrap = document.getElementById('loadMoreWrap');
   const btnLoadMore = document.getElementById('btnLoadMore');
   const loadMoreLabel = document.getElementById('loadMoreLabel');
@@ -134,10 +142,13 @@
   let currentToneIdx = 0;
 
   const PAGE_SIZE = 72;
+  const COLLECTIONS_PAGE_SIZE = 36;
+  let viewMode = 'icons'; // 'icons' | 'collections'
   let currentOffset = 0;
   let totalMatched = 0;
   let lastScrollFetchTs = 0;
   let activeIconsAbortController = null;
+  let currentCollections = [];
 
   // Client-side in-memory LRU caches to eliminate duplicate API & SVG network requests
   const apiJsonCache = new Map();
@@ -512,7 +523,7 @@
     filters.letter = btn.dataset.letter;
     initAlphabetBar();
     syncCatalogUrl(true);
-    loadIcons(true);
+    loadCatalogData(true);
   });
 
   // ============================================================================
@@ -575,7 +586,7 @@
       closeAllDropdowns();
       updateNavActiveStates();
       showCatalogView(true);
-      loadIcons(true);
+      loadCatalogData(true);
     });
   });
 
@@ -625,7 +636,11 @@
     catalogSummary = await apiFetchJson('/api/catalog/summary', { bypassCache });
 
     countFavorites.textContent = favorites.size;
-    badgeTotalCollections.textContent = catalogSummary.totalCollections || (catalogSummary.collections || []).length;
+    const totalColsCount = catalogSummary.totalCollections || (catalogSummary.collections || []).length;
+    badgeTotalCollections.textContent = totalColsCount;
+    if (sidebarCountCollections) {
+      sidebarCountCollections.textContent = totalColsCount.toLocaleString();
+    }
 
     // 1. Left Sidebar: Categories only (with custom SVG icons)
     sidebarCategories.innerHTML = (catalogSummary.categories || [])
@@ -679,7 +694,8 @@
   }
 
   function updateNavActiveStates() {
-    const isAll =
+    const isAllIcons =
+      viewMode === 'icons' &&
       !activeCollectionState &&
       !filters.category &&
       !filters.styleType &&
@@ -687,9 +703,30 @@
       !filters.collection &&
       !filters.onlyFavorites;
 
-    navAllIcons.classList.toggle('active', isAll);
+    navAllIcons.classList.toggle('active', isAllIcons);
+    if (navCollectionsDirectory) {
+      navCollectionsDirectory.classList.toggle(
+        'active',
+        viewMode === 'collections' && !activeCollectionState && !filters.onlyFavorites
+      );
+    }
     navFavorites.classList.toggle('active', filters.onlyFavorites);
     btnResetCategory.style.display = filters.category ? 'inline-block' : 'none';
+
+    if (btnViewModeIcons && btnViewModeCollections) {
+      const isColMode = viewMode === 'collections';
+      btnViewModeIcons.classList.toggle('active', !isColMode);
+      btnViewModeIcons.setAttribute('aria-selected', String(!isColMode));
+      btnViewModeCollections.classList.toggle('active', isColMode);
+      btnViewModeCollections.setAttribute('aria-selected', String(isColMode));
+    }
+    if (resultsUnitLabel) {
+      resultsUnitLabel.textContent = viewMode === 'collections' ? 'bộ sưu tập' : 'icons';
+    }
+    if (iconsGrid && collectionsDirectoryGrid) {
+      iconsGrid.style.display = viewMode === 'collections' ? 'none' : 'grid';
+      collectionsDirectoryGrid.style.display = viewMode === 'collections' ? 'grid' : 'none';
+    }
 
     sidebarCategories.querySelectorAll('[data-filter-cat]').forEach((el) => {
       el.classList.toggle('active', el.dataset.filterCat === filters.category);
@@ -856,7 +893,7 @@
             ${topCols
               .map(
                 (col) => `
-                <button type="button" class="search-pop-pill" data-pop-open-col="${escapeHtml(col.site || 'svgrepo')}:${escapeHtml(col.slug)}">
+                <button type="button" class="search-pop-pill" data-pop-open-col="${escapeHtml(col.slug)}">
                   <span class="icon-inline">${ICONS.folder}</span>
                   <span>${escapeHtml(col.name)}</span>
                   <span class="pill-count">${col.count}</span>
@@ -899,7 +936,10 @@
 
     if (chips.length === 0) {
       activeFiltersBar.style.display = 'none';
-      heroHeading.textContent = '500.000+ Vector Icons. Inspect. Customize. Ship.';
+      heroHeading.textContent =
+        viewMode === 'collections'
+          ? 'Khám phá Bộ sưu tập Vector theo Chủ đề & Phong cách.'
+          : '500.000+ Vector Icons. Inspect. Customize. Ship.';
       return;
     }
 
@@ -923,6 +963,7 @@
   // ============================================================================
   function buildCatalogUrlFromFilters() {
     const params = new URLSearchParams();
+    if (viewMode === 'collections') params.set('view', 'collections');
     if (filters.q) params.set('q', filters.q);
     if (filters.category) params.set('category', filters.category);
     if (filters.styleType) params.set('style', filters.styleType);
@@ -940,15 +981,15 @@
     const currentFull = `${window.location.pathname}${window.location.search}`;
     if (currentFull === targetUrl) return;
     if (push) {
-      window.history.pushState({ view: 'catalog', filters: { ...filters } }, '', targetUrl);
+      window.history.pushState({ view: 'catalog', viewMode, filters: { ...filters } }, '', targetUrl);
     } else {
-      window.history.replaceState({ view: 'catalog', filters: { ...filters } }, '', targetUrl);
+      window.history.replaceState({ view: 'catalog', viewMode, filters: { ...filters } }, '', targetUrl);
     }
   }
 
   function syncCollectionUrl(push = false) {
     if (!activeCollectionState) return;
-    const basePath = `/collection/${encodeURIComponent(activeCollectionState.site || 'any')}/${encodeURIComponent(activeCollectionState.slug)}`;
+    const basePath = `/collection/${encodeURIComponent(activeCollectionState.slug)}`;
     const params = new URLSearchParams();
     if (activeCollectionState.q) params.set('q', activeCollectionState.q);
     if (activeCollectionState.styleType) params.set('style', activeCollectionState.styleType);
@@ -961,13 +1002,13 @@
     if (currentFull === targetUrl) return;
     if (push) {
       window.history.pushState(
-        { view: 'collection', site: activeCollectionState.site, collectionSlug: activeCollectionState.slug },
+        { view: 'collection', collectionSlug: activeCollectionState.slug },
         '',
         targetUrl
       );
     } else {
       window.history.replaceState(
-        { view: 'collection', site: activeCollectionState.site, collectionSlug: activeCollectionState.slug },
+        { view: 'collection', collectionSlug: activeCollectionState.slug },
         '',
         targetUrl
       );
@@ -976,6 +1017,7 @@
 
   function readCatalogFiltersFromUrl() {
     const params = new URLSearchParams(window.location.search);
+    viewMode = params.get('view') === 'collections' ? 'collections' : 'icons';
     filters = {
       q: params.get('q') || '',
       category: params.get('category') || '',
@@ -1009,7 +1051,7 @@
             filters[k] = '';
             updateNavActiveStates();
             showCatalogView(true);
-            loadIcons(true);
+            loadCatalogData(true);
             break;
           }
         }
@@ -1024,7 +1066,7 @@
       filters[key] = '';
       updateNavActiveStates();
       showCatalogView(true);
-      loadIcons(true);
+      loadCatalogData(true);
       searchInput.focus();
     });
 
@@ -1037,16 +1079,17 @@
         filters[type] = filters[type] === val ? '' : val;
         updateNavActiveStates();
         showCatalogView(true);
-        loadIcons(true);
+        loadCatalogData(true);
         searchInput.focus();
         return;
       }
 
       const colBtn = e.target.closest('[data-pop-open-col]');
       if (colBtn) {
-        const [s, c] = colBtn.dataset.popOpenCol.split(':');
+        const raw = colBtn.dataset.popOpenCol;
+        const c = raw.includes(':') ? raw.split(':')[1] : raw;
         searchFocusPopover.classList.remove('open');
-        openCollectionPage(s, c, true);
+        openCollectionPage('any', c, true);
       }
     });
 
@@ -1067,7 +1110,7 @@
       if (k === 'letter') initAlphabetBar();
       updateNavActiveStates();
       syncCatalogUrl(true);
-      loadIcons(true);
+      loadCatalogData(true);
       return;
     }
     if (e.target.closest('#btnClearAllFilters')) {
@@ -1075,7 +1118,10 @@
     }
   });
 
-  function resetAllFilters() {
+  function resetAllFilters(keepViewMode = false) {
+    if (!keepViewMode) {
+      viewMode = 'icons';
+    }
     filters = {
       q: '',
       category: '',
@@ -1093,7 +1139,26 @@
     initAlphabetBar();
     updateNavActiveStates();
     showCatalogView(true);
-    loadIcons(true);
+    loadCatalogData(true);
+  }
+
+  function setCatalogViewMode(nextMode) {
+    if (nextMode !== 'icons' && nextMode !== 'collections') return;
+    if (nextMode === 'collections' && filters.onlyFavorites) {
+      filters.onlyFavorites = false;
+    }
+    viewMode = nextMode;
+    updateNavActiveStates();
+    showCatalogView(true);
+    loadCatalogData(true);
+  }
+
+  if (viewModeSwitcher) {
+    viewModeSwitcher.addEventListener('click', (e) => {
+      const btn = e.target.closest('[data-view-mode]');
+      if (!btn) return;
+      setCatalogViewMode(btn.dataset.viewMode);
+    });
   }
 
   // ============================================================================
@@ -1110,13 +1175,163 @@
     updateNavActiveStates();
     if (pushHistory) {
       syncCatalogUrl(true);
-      if (!iconsGrid.children.length) {
-        loadIcons(true);
+      const activeGrid = viewMode === 'collections' ? collectionsDirectoryGrid : iconsGrid;
+      if (activeGrid && !activeGrid.children.length) {
+        loadCatalogData(true);
       }
     }
   }
 
   let isLoadingMore = false;
+
+  async function loadCatalogData(resetOffset = true, opts = {}) {
+    if (viewMode === 'collections') {
+      return loadCollectionsDirectory(resetOffset, opts);
+    }
+    return loadIcons(resetOffset, opts);
+  }
+
+  // Load SVGRepo-style Collections Directory from API
+  async function loadCollectionsDirectory(resetOffset = true, { bypassCache = false } = {}) {
+    if (!resetOffset && isLoadingMore) return;
+    if (resetOffset) {
+      currentOffset = 0;
+      if (activeIconsAbortController) {
+        activeIconsAbortController.abort();
+      }
+      activeIconsAbortController = new AbortController();
+    } else {
+      isLoadingMore = true;
+      loadMoreLabel.textContent = 'Đang tự động tải thêm bộ sưu tập...';
+    }
+
+    const signal = resetOffset && activeIconsAbortController ? activeIconsAbortController.signal : undefined;
+
+    try {
+      const params = new URLSearchParams({
+        q: filters.q,
+        category: filters.category,
+        styleType: filters.styleType,
+        iconType: filters.iconType,
+        letter: filters.letter,
+        sort: filters.sort === 'recent' ? 'count' : filters.sort,
+        offset: String(currentOffset),
+        limit: String(COLLECTIONS_PAGE_SIZE),
+      });
+
+      const data = await apiFetchJson(`/api/catalog/collections?${params.toString()}`, { signal, bypassCache });
+      const items = data.items || [];
+      totalMatched = data.total || items.length;
+
+      if (resetOffset) {
+        currentCollections = items;
+        renderCollectionsDirectoryGrid(currentCollections, false);
+      } else {
+        currentCollections = [...currentCollections, ...items];
+        renderCollectionsDirectoryGrid(items, true);
+      }
+
+      showingCount.textContent = currentCollections.length.toLocaleString();
+      totalMatchedCount.textContent = totalMatched.toLocaleString();
+
+      if (currentCollections.length < totalMatched) {
+        loadMoreWrap.style.display = 'flex';
+        loadMoreLabel.textContent = `Cuộn xuống để tải thêm (${currentCollections.length.toLocaleString()} / ${totalMatched.toLocaleString()} bộ sưu tập)`;
+      } else {
+        loadMoreWrap.style.display = 'none';
+      }
+    } catch (err) {
+      if (err && err.name === 'AbortError') return;
+    } finally {
+      isLoadingMore = false;
+    }
+  }
+
+  function buildCollectionDirectoryCardsHtml(cols) {
+    return cols
+      .map((col) => {
+        const catObj = (catalogSummary?.categories || []).find((c) => c.id === col.primaryCategory);
+        const catLabel = catObj ? catObj.label.split(' & ')[0] : col.primaryCategory || 'General';
+        const samples = (col.sampleIcons || []).slice(0, 8);
+        const cellsHtml = [];
+        for (let i = 0; i < 8; i += 1) {
+          const ic = samples[i];
+          if (ic) {
+            cellsHtml.push(`
+              <div class="col-dir-thumb-cell" title="${escapeHtml(ic.title || ic.slug)}">
+                <img src="${escapeHtml(ic.assetUrl)}" alt="${escapeHtml(ic.title || ic.slug)}" loading="lazy" decoding="async" />
+              </div>
+            `);
+          } else {
+            cellsHtml.push(`<div class="col-dir-thumb-cell" style="opacity:0.25"></div>`);
+          }
+        }
+
+        return `
+          <article class="col-dir-card" data-dir-open-col="${escapeHtml(col.slug)}">
+            <div class="col-dir-preview-grid">
+              ${cellsHtml.join('')}
+            </div>
+            <div class="col-dir-info">
+              <div class="col-dir-header-row">
+                <div class="col-dir-title" title="${escapeHtml(col.name)}">${escapeHtml(col.name)}</div>
+                <span class="col-dir-count-pill">${(col.count || 0).toLocaleString()} icons</span>
+              </div>
+              <div class="col-dir-badges">
+                <span class="col-dir-badge">
+                  ${getCategoryIconSvg(col.primaryCategory)}
+                  <span>${escapeHtml(catLabel)}</span>
+                </span>
+                <span class="col-dir-badge">
+                  ${getStyleIconSvg(col.primaryStyle)}
+                  <span>${escapeHtml(col.primaryStyle || 'outlined')}</span>
+                </span>
+              </div>
+            </div>
+          </article>
+        `;
+      })
+      .join('');
+  }
+
+  function renderCollectionsDirectoryGrid(cols, append = false) {
+    if (!collectionsDirectoryGrid) return;
+    if (!append && !cols.length) {
+      collectionsDirectoryGrid.innerHTML = `
+        <div style="grid-column:1/-1;text-align:center;padding:56px 20px;color:var(--text-muted);border:1px dashed var(--border-subtle);border-radius:16px">
+          <div style="display:inline-flex;padding:12px;border-radius:12px;background:var(--bg-card);margin-bottom:10px;color:var(--brand-orange)">
+            ${ICONS.folder}
+          </div>
+          <p style="font-size:1rem;font-weight:600;color:var(--text-main);margin-bottom:6px">Không tìm thấy Bộ sưu tập nào khớp bộ lọc</p>
+          <p style="font-size:0.83rem;margin-bottom:16px">Hãy thử chọn chủ đề khác hoặc đặt lại bộ lọc để xem toàn bộ ${
+            (catalogSummary?.totalCollections || 1567).toLocaleString()
+          } bộ sưu tập.</p>
+          <button type="button" class="pill-btn active" id="btnEmptyColResetFilters">Đặt lại bộ lọc</button>
+        </div>
+      `;
+      const emptyReset = document.getElementById('btnEmptyColResetFilters');
+      if (emptyReset) emptyReset.addEventListener('click', () => resetAllFilters(true));
+      return;
+    }
+
+    if (append) {
+      if (cols.length) {
+        collectionsDirectoryGrid.insertAdjacentHTML('beforeend', buildCollectionDirectoryCardsHtml(cols));
+      }
+      return;
+    }
+
+    collectionsDirectoryGrid.innerHTML = buildCollectionDirectoryCardsHtml(cols);
+  }
+
+  if (collectionsDirectoryGrid) {
+    collectionsDirectoryGrid.addEventListener('click', (e) => {
+      const card = e.target.closest('[data-dir-open-col]');
+      if (!card) return;
+      const slug = card.dataset.dirOpenCol;
+      openCollectionPage('any', slug, true);
+    });
+  }
 
   // Load icons from API (supports resetOffset=true for new filter or resetOffset=false for infinite scroll append)
   async function loadIcons(resetOffset = true, { bypassCache = false } = {}) {
@@ -1153,7 +1368,11 @@
       totalMatched = data.total || items.length;
 
       if (filters.onlyFavorites) {
-        items = items.filter((ic) => favorites.has(`${ic.site}:${ic.collectionSlug}:${ic.id || ic.slug}`));
+        items = items.filter((ic) => {
+          const cleanKey = `${ic.collectionSlug}:${ic.id || ic.slug}`;
+          const legacyKey = `${ic.site}:${ic.collectionSlug}:${ic.id || ic.slug}`;
+          return favorites.has(cleanKey) || favorites.has(legacyKey);
+        });
         totalMatched = items.length;
       }
 
@@ -1197,11 +1416,18 @@
       isLoadingMore ||
       activeDetailIconKey !== null ||
       activeCollectionState !== null ||
-      filters.onlyFavorites ||
-      currentItems.length >= totalMatched
+      filters.onlyFavorites
     ) {
       return;
     }
+    if (viewMode === 'collections') {
+      if (currentCollections.length >= totalMatched) return;
+      lastScrollFetchTs = now;
+      currentOffset += COLLECTIONS_PAGE_SIZE;
+      loadCollectionsDirectory(false);
+      return;
+    }
+    if (currentItems.length >= totalMatched) return;
     lastScrollFetchTs = now;
     currentOffset += PAGE_SIZE;
     loadIcons(false);
@@ -1229,13 +1455,14 @@
   function buildIconCardsHtml(items) {
     return items
       .map((ic) => {
-        const favKey = `${ic.site}:${ic.collectionSlug}:${ic.id || ic.slug}`;
-        const isFav = favorites.has(favKey);
+        const cleanKey = `${ic.collectionSlug}:${ic.id || ic.slug}`;
+        const legacyKey = `${ic.site}:${ic.collectionSlug}:${ic.id || ic.slug}`;
+        const isFav = favorites.has(cleanKey) || favorites.has(legacyKey);
         const variantCount = Object.keys(ic.variants || {}).length;
 
         return `
-          <article class="icon-card" data-icon-card="${escapeHtml(favKey)}">
-            <div class="icon-preview-area" data-open-detail="${escapeHtml(favKey)}">
+          <article class="icon-card" data-icon-card="${escapeHtml(cleanKey)}">
+            <div class="icon-preview-area" data-open-detail="${escapeHtml(cleanKey)}">
               <div class="card-badges-top">
                 <span class="micro-badge">${escapeHtml(ic.styleType)}</span>
                 ${
@@ -1247,7 +1474,7 @@
               <img src="${escapeHtml(ic.assetUrl)}" alt="${escapeHtml(ic.title)}" loading="lazy" decoding="async" />
             </div>
 
-            <div class="icon-info-area" data-open-detail="${escapeHtml(favKey)}">
+            <div class="icon-info-area" data-open-detail="${escapeHtml(cleanKey)}">
               <div class="icon-name" title="${escapeHtml(ic.title)}">${escapeHtml(ic.title || ic.slug)}</div>
               <div class="icon-sub">${escapeHtml(ic.category)} · ${escapeHtml(ic.collectionName)}</div>
             </div>
@@ -1256,7 +1483,7 @@
               <button type="button" class="act-btn" data-copy-svg="${escapeHtml(ic.assetUrl)}" title="Copy mã SVG gốc">SVG</button>
               <button type="button" class="act-btn" data-copy-jsx="${escapeHtml(ic.assetUrl)}" data-title="${escapeHtml(ic.slug)}" title="Copy React JSX">JSX</button>
               <a href="${escapeHtml(ic.assetUrl)}" download="${escapeHtml(ic.fileName)}" class="act-btn" title="Tải file .svg">${ICONS.download}</a>
-              <button type="button" class="act-btn ${isFav ? 'fav-active' : ''}" data-toggle-fav="${escapeHtml(favKey)}" title="Yêu thích">
+              <button type="button" class="act-btn ${isFav ? 'fav-active' : ''}" data-toggle-fav="${escapeHtml(cleanKey)}" title="Yêu thích">
                 ${isFav ? ICONS.heartFilled : ICONS.heart}
               </button>
             </div>
@@ -1332,14 +1559,18 @@
         favBtn.innerHTML = ICONS.heartFilled;
       }
       saveFavorites();
-      if (filters.onlyFavorites && !activeCollectionState) loadIcons(true);
+      if (filters.onlyFavorites && !activeCollectionState) loadCatalogData(true);
       return;
     }
 
     const openTrigger = e.target.closest('[data-open-detail]');
     if (openTrigger) {
-      const [site, colSlug, idOrSlug] = openTrigger.dataset.openDetail.split(':');
-      openDetailPage(site, colSlug, idOrSlug, true);
+      const parts = openTrigger.dataset.openDetail.split(':');
+      if (parts.length >= 3) {
+        openDetailPage(parts[0], parts[1], parts[2], true);
+      } else {
+        openDetailPage('any', parts[0], parts[1], true);
+      }
     }
   }
 
@@ -1349,7 +1580,7 @@
   // DEDICATED COLLECTION VIEW SCREEN RENDERER
   // ============================================================================
   async function openCollectionPage(site, collectionSlug, pushHistory = true, initialParams = {}) {
-    const safeSite = site || 'any';
+    const safeSite = 'any';
     const initQ = initialParams.q || '';
     const initStyle = initialParams.styleType || '';
     const initSort = initialParams.sort || 'az';
@@ -1374,7 +1605,7 @@
     const col = data.collection;
     activeDetailIconKey = null;
     activeCollectionState = {
-      site: col.site || safeSite,
+      site: 'any',
       slug: col.slug,
       name: col.name,
       q: initQ,
@@ -1608,7 +1839,7 @@
     let data;
     try {
       data = await apiFetchJson(
-        `/api/catalog/icon/${encodeURIComponent(site)}/${encodeURIComponent(collectionSlug)}/${encodeURIComponent(idOrSlug)}`
+        `/api/catalog/icon/any/${encodeURIComponent(collectionSlug)}/${encodeURIComponent(idOrSlug)}`
       );
     } catch {
       showToast('Không tìm thấy dữ liệu chi tiết cho icon này');
@@ -1616,13 +1847,14 @@
     }
 
     const { icon, svgVariantsContent = {}, variantAssetUrls = {}, recommendations = {} } = data;
-    const favKey = `${icon.site}:${icon.collectionSlug}:${icon.id || icon.slug}`;
+    const favKey = `${icon.collectionSlug}:${icon.id || icon.slug}`;
+    const legacyFavKey = `${icon.site}:${icon.collectionSlug}:${icon.id || icon.slug}`;
     activeDetailIconKey = favKey;
 
     if (pushHistory) {
-      const targetUrl = `/icon/${encodeURIComponent(site)}/${encodeURIComponent(collectionSlug)}/${encodeURIComponent(idOrSlug)}`;
+      const targetUrl = `/icon/${encodeURIComponent(collectionSlug)}/${encodeURIComponent(idOrSlug)}`;
       if (`${window.location.pathname}${window.location.search}` !== targetUrl) {
-        window.history.pushState({ view: 'detail', site, collectionSlug, idOrSlug }, '', targetUrl);
+        window.history.pushState({ view: 'detail', collectionSlug, idOrSlug }, '', targetUrl);
       }
     }
 
@@ -1672,7 +1904,7 @@
 
     // Find prev/next icon in currentItems for quick keyboard/button navigation
     const currentIdx = currentItems.findIndex(
-      (it) => `${it.site}:${it.collectionSlug}:${it.id || it.slug}` === favKey
+      (it) => `${it.collectionSlug}:${it.id || it.slug}` === favKey
     );
     const prevItem = currentIdx > 0 ? currentItems[currentIdx - 1] : null;
     const nextItem = currentIdx >= 0 && currentIdx < currentItems.length - 1 ? currentItems[currentIdx + 1] : null;
@@ -1734,7 +1966,7 @@
           ${list
             .map(
               (item) => `
-              <div class="rec-mini-card" data-switch-icon="${escapeHtml(item.site)}:${escapeHtml(item.collectionSlug)}:${escapeHtml(item.id || item.slug)}">
+              <div class="rec-mini-card" data-switch-icon="${escapeHtml(item.collectionSlug)}:${escapeHtml(item.id || item.slug)}">
                 <img src="${escapeHtml(item.assetUrl)}" alt="${escapeHtml(item.title)}" loading="lazy" />
                 <div style="font-size:0.76rem;font-weight:600;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;color:var(--text-main)">${escapeHtml(item.title || item.slug)}</div>
                 <div style="font-size:0.66rem;color:var(--text-dim)">${escapeHtml(item.category)} · ${escapeHtml(item.styleType)}</div>
@@ -1746,7 +1978,7 @@
       `;
     }
 
-    const isFav = favorites.has(favKey);
+    const isFav = favorites.has(favKey) || favorites.has(legacyFavKey);
     const paletteColors = icon.colorPalette && icon.colorPalette.length ? icon.colorPalette : [];
 
     detailView.innerHTML = `
@@ -1761,7 +1993,7 @@
             ${escapeHtml(catLabel)}
           </button>
           <span class="crumb-sep">${ICONS.chevronRight}</span>
-          <button type="button" class="crumb-btn" data-open-col="${escapeHtml(icon.site)}:${escapeHtml(icon.collectionSlug)}">
+          <button type="button" class="crumb-btn" data-open-col="${escapeHtml(icon.collectionSlug)}">
             ${escapeHtml(icon.collectionName)}
           </button>
           <span class="crumb-sep">${ICONS.chevronRight}</span>
@@ -2007,7 +2239,7 @@
           <div class="detail-meta-grid">
             <div class="meta-stat-card">
               <span class="meta-stat-label">Bộ sưu tập</span>
-              <button type="button" class="meta-stat-link" data-open-col="${escapeHtml(icon.site)}:${escapeHtml(icon.collectionSlug)}">
+              <button type="button" class="meta-stat-link" data-open-col="${escapeHtml(icon.collectionSlug)}">
                 ${ICONS.folder}
                 <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${escapeHtml(icon.collectionName)}</span>
               </button>
@@ -2080,7 +2312,7 @@
             <span class="nav-icon" style="color:var(--brand-orange)">${ICONS.folder}</span>
             <span>Cùng bộ sưu tập "${escapeHtml(icon.collectionName)}"</span>
           </h2>
-          <button type="button" class="pill-btn" data-open-col="${escapeHtml(icon.site)}:${escapeHtml(icon.collectionSlug)}">
+          <button type="button" class="pill-btn" data-open-col="${escapeHtml(icon.collectionSlug)}">
             <span>Xem toàn bộ bộ sưu tập</span>
             ${ICONS.chevronRight}
           </button>
@@ -2133,7 +2365,7 @@
     // Back button: if user came from a Collection View, return to that Collection View; otherwise return to Catalog
     document.getElementById('btnBackToCatalog').addEventListener('click', () => {
       if (activeCollectionState && activeCollectionState.slug === icon.collectionSlug) {
-        openCollectionPage(activeCollectionState.site, activeCollectionState.slug, true);
+        openCollectionPage('any', activeCollectionState.slug, true);
       } else {
         showCatalogView(true);
       }
@@ -2143,21 +2375,22 @@
     const btnDetailPrev = document.getElementById('btnDetailPrev');
     if (btnDetailPrev && prevItem) {
       btnDetailPrev.addEventListener('click', () => {
-        openDetailPage(prevItem.site, prevItem.collectionSlug, prevItem.id || prevItem.slug, true);
+        openDetailPage('any', prevItem.collectionSlug, prevItem.id || prevItem.slug, true);
       });
     }
     const btnDetailNext = document.getElementById('btnDetailNext');
     if (btnDetailNext && nextItem) {
       btnDetailNext.addEventListener('click', () => {
-        openDetailPage(nextItem.site, nextItem.collectionSlug, nextItem.id || nextItem.slug, true);
+        openDetailPage('any', nextItem.collectionSlug, nextItem.id || nextItem.slug, true);
       });
     }
 
     // Favorite Toggle in Detail Page
     const btnDetailFav = document.getElementById('btnDetailFav');
     btnDetailFav.addEventListener('click', () => {
-      if (favorites.has(favKey)) {
+      if (favorites.has(favKey) || favorites.has(legacyFavKey)) {
         favorites.delete(favKey);
+        favorites.delete(legacyFavKey);
         btnDetailFav.classList.remove('active-fav');
         btnDetailFav.innerHTML = ICONS.heart;
         showToast('Đã bỏ khỏi danh sách Yêu thích');
@@ -2424,15 +2657,20 @@
   detailView.addEventListener('click', (e) => {
     const switchCard = e.target.closest('[data-switch-icon]');
     if (switchCard) {
-      const [s, c, id] = switchCard.dataset.switchIcon.split(':');
-      openDetailPage(s, c, id, true);
+      const parts = switchCard.dataset.switchIcon.split(':');
+      if (parts.length >= 3) {
+        openDetailPage(parts[0], parts[1], parts[2], true);
+      } else {
+        openDetailPage('any', parts[0], parts[1], true);
+      }
       return;
     }
 
     const openColBtn = e.target.closest('[data-open-col]');
     if (openColBtn) {
-      const [s, c] = openColBtn.dataset.openCol.split(':');
-      openCollectionPage(s, c, true);
+      const raw = openColBtn.dataset.openCol;
+      const c = raw.includes(':') ? raw.split(':')[1] : raw;
+      openCollectionPage('any', c, true);
       return;
     }
 
@@ -2441,7 +2679,7 @@
       filters.category = crumbCat.dataset.crumbCat;
       updateNavActiveStates();
       showCatalogView(true);
-      loadIcons(true);
+      loadCatalogData(true);
       return;
     }
 
@@ -2450,7 +2688,7 @@
       filters.styleType = jumpStyle.dataset.jumpStyle;
       updateNavActiveStates();
       showCatalogView(true);
-      loadIcons(true);
+      loadCatalogData(true);
       return;
     }
 
@@ -2459,7 +2697,7 @@
       filters.iconType = jumpType.dataset.jumpType;
       updateNavActiveStates();
       showCatalogView(true);
-      loadIcons(true);
+      loadCatalogData(true);
       return;
     }
 
@@ -2469,27 +2707,37 @@
       searchInput.value = filters.q;
       updateNavActiveStates();
       showCatalogView(true);
-      loadIcons(true);
+      loadCatalogData(true);
     }
   });
 
   // ============================================================================
   // SIDEBAR & TOP DROPDOWN FILTER EVENTS
   // ============================================================================
-  navAllIcons.addEventListener('click', () => resetAllFilters());
+  navAllIcons.addEventListener('click', () => {
+    viewMode = 'icons';
+    resetAllFilters(true);
+  });
+
+  if (navCollectionsDirectory) {
+    navCollectionsDirectory.addEventListener('click', () => {
+      setCatalogViewMode('collections');
+    });
+  }
 
   navFavorites.addEventListener('click', () => {
+    viewMode = 'icons';
     filters.onlyFavorites = !filters.onlyFavorites;
     updateNavActiveStates();
     showCatalogView(true);
-    loadIcons(true);
+    loadCatalogData(true);
   });
 
   btnResetCategory.addEventListener('click', () => {
     filters.category = '';
     updateNavActiveStates();
     showCatalogView(true);
-    loadIcons(true);
+    loadCatalogData(true);
   });
 
   sidebarCategories.addEventListener('click', (e) => {
@@ -2499,7 +2747,7 @@
     filters.category = filters.category === val ? '' : val;
     updateNavActiveStates();
     showCatalogView(true);
-    loadIcons(true);
+    loadCatalogData(true);
   });
 
   filterStyleOptions.addEventListener('click', (e) => {
@@ -2510,7 +2758,7 @@
     closeAllDropdowns();
     updateNavActiveStates();
     showCatalogView(true);
-    loadIcons(true);
+    loadCatalogData(true);
   });
 
   filterIconTypeOptions.addEventListener('click', (e) => {
@@ -2521,7 +2769,7 @@
     closeAllDropdowns();
     updateNavActiveStates();
     showCatalogView(true);
-    loadIcons(true);
+    loadCatalogData(true);
   });
 
   filterCollectionOptions.addEventListener('click', (e) => {
@@ -2529,8 +2777,7 @@
     if (!btn) return;
     const val = btn.dataset.filterCol;
     closeAllDropdowns();
-    const colObj = (catalogSummary?.collections || []).find((c) => c.slug === val);
-    openCollectionPage(colObj?.site || 'any', val, true);
+    openCollectionPage('any', val, true);
   });
 
   // Search & Sort
@@ -2547,14 +2794,14 @@
       } else {
         syncCatalogUrl(false);
       }
-      loadIcons(true);
+      loadCatalogData(true);
     }, 320);
   });
 
   sortSelect.addEventListener('change', () => {
     filters.sort = sortSelect.value;
     syncCatalogUrl(true);
-    loadIcons(true);
+    loadCatalogData(true);
   });
 
   let isSyncing = false;
@@ -2572,13 +2819,13 @@
       apiJsonCache.clear();
       await loadSummary(true);
       if (activeCollectionState) {
-        await openCollectionPage(activeCollectionState.site, activeCollectionState.slug, false, {
+        await openCollectionPage('any', activeCollectionState.slug, false, {
           q: activeCollectionState.q,
           styleType: activeCollectionState.styleType,
           sort: activeCollectionState.sort,
         });
       } else if (!activeDetailIconKey) {
-        await loadIcons(true, { bypassCache: true });
+        await loadCatalogData(true, { bypassCache: true });
       }
       showToast(`Đã đồng bộ kho SVGCraft (${(catalogSummary?.totalIcons || 0).toLocaleString()} icons)`);
     } finally {
@@ -2658,8 +2905,8 @@
       }
       if ((activeDetailIconKey || activeCollectionState) && document.activeElement !== searchInput) {
         showCatalogView(true);
-        if (currentItems.length === 0) {
-          loadIcons(true);
+        if (currentItems.length === 0 && currentCollections.length === 0) {
+          loadCatalogData(true);
         }
       }
     }
@@ -2674,15 +2921,21 @@
     const path = window.location.pathname;
     const params = new URLSearchParams(window.location.search);
 
-    const iconMatch = path.match(/^\/icon\/([^/]+)\/([^/]+)\/([^/]+)/);
-    if (iconMatch) {
-      const [, site, col, idOrSlug] = iconMatch.map(decodeURIComponent);
+    const iconLegacyMatch = path.match(/^\/icon\/([^/]+)\/([^/]+)\/([^/]+)/);
+    if (iconLegacyMatch) {
+      const [, site, col, idOrSlug] = iconLegacyMatch.map(decodeURIComponent);
       await openDetailPage(site, col, idOrSlug, false);
       return;
     }
-    const colMatch = path.match(/^\/collection\/([^/]+)\/([^/]+)/);
-    if (colMatch) {
-      const [, site, col] = colMatch.map(decodeURIComponent);
+    const iconCleanMatch = path.match(/^\/icon\/([^/]+)\/([^/]+)/);
+    if (iconCleanMatch) {
+      const [, col, idOrSlug] = iconCleanMatch.map(decodeURIComponent);
+      await openDetailPage('any', col, idOrSlug, false);
+      return;
+    }
+    const colLegacyMatch = path.match(/^\/collection\/([^/]+)\/([^/]+)/);
+    if (colLegacyMatch) {
+      const [, site, col] = colLegacyMatch.map(decodeURIComponent);
       await openCollectionPage(site, col, false, {
         q: params.get('q') || '',
         styleType: params.get('style') || '',
@@ -2703,7 +2956,7 @@
 
     readCatalogFiltersFromUrl();
     showCatalogView(false);
-    await loadIcons(true);
+    await loadCatalogData(true);
   }
 
   async function init() {

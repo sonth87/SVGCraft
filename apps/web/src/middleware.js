@@ -175,9 +175,9 @@ export function middleware(request) {
   }
 
   const isApiRoute = pathname.startsWith('/api/');
-  const isAssetRoute = pathname.startsWith('/output/');
+  const isAssetRoute = pathname.startsWith('/output/') || pathname.startsWith('/svg/');
 
-  // 2. Protect /api/* and /output/* from bots, cross-origin hotlinking, and direct URL scraping
+  // 2. Protect /api/*, /svg/*, and /output/* from bots, cross-origin hotlinking, and direct URL scraping
   if (isApiRoute || isAssetRoute) {
     if (BOT_UA_REGEX.test(ua)) {
       return new NextResponse('Forbidden for automated crawlers', { status: 403 });
@@ -205,7 +205,7 @@ export function middleware(request) {
     }
 
     if (isAssetRoute) {
-      // Prevent bulk downloading /output/*.svg without an active page session or same-origin referer
+      // Prevent bulk downloading /svg/*.svg or /output/*.svg without an active page session or same-origin referer
       const referer = request.headers.get('referer') || '';
       if (!hasSessionCookie && !referer && secFetchDest === 'document') {
         return new NextResponse('Forbidden: Direct asset scraping is disabled', { status: 403 });
@@ -262,5 +262,5 @@ export function middleware(request) {
 }
 
 export const config = {
-  matcher: ['/', '/icon/:path*', '/collection/:path*', '/api/:path*', '/output/:path*'],
+  matcher: ['/', '/icon/:path*', '/collection/:path*', '/api/:path*', '/svg/:path*', '/output/:path*'],
 };
