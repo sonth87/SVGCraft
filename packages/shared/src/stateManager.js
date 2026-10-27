@@ -58,7 +58,7 @@ class StateManager {
 
   buildAssetUrl(siteId, colSlug, relativePath) {
     const r2Public = (process.env.R2_PUBLIC_URL || '').trim().replace(/\/+$/, '');
-    if (r2Public) {
+    if (r2Public && !/\.r2\.cloudflarestorage\.com/i.test(r2Public)) {
       return `${r2Public}/${encodeURIComponent(siteId)}/${encodeURIComponent(colSlug)}/${relativePath}`;
     }
     return `/output/${encodeURIComponent(siteId)}/${encodeURIComponent(colSlug)}/${relativePath}`;

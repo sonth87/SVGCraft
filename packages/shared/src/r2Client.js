@@ -117,22 +117,40 @@ class R2Client {
       try {
         const parsedUrl = new URL(rawEndpoint);
         endpointOrigin = parsedUrl.origin;
-        pathBucket = parsedUrl.pathname.replace(/^\/+|\/+$/g, '');
+        pathBucket = parsedUrl.pathname.replace(/^\/+|\/+$/g, '').split('/')[0] || '';
       } catch {
         endpointOrigin = rawEndpoint.replace(/\/+$/, '');
       }
     }
 
+    const rawBucketInput = (options.bucket || process.env.R2_BUCKET || '').trim();
+    let normalizedBucket = '';
+    if (rawBucketInput) {
+      if (/^https?:\/\//i.test(rawBucketInput)) {
+        try {
+          const parsedBucketUrl = new URL(rawBucketInput);
+          if (!endpointOrigin) {
+            endpointOrigin = parsedBucketUrl.origin;
+          }
+          const extracted = parsedBucketUrl.pathname.replace(/^\/+|\/+$/g, '').split('/')[0] || '';
+          normalizedBucket = extracted || pathBucket || DEFAULT_R2_BUCKET;
+        } catch {
+          normalizedBucket = pathBucket || DEFAULT_R2_BUCKET;
+        }
+      } else {
+        normalizedBucket = rawBucketInput.replace(/^\/+|\/+$/g, '');
+      }
+    }
+
     this.endpointOrigin = endpointOrigin;
-    this.bucket =
-      options.bucket ||
-      process.env.R2_BUCKET ||
-      pathBucket ||
-      DEFAULT_R2_BUCKET;
+    this.bucket = normalizedBucket || pathBucket || DEFAULT_R2_BUCKET;
 
     this.accessKeyId = (options.accessKeyId || process.env.R2_ACCESS_KEY_ID || '').trim();
     this.secretAccessKey = (options.secretAccessKey || process.env.R2_SECRET_ACCESS_KEY || '').trim();
-    this.publicUrl = (options.publicUrl || process.env.R2_PUBLIC_URL || '').trim().replace(/\/+$/, '');
+
+    const rawPublicUrl = (options.publicUrl || process.env.R2_PUBLIC_URL || '').trim().replace(/\/+$/, '');
+    // Never use private S3 API endpoint (*.r2.cloudflarestorage.com) as a direct browser publicUrl
+    this.publicUrl = /\.r2\.cloudflarestorage\.com/i.test(rawPublicUrl) ? '' : rawPublicUrl;
 
     this.maxStorageBytes = Number(process.env.R2_MAX_STORAGE_BYTES) || DEFAULT_MAX_STORAGE_BYTES;
     this.maxClassAPerMonth = Number(process.env.R2_MAX_CLASS_A_PER_MONTH) || DEFAULT_MAX_CLASS_A_PER_MONTH;
