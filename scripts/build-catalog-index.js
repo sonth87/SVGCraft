@@ -11,7 +11,7 @@ const { StateManager, CATALOG_INDEX_GZ_FILE } = require('@svg-hub/shared');
 function main() {
   console.log('[Catalog Indexer] Đang quét thư mục output/ để đóng gói chỉ mục cho Vercel...');
   const sm = new StateManager();
-  const { allIcons, collections } = sm.loadAllEnrichedIcons();
+  const { allIcons, collections } = sm.loadAllEnrichedIcons({ forceDiskScan: true });
 
   if (!allIcons.length) {
     console.error('[Catalog Indexer] Không tìm thấy icon nào trong output/.');
@@ -32,8 +32,8 @@ function main() {
     ]),
     icons: allIcons.map((i) => {
       const varKeys = Object.keys(i.variants || {});
-      return [
-        i.site === 'allsvgicons' ? 2 : i.site === 'thesvg' ? 1 : 0,
+      const row = [
+        i.site === 'lordicon' ? 3 : i.site === 'allsvgicons' ? 2 : i.site === 'thesvg' ? 1 : 0,
         i.collectionSlug,
         i.id,
         i.slug,
@@ -44,6 +44,10 @@ function main() {
         i.gridSize || '24x24',
         varKeys.length > 1 ? varKeys : 0,
       ];
+      if (i.rawCategory) {
+        row.push(i.rawCategory);
+      }
+      return row;
     }),
   };
 

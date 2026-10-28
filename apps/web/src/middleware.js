@@ -20,9 +20,9 @@ const globalWindow = {
 };
 
 // Thresholds
-const GLOBAL_BURST_SPIKE_THRESHOLD = 280; // >280 API reqs / 10s globally triggers Spike Protection Mode
-const GLOBAL_MINUTE_SPIKE_THRESHOLD = 1200; // >1200 API reqs / 60s globally
-const PENALTY_BAN_MS = 15 * 60 * 1000; // 15-minute temporary ban after 3 rate-limit violations
+const GLOBAL_BURST_SPIKE_THRESHOLD = 600; // >600 API reqs / 10s globally triggers Spike Protection Mode
+const GLOBAL_MINUTE_SPIKE_THRESHOLD = 2400; // >2400 API reqs / 60s globally
+const PENALTY_BAN_MS = 5 * 60 * 1000; // 5-minute temporary ban after 5 rate-limit violation windows
 
 function getClientIp(request) {
   const xff = request.headers.get('x-forwarded-for');
@@ -30,6 +30,20 @@ function getClientIp(request) {
     return xff.split(',')[0].trim();
   }
   return request.headers.get('x-real-ip') || '127.0.0.1';
+}
+
+function isLocalRequest(request, ip) {
+  if (process.env.NODE_ENV === 'development') return true;
+  if (
+    ip === '127.0.0.1' ||
+    ip === '::1' ||
+    ip === 'localhost' ||
+    ip.endsWith(':127.0.0.1')
+  ) {
+    return true;
+  }
+  const host = (request.headers.get('host') || '').toLowerCase();
+  return host.startsWith('localhost') || host.startsWith('127.0.0.1') || host.startsWith('[::1]');
 }
 
 function cleanupStaleIps(now) {
@@ -66,10 +80,10 @@ function checkRateLimit(ip, bucket, now) {
   // Base limits per IP (automatically halved during a global traffic spike)
   const scale = isGlobalSpike ? 0.5 : 1;
   const limits = {
-    detail: { burst: Math.max(8, Math.floor(16 * scale)), minute: Math.max(20, Math.floor(45 * scale)) },
-    api: { burst: Math.max(12, Math.floor(28 * scale)), minute: Math.max(40, Math.floor(90 * scale)) },
-    asset: { burst: Math.max(80, Math.floor(160 * scale)), minute: Math.max(180, Math.floor(420 * scale)) },
-  }[bucket] || { burst: 25, minute: 80 };
+    detail: { burst: Math.max(30, Math.floor(60 * scale)), minute: Math.max(120, Math.floor(240 * scale)) },
+    api: { burst: Math.max(60, Math.floor(120 * scale)), minute: Math.max(200, Math.floor(450 * scale)) },
+    asset: { burst: Math.max(400, Math.floor(800 * scale)), minute: Math.max(1200, Math.floor(2400 * scale)) },
+  }[bucket] || { burst: 80, minute: 240 };
 
   let rec = ipStore.get(ip);
   if (!rec) {
@@ -77,6 +91,7 @@ function checkRateLimit(ip, bucket, now) {
       lastSeen: now,
       bannedUntil: 0,
       strikes: 0,
+      lastStrikeWindow: 0,
       buckets: {},
     };
     ipStore.set(ip, rec);
@@ -107,15 +122,19 @@ function checkRateLimit(ip, bucket, now) {
   b.minuteCount += 1;
 
   if (b.burstCount > limits.burst || b.minuteCount > limits.minute) {
-    rec.strikes += 1;
-    if (rec.strikes >= 3) {
-      rec.bannedUntil = now + PENALTY_BAN_MS;
-      return {
-        allowed: false,
-        retryAfterSec: Math.ceil(PENALTY_BAN_MS / 1000),
-        reason: 'penalty-ban',
-        isGlobalSpike,
-      };
+    if (bucket !== 'asset' && rec.lastStrikeWindow !== b.burstStart) {
+      rec.lastStrikeWindow = b.burstStart;
+      rec.strikes += 1;
+      if (rec.strikes >= 5) {
+        rec.strikes = 0;
+        rec.bannedUntil = now + PENALTY_BAN_MS;
+        return {
+          allowed: false,
+          retryAfterSec: Math.ceil(PENALTY_BAN_MS / 1000),
+          reason: 'penalty-ban',
+          isGlobalSpike,
+        };
+      }
     }
     return {
       allowed: false,
@@ -169,13 +188,30 @@ export function middleware(request) {
   const now = Date.now();
   const ip = getClientIp(request);
 
+  // Bypass rate-limiting completely on local development / localhost
+  if (isLocalRequest(request, ip)) {
+    const response = NextResponse.next();
+    if (!request.cookies.get('__svgc_v')) {
+      response.cookies.set('__svgc_v', '1', {
+        httpOnly: true,
+        sameSite: 'lax',
+        path: '/',
+        maxAge: 60 * 60 * 24,
+      });
+    }
+    return response;
+  }
+
   // 1. Block empty User-Agents and known scraper/crawler tools everywhere
   if (!ua || ua.length < 8 || SCRAPER_UA_REGEX.test(ua)) {
     return new NextResponse('Forbidden', { status: 403 });
   }
 
   const isApiRoute = pathname.startsWith('/api/');
-  const isAssetRoute = pathname.startsWith('/output/') || pathname.startsWith('/svg/');
+  const isAssetRoute =
+    pathname.startsWith('/output/') ||
+    pathname.startsWith('/svg/') ||
+    pathname.startsWith('/api/lordicon/');
 
   // 2. Protect /api/*, /svg/*, and /output/* from bots, cross-origin hotlinking, and direct URL scraping
   if (isApiRoute || isAssetRoute) {
@@ -204,7 +240,7 @@ export function middleware(request) {
       }
     }
 
-    if (isAssetRoute) {
+    if (isAssetRoute && !isApiRoute) {
       // Prevent bulk downloading /svg/*.svg or /output/*.svg without an active page session or same-origin referer
       const referer = request.headers.get('referer') || '';
       if (!hasSessionCookie && !referer && secFetchDest === 'document') {
@@ -213,11 +249,11 @@ export function middleware(request) {
     }
 
     // 3. Apply Sliding-Window Rate Limiter & Spike Circuit Breaker
-    const bucket = pathname.startsWith('/api/catalog/icon/')
-      ? 'detail'
-      : isApiRoute
-        ? 'api'
-        : 'asset';
+    const bucket = isAssetRoute
+      ? 'asset'
+      : pathname.startsWith('/api/catalog/icon/')
+        ? 'detail'
+        : 'api';
 
     const rl = checkRateLimit(ip, bucket, now);
 

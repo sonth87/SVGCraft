@@ -21,12 +21,23 @@ export async function GET(request, { params }) {
     const safeCol = String(collection).replace(/[^a-zA-Z0-9-_]/g, '_');
     const safeFile = path.basename(String(fileName));
 
-    const stateManager = getStateManager();
-    const resolvedSite = stateManager.resolveCollectionSite(safeCol);
-    const sitesToTry = resolvedSite ? [resolvedSite] : ['allsvgicons', 'thesvg', 'svgrepo'];
+    const runtimeFs = eval('require')('fs');
+    const ALL_SITES = ['lordicon', 'allsvgicons', 'thesvg', 'svgrepo'];
+
+    // Fast path: determine site directly by prefix or fast local folder check without scanning 240k+ catalog icons
+    let sitesToTry = ALL_SITES;
+    if (safeCol.startsWith('lordicon-')) {
+      sitesToTry = ['lordicon'];
+    } else {
+      for (const sId of ALL_SITES) {
+        if (runtimeFs.existsSync(path.join(OUTPUT_DIR, sId, safeCol))) {
+          sitesToTry = [sId];
+          break;
+        }
+      }
+    }
 
     // 1. Serve from local disk if present (Local Dev Mode)
-    const runtimeFs = eval('require')('fs');
     for (const siteId of sitesToTry) {
       const candidates = getCandidateFilesForSite(safeFile, siteId);
       for (const candidate of candidates) {

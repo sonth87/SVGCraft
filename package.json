@@ -17,6 +17,7 @@
     "build:index": "node --max-old-space-size=8192 scripts/build-catalog-index.js",
     "r2:sync": "node --max-old-space-size=8192 scripts/sync-to-r2.js",
     "r2:sync:allsvgicons": "node --max-old-space-size=8192 scripts/sync-to-r2.js --site=allsvgicons",
+    "r2:sync:lordicon": "node --max-old-space-size=8192 scripts/sync-to-r2.js --site=lordicon",
     "r2:dry-run": "node --max-old-space-size=8192 scripts/sync-to-r2.js --dry-run"
   },
   "dependencies": {

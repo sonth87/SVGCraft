@@ -67,13 +67,13 @@ export default function Topbar() {
           <input
             type="search"
             id="searchInput"
-            placeholder="Tìm kiếm icon theo tên, từ khóa, chủ đề, bộ sưu tập..."
+            placeholder="Search icons by name, keyword, category, collection..."
             autoComplete="off"
           />
           <span className="kbd-hint">⌘K</span>
 
           {/* Smart Search Quick-Tag Popover on Focus */}
-          <div id="searchFocusPopover" className="search-focus-popover" role="dialog" aria-label="Bộ lọc tìm kiếm nhanh">
+          <div id="searchFocusPopover" className="search-focus-popover" role="dialog" aria-label="Quick search filters">
             <div id="searchPopoverContent" />
           </div>
         </div>
@@ -83,7 +83,7 @@ export default function Topbar() {
             type="button"
             id="btnCycleTone"
             className="pill-btn"
-            title="Đổi nền khung xem trước (Auto / Dark / Light / Checker)"
+            title="Switch preview background tone (Auto / Dark / Light / Checker)"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -103,10 +103,10 @@ export default function Topbar() {
               <path d="M15 3v18" />
             </svg>
             <span>
-              Nền: <strong id="toneLabel">Auto</strong>
+              <span id="tonePrefixLabel">Canvas:</span> <strong id="toneLabel">Auto</strong>
             </span>
           </button>
-          <button type="button" id="btnToggleTheme" className="pill-btn" title="Đổi giao diện Sáng / Tối">
+          <button type="button" id="btnToggleTheme" className="pill-btn" title="Switch Light / Dark theme">
             <span id="themeIconWrap" className="icon-inline">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -131,6 +131,29 @@ export default function Topbar() {
               </svg>
             </span>
             <span id="themeTextLabel">Light</span>
+          </button>
+          <button
+            type="button"
+            id="btnToggleLang"
+            className="pill-btn"
+            title="Switch Language (English / Tiếng Việt)"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="14"
+              height="14"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="2"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            >
+              <circle cx="12" cy="12" r="10" />
+              <path d="M12 2a14.5 14.5 0 0 0 0 20 14.5 14.5 0 0 0 0-20" />
+              <path d="M2 12h20" />
+            </svg>
+            <strong id="langTextLabel">EN</strong>
           </button>
         </div>
       </header>

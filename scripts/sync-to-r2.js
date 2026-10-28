@@ -46,7 +46,7 @@ function collectPendingSvgTasks(r2Client, maxLimit = Infinity, siteFilter = '') 
     return fs.existsSync(full) && fs.statSync(full).isDirectory();
   });
 
-  const priorityOrder = { allsvgicons: 0, thesvg: 1, svgrepo: 2 };
+  const priorityOrder = { lordicon: 0, allsvgicons: 1, thesvg: 2, svgrepo: 3 };
   allSites.sort((a, b) => (priorityOrder[a] ?? 9) - (priorityOrder[b] ?? 9));
 
   const sites = siteFilter ? allSites.filter((s) => s === siteFilter) : allSites;

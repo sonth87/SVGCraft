@@ -9,21 +9,21 @@ export const metadata = {
     template: '%s — SVGCraft',
   },
   description:
-    'Kho lưu trữ 500.000+ Vector Icons chuẩn hóa theo chủ đề, phong cách đường nét, biến thể Sáng/Tối và xuất mã trực tiếp cho React JSX, Vue, HTML & PNG.',
+    '500,000+ Open-Source Vector Icons standardized by category, stroke style, Light/Dark variants, and instant code export for React JSX, Vue, HTML & PNG.',
   icons: {
     icon: FAVICON_DATA_URI,
   },
   openGraph: {
     title: 'SVGCraft — Vector Icon Library, Inspector & Code Studio',
     description:
-      'Kho lưu trữ 500.000+ Vector Icons chuẩn hóa theo chủ đề, phong cách đường nét và xuất mã trực tiếp cho React, Vue, HTML & PNG.',
+      '500,000+ Open-Source Vector Icons standardized by category, stroke style, and instant code export for React, Vue, HTML & PNG.',
     type: 'website',
   },
 };
 
 export default function RootLayout({ children }) {
   return (
-    <html lang="vi" data-theme="light" suppressHydrationWarning>
+    <html lang="en" data-theme="light" suppressHydrationWarning>
       <body data-preview-tone="auto" suppressHydrationWarning>
         {children}
       </body>

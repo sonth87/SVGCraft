@@ -19,19 +19,24 @@
     'message-square': `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><path d="M8 10h.01"/><path d="M12 10h.01"/><path d="M16 10h.01"/></svg>`,
     layers: `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round"><path d="m12.83 2.18a2 2 0 0 0-1.66 0L2.6 6.08a1 1 0 0 0 0 1.83l8.58 3.91a2 2 0 0 0 1.66 0l8.58-3.9a1 1 0 0 0 0-1.83Z"/><path d="m22 17.65-9.17 4.16a2 2 0 0 1-1.66 0L2 17.65"/><path d="m22 12.65-9.17 4.16a2 2 0 0 1-1.66 0L2 12.65"/></svg>`,
     cpu: `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round"><rect width="16" height="16" x="4" y="4" rx="2"/><rect width="6" height="6" x="9" y="9" rx="1"/><path d="M15 2v2"/><path d="M15 20v2"/><path d="M2 15h2"/><path d="M2 9h2"/><path d="M20 15h2"/><path d="M20 9h2"/><path d="M9 2v2"/><path d="M9 20v2"/></svg>`,
+    home: `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round"><path d="M15 21v-8a1 1 0 0 0-1-1h-4a1 1 0 0 0-1 1v8"/><path d="M3 10a2 2 0 0 1 .709-1.528l7-5.999a2 2 0 0 1 2.582 0l7 5.999A2 2 0 0 1 21 10v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/></svg>`,
+    coffee: `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round"><path d="M10 2v2"/><path d="M14 2v2"/><path d="M16 8a1 1 0 0 1 1 1v8a4 4 0 0 1-4 4H7a4 4 0 0 1-4-4V9a1 1 0 0 1 1-1h14a4 4 0 1 1 0 8h-1"/><path d="M6 2v2"/></svg>`,
+    activity: `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-2.48a2 2 0 0 0-1.93 1.46l-2.35 8.36a.25.25 0 0 1-.48 0L9.24 2.18a.25.25 0 0 0-.48 0l-2.35 8.36A2 2 0 0 1 4.49 12H2"/></svg>`,
+    compass: `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round"><path d="m16.24 7.76-1.804 5.411a2 2 0 0 1-1.265 1.265L7.76 16.24l1.804-5.411a2 2 0 0 1 1.265-1.265z"/><circle cx="12" cy="12" r="10"/></svg>`,
     hexagon: `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><circle cx="12" cy="12" r="3"/></svg>`,
     'play-circle': `<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.85" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg>`,
+    waveform: `<svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-2.48a2 2 0 0 0-1.93 1.46l-2.35 8.36a.25.25 0 0 1-.48 0L9.24 2.18a.25.25 0 0 0-.48 0l-2.35 8.36A2 2 0 0 1 4.49 12H2"/></svg>`,
 
     // Bespoke Style Icons (visualizing Outlined, Filled, Duotone, Multicolor, Monocolor)
-    'style-outlined': `<svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4"/></svg>`,
+    'style-outlined': `<svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="8.5"/><circle cx="12" cy="12" r="3.5"/></svg>`,
     'style-filled': `<svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="currentColor" stroke="none"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 14.5c-2.49 0-4.5-2.01-4.5-4.5S9.51 7.5 12 7.5s4.5 2.01 4.5 4.5-2.01 4.5-4.5 4.5z"/></svg>`,
-    'style-duotone': `<svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="13" height="13" rx="3.5" fill="currentColor" fill-opacity="0.3" stroke="currentColor" stroke-width="1.6"/><rect x="8" y="8" width="13" height="13" rx="3.5" fill="currentColor"/></svg>`,
-    'style-multicolor': `<svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none"><circle cx="8" cy="8" r="5" fill="#f97316"/><circle cx="16" cy="8" r="5" fill="#6366f1"/><circle cx="8" cy="16" r="5" fill="#10b981"/><circle cx="16" cy="16" r="5" fill="#ec4899"/></svg>`,
+    'style-duotone': `<svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none"><circle cx="10" cy="10" r="7" fill="currentColor" fill-opacity="0.3" stroke="currentColor" stroke-width="1.6"/><circle cx="14.5" cy="14.5" r="6.5" fill="currentColor"/></svg>`,
+    'style-multicolor': `<svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M12 2a10 10 0 0 1 10 10h-6a4 4 0 0 0-4-4V2Z" fill="#f97316"/><path d="M22 12a10 10 0 0 1-10 10v-6a4 4 0 0 0 4-4h6Z" fill="#6366f1"/><path d="M12 22A10 10 0 0 1 2 12h6a4 4 0 0 0 4 4v6Z" fill="#10b981"/><path d="M2 12A10 10 0 0 1 12 2v6a4 4 0 0 0-4 4H2Z" fill="#ec4899"/></svg>`,
     'style-monocolor': `<svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 3a9 9 0 0 1 0 18Z" fill="currentColor"/></svg>`,
 
     // Bespoke Icon Kind Icons
     'type-ui-icon': `<svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect width="7" height="7" x="3" y="3" rx="1.5"/><rect width="7" height="7" x="14" y="3" rx="1.5"/><rect width="7" height="7" x="14" y="14" rx="1.5"/><circle cx="6.5" cy="17.5" r="3.5"/></svg>`,
-    'type-animated': `<svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polygon points="10 8 16 12 10 16 10 8"/></svg>`,
+    'type-animated': `<svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 12h-2.48a2 2 0 0 0-1.93 1.46l-2.35 8.36a.25.25 0 0 1-.48 0L9.24 2.18a.25.25 0 0 0-.48 0l-2.35 8.36A2 2 0 0 1 4.49 12H2"/></svg>`,
     'type-brand-logo': `<svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2 3 7v10l9 5 9-5V7l-9-5Z"/><path d="m9 12 2 2 4-4"/></svg>`,
     'type-architecture': `<svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"/><polyline points="3.27 6.96 12 12.01 20.73 6.96"/><line x1="12" y1="22.08" x2="12" y2="12"/></svg>`,
     'type-badge': `<svg xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="6"/><circle cx="8" cy="12" r="2.5" fill="currentColor"/><path d="M13 12h6"/></svg>`,
@@ -87,10 +92,439 @@
   const btnToggleTheme = document.getElementById('btnToggleTheme');
   const themeIconWrap = document.getElementById('themeIconWrap');
   const themeTextLabel = document.getElementById('themeTextLabel');
+  const btnToggleLang = document.getElementById('btnToggleLang');
+  const langTextLabel = document.getElementById('langTextLabel');
   const logoResetBtn = document.getElementById('logoResetBtn');
+
+  // ============================================================================
+  // INTERNATIONALIZATION (EN default + VI switcher)
+  // ============================================================================
+  const savedLang = typeof localStorage !== 'undefined' ? localStorage.getItem('svg_hub_lang') : null;
+  let currentLang = savedLang === 'vi' ? 'vi' : 'en';
+
+  const I18N = {
+    en: {
+      searchPlaceholder: 'Search 500,000+ icons, brands, AI, AWS, UI... (Cmd/Ctrl + K)',
+      tonePrefix: 'Bg:',
+      toneTitle: 'Switch icon preview background (Auto / Dark / Light / Checkerboard)',
+      langTitle: 'Switch Language (English / Tiếng Việt)',
+      themeTitle: 'Switch Theme (Dark / Light)',
+      exploreHeading: 'Explore',
+      navAllIcons: 'All Icons',
+      navAnimated: 'Animated Icons',
+      navCollections: 'Collections',
+      navBrands: 'Brands',
+      navFavorites: 'Favorites',
+      categoriesHeading: 'Categories',
+      resetAll: 'All',
+      heroHeadingIcons: '500,000+ Vector Icons. Inspect. Customize. Ship.',
+      heroHeadingCollections: 'Explore Vector Collections by Topic & Style.',
+      heroHeadingBrands: 'Explore Brand Logos & Tech Ecosystems.',
+      heroSubheading:
+        'Instant search across <strong>1,500+ collections</strong> · Real-time color customization · Export <strong>SVG, React JSX, Vue, Data URI &amp; PNG</strong>.',
+      styleTriggerDefault: 'Style',
+      styleHeader: 'Visual Style (Style Type)',
+      iconTypeTriggerDefault: 'Icon Type',
+      iconTypeHeader: 'Icon Type (Icon Kind)',
+      collectionsTriggerDefault: 'Collections',
+      collectionsHeader: 'Collections',
+      collectionSearchPlaceholder: 'Find collection (e.g. Solar, AWS, Simple Icons...)',
+      noCollectionsFound: 'No matching collections found',
+      clearSelection: 'Clear selection',
+      sortTitle: 'Sort order',
+      sortRecent: 'Recently updated',
+      sortAz: 'Name A → Z',
+      sortZa: 'Name Z → A',
+      reloadBtnTitle: 'Refresh catalog',
+      reloadBtnText: 'Refresh',
+      reloadingText: 'Syncing...',
+      tabIcons: 'Individual Icons',
+      tabCollections: 'Collections',
+      tabBrands: 'Brands (Logos)',
+      showingPrefix: 'Showing',
+      unitIcons: 'icons',
+      unitCollections: 'collections',
+      unitBrands: 'brands',
+      loadMoreDefault: 'Load more icons',
+      loadingMoreIcons: 'Loading more icons...',
+      loadingMoreItems: 'Loading more {unit}...',
+      scrollLoadMore: 'Scroll down to load more ({shown} / {total} {unit})',
+      removeFilterTag: 'Remove filter tag',
+      popIconKindTitle: 'Icon & Brand Kind',
+      popIconKindHint: 'Click tag to quick filter',
+      popCategoriesTitle: 'Categories',
+      popStylesTitle: 'Styles',
+      popTopColsTitle: 'Featured Collections (Open Collection View)',
+      chipCategory: 'Category',
+      chipStyle: 'Style',
+      chipType: 'Type',
+      chipCollection: 'Collection',
+      chipLetter: 'Letter',
+      chipKeyword: 'Keyword',
+      chipFavorites: 'Favorites',
+      clearAllFilters: 'Clear all filters',
+      emptyColsTitle: 'No matching {unit} found',
+      emptyColsDesc: 'Try selecting another category or resetting filters to view the full directory.',
+      emptyIconsTitle: 'No SVG icons match your filters',
+      emptyIconsDesc: 'Try removing keywords or resetting filters to browse the full catalog.',
+      resetFiltersBtn: 'Reset filters',
+      variantsTooltip: 'Has {count} variants',
+      copySvgTitle: 'Copy raw SVG code',
+      copyJsxTitle: 'Copy React JSX',
+      downloadSvgTitle: 'Download .svg file',
+      favoriteTitle: 'Favorite',
+      toastRateLimit: 'Too many requests, please wait a few seconds...',
+      toastPngCopied: 'Copied PNG ({size}×{size}px) to Clipboard',
+      toastPngDownloaded: 'Downloaded {file}',
+      toastSvgCopied: 'Copied SVG code to Clipboard',
+      toastJsxCopied: 'Copied <{comp} /> component (JSX)',
+      toastVueCopied: 'Copied Vue Template code',
+      toastDataUriCopied: 'Copied SVG Data URI',
+      toastFileDownloaded: 'Downloaded {file}',
+      toastCodeCopied: 'Copied {tab} code',
+      toastHexCopied: 'Copied color {hex}',
+      toastColNotFound: 'Collection not found',
+      toastColLinkCopied: 'Copied collection link',
+      toastIconNotFound: 'Icon details not found',
+      toastIconLinkCopied: 'Copied icon link',
+      toastFavAdded: 'Saved to Favorites',
+      toastFavRemoved: 'Removed from Favorites',
+      toastSynced: 'Synced SVGCraft catalog ({count} icons)',
+      colPageTitleSuffix: 'SVG Icon Collection | SVGCraft',
+      colBackCatalog: 'Back to Catalog',
+      colBreadcrumb: 'Collection',
+      colShareTitle: 'Copy collection link',
+      colStatCount: 'Count:',
+      colStatLicense: 'License:',
+      colStatAuthor: 'Author:',
+      colSearchPlaceholder: 'Search icons in {name}...',
+      colAllStyles: 'All ({count})',
+      colEmptySearch: 'No icons match your search in this collection.',
+      colLoadMoreBtn: 'Load more icons in collection ({shown} / {total})',
+      detailBack: 'Back',
+      detailPrevTitle: 'Previous icon (←)',
+      detailNextTitle: 'Next icon (→)',
+      detailFavTitle: 'Save to Favorites',
+      detailShareTitle: 'Copy direct link',
+      stageToneChecker: 'Transparent background (Checkerboard)',
+      stageToneDark: 'Dark background',
+      stageToneLight: 'Light background',
+      stageToneAuto: 'Auto background (follows theme)',
+      stageKeylineTitle: 'Toggle Keyline Grid',
+      stageZoomOutTitle: 'Zoom out',
+      stageZoomInTitle: 'Zoom in',
+      stageZoomResetTitle: 'Scroll to zoom at cursor · Click to reset 100%',
+      stageCanvasTitle: 'Scroll wheel to zoom at cursor · Drag to pan inside frame',
+      stageColorLabel: 'Color:',
+      stageResetColorTitle: 'Reset original color',
+      detailVariantsTitle: 'Variants ({count} Variants)',
+      detailPaletteTitle: 'Original SVG Palette (Click to copy HEX)',
+      detailStylePrefix: 'Style:',
+      detailDownloadSvgBtn: 'Download .SVG',
+      detailPngExportTitle: 'Export high-res PNG:',
+      detailPngBtnTitle: 'Download PNG {size}×{size}px',
+      detailCopyPngTitle: 'Copy 256px PNG to Clipboard',
+      detailCopyCodeBtn: 'Copy Code',
+      detailCopiedBtn: 'Copied',
+      metaCollection: 'Collection',
+      metaGridSize: 'Grid Size',
+      metaFileSize: 'File Size',
+      metaLicense: 'License',
+      metaAuthor: 'Author',
+      detailTagsLabel: 'Classification Tags (Click tag to search matching icons)',
+      recSimilarTitle: 'Similar Icons (Matching tags, category & style)',
+      recSameStyleTitle: 'Same "{style}" style & "{category}" category',
+      recSameColTitle: 'More from "{collection}"',
+      recViewAllCol: 'View full collection',
+      recEmpty: 'No additional icons in this group.',
+      customizerTitle: 'Vector Customizer (Colors · Background · Stroke)',
+      ctrlColors: 'Colors',
+      ctrlBackground: 'Background',
+      ctrlTransparent: 'Transparent',
+      ctrlStroke: 'Stroke',
+      strokeLight: 'light',
+      strokeRegular: 'regular',
+      strokeBold: 'bold',
+      motionPanelTitle: 'Animation & Motion States',
+      motionLiveLoop: 'Auto Loop on Stage',
+      motionPlayOnce: 'Play Motion',
+      exportModeTitle: 'SVG Download & Copy Mode',
+      exportModeStatic: 'Static SVG',
+      exportModeStaticSub: 'Lightweight static vector (~3–15 KB)',
+      exportModeHover: 'Animated SVG (On Hover)',
+      exportModeHoverSub: 'Plays animation when hovered (:hover)',
+      exportModeLoop: 'Animated SVG (Auto Loop)',
+      exportModeLoopSub: 'Loops continuously by itself (infinite)',
+      exportModeLottie: 'Download Lottie .JSON',
+      exportModeLottieSub: 'Raw vector animation JSON',
+      toastCompilingAnimSvg: 'Compiling standalone animated SVG with your colors & stroke...',
+      lordiconAllCategories: 'All Categories',
+      lordiconTopicLabel: 'Animated Categories:',
+      categories: {
+        ai: 'AI & Machine Learning',
+        cloud: 'Cloud & Infrastructure',
+        devtools: 'Developer Tools & Code',
+        interface: 'UI & Interface Controls',
+        design: 'Design & Creative',
+        security: 'Security, Auth & Privacy',
+        finance: 'Finance, Payment & Shopping',
+        social: 'Social & Communication',
+        productivity: 'Productivity & Workspace',
+        hardware: 'Hardware, OS & Devices',
+        animals: 'Animals, Nature & Weather',
+        architecture: 'Architecture, Places & Home',
+        food: 'Food, Drink & Dining',
+        health: 'Health, Sports & Games',
+        transport: 'Transport, Maps & Travel',
+        brand: 'Brand & Company Logos',
+        animation: 'Animated & Motion Icons',
+      },
+      styles: {
+        outlined: 'Outlined',
+        filled: 'Filled',
+        duotone: 'Duotone',
+        multicolor: 'Multicolor',
+        monocolor: 'Monocolor',
+      },
+      iconTypes: {
+        'ui-icon': 'UI / System Icon',
+        animated: 'Animated / Motion SVG',
+        'brand-logo': 'Brand / Tech Logo',
+        architecture: 'Cloud Architecture',
+        badge: 'Badge / Auth Button',
+      },
+    },
+    vi: {
+      searchPlaceholder: 'Tìm trong 500.000+ icon, thương hiệu, AI, AWS, UI... (Cmd/Ctrl + K)',
+      tonePrefix: 'Nền:',
+      toneTitle: 'Đổi nền xem trước icon (Auto / Dark / Light / Checkerboard)',
+      langTitle: 'Đổi ngôn ngữ (English / Tiếng Việt)',
+      themeTitle: 'Đổi giao diện Sáng / Tối',
+      exploreHeading: 'Khám phá',
+      navAllIcons: 'Tất cả Icons',
+      navAnimated: 'Icon Động (Animated)',
+      navCollections: 'Bộ sưu tập',
+      navBrands: 'Thương hiệu (Brands)',
+      navFavorites: 'Đã yêu thích',
+      categoriesHeading: 'Chủ đề (Categories)',
+      resetAll: 'Tất cả',
+      heroHeadingIcons: '500.000+ Vector Icons. Inspect. Customize. Ship.',
+      heroHeadingCollections: 'Khám phá Bộ sưu tập Vector theo Chủ đề & Phong cách.',
+      heroHeadingBrands: 'Khám phá Logo & Hệ sinh thái Thương hiệu.',
+      heroSubheading:
+        'Tìm kiếm tức thì hơn <strong>1.500+ bộ sưu tập</strong> · Đổi màu trực tiếp · Xuất nhanh <strong>SVG, React JSX, Vue, Data URI &amp; PNG</strong>.',
+      styleTriggerDefault: 'Phong cách',
+      styleHeader: 'Phong cách vẽ (Style Type)',
+      iconTypeTriggerDefault: 'Loại Icon',
+      iconTypeHeader: 'Phân loại (Icon Kind)',
+      collectionsTriggerDefault: 'Bộ sưu tập',
+      collectionsHeader: 'Bộ sưu tập (Collections)',
+      collectionSearchPlaceholder: 'Tìm bộ sưu tập (VD: Solar, AWS, Simple Icons...)',
+      noCollectionsFound: 'Không tìm thấy bộ sưu tập phù hợp',
+      clearSelection: 'Bỏ chọn',
+      sortTitle: 'Thứ tự sắp xếp',
+      sortRecent: 'Mới cập nhật',
+      sortAz: 'Tên A → Z',
+      sortZa: 'Tên Z → A',
+      reloadBtnTitle: 'Làm mới dữ liệu kho',
+      reloadBtnText: 'Làm mới',
+      reloadingText: 'Đang đồng bộ...',
+      tabIcons: 'Từng Icon lẻ',
+      tabCollections: 'Bộ sưu tập',
+      tabBrands: 'Thương hiệu (Brands)',
+      showingPrefix: 'Hiển thị',
+      unitIcons: 'icons',
+      unitCollections: 'bộ sưu tập',
+      unitBrands: 'thương hiệu',
+      loadMoreDefault: 'Tải thêm icon',
+      loadingMoreIcons: 'Đang tự động tải thêm icon...',
+      loadingMoreItems: 'Đang tự động tải thêm {unit}...',
+      scrollLoadMore: 'Cuộn xuống để tải thêm ({shown} / {total} {unit})',
+      removeFilterTag: 'Gỡ tag lọc',
+      popIconKindTitle: 'Loại Icon & Brand (Icon Kind)',
+      popIconKindHint: 'Gắn tag để lọc nhanh',
+      popCategoriesTitle: 'Chủ đề (Categories)',
+      popStylesTitle: 'Phong cách (Styles)',
+      popTopColsTitle: 'Bộ sưu tập nổi bật (Mở màn hình Bộ sưu tập)',
+      chipCategory: 'Chủ đề',
+      chipStyle: 'Phong cách',
+      chipType: 'Loại',
+      chipCollection: 'Bộ sưu tập',
+      chipLetter: 'Chữ cái',
+      chipKeyword: 'Từ khóa',
+      chipFavorites: 'Đã yêu thích',
+      clearAllFilters: 'Xóa tất cả bộ lọc',
+      emptyColsTitle: 'Không tìm thấy {unit} nào khớp bộ lọc',
+      emptyColsDesc: 'Hãy thử chọn chủ đề khác hoặc đặt lại bộ lọc để xem toàn bộ danh sách.',
+      emptyIconsTitle: 'Không tìm thấy icon SVG nào khớp bộ lọc',
+      emptyIconsDesc: 'Hãy thử xóa bớt từ khóa hoặc đặt lại bộ lọc để xem toàn bộ kho lưu trữ.',
+      resetFiltersBtn: 'Đặt lại bộ lọc',
+      variantsTooltip: 'Có {count} biến thể',
+      copySvgTitle: 'Copy mã SVG gốc',
+      copyJsxTitle: 'Copy React JSX',
+      downloadSvgTitle: 'Tải file .svg',
+      favoriteTitle: 'Yêu thích',
+      toastRateLimit: 'Bạn thao tác quá nhanh, vui lòng đợi vài giây...',
+      toastPngCopied: 'Đã copy ảnh PNG ({size}×{size}px) vào Clipboard',
+      toastPngDownloaded: 'Đã tải xuống {file}',
+      toastSvgCopied: 'Đã copy mã SVG vào Clipboard',
+      toastJsxCopied: 'Đã copy component <{comp} /> (JSX)',
+      toastVueCopied: 'Đã copy mã Vue Template',
+      toastDataUriCopied: 'Đã copy SVG Data URI',
+      toastFileDownloaded: 'Đã tải xuống {file}',
+      toastCodeCopied: 'Đã copy mã {tab}',
+      toastHexCopied: 'Đã copy mã màu {hex}',
+      toastColNotFound: 'Không tìm thấy bộ sưu tập này',
+      toastColLinkCopied: 'Đã copy đường dẫn bộ sưu tập',
+      toastIconNotFound: 'Không tìm thấy dữ liệu chi tiết cho icon này',
+      toastIconLinkCopied: 'Đã copy đường dẫn chi tiết icon',
+      toastFavAdded: 'Đã lưu vào danh sách Yêu thích',
+      toastFavRemoved: 'Đã bỏ khỏi danh sách Yêu thích',
+      toastSynced: 'Đã đồng bộ kho SVGCraft ({count} icons)',
+      colPageTitleSuffix: 'Bộ sưu tập SVG Icons | SVGCraft',
+      colBackCatalog: 'Quay lại Kho lưu trữ',
+      colBreadcrumb: 'Bộ sưu tập',
+      colShareTitle: 'Copy liên kết bộ sưu tập',
+      colStatCount: 'Số lượng:',
+      colStatLicense: 'Giấy phép:',
+      colStatAuthor: 'Tác giả:',
+      colSearchPlaceholder: 'Tìm icon trong bộ sưu tập {name}...',
+      colAllStyles: 'Tất cả ({count})',
+      colEmptySearch: 'Không tìm thấy icon nào khớp từ khóa trong bộ sưu tập này.',
+      colLoadMoreBtn: 'Tải thêm icon trong bộ sưu tập ({shown} / {total})',
+      detailBack: 'Quay lại',
+      detailPrevTitle: 'Icon trước đó (←)',
+      detailNextTitle: 'Icon tiếp theo (→)',
+      detailFavTitle: 'Lưu vào Yêu thích',
+      detailShareTitle: 'Copy liên kết trực tiếp',
+      stageToneChecker: 'Nền trong suốt (Checkerboard)',
+      stageToneDark: 'Nền tối (Dark)',
+      stageToneLight: 'Nền sáng (Light)',
+      stageToneAuto: 'Nền tự động theo giao diện (Auto)',
+      stageKeylineTitle: 'Bật/Tắt lưới chuẩn thiết kế (Keyline Grid)',
+      stageZoomOutTitle: 'Thu nhỏ',
+      stageZoomInTitle: 'Phóng to',
+      stageZoomResetTitle: 'Cuộn chuột để Zoom tại con trỏ · Bấm để đặt lại 100%',
+      stageCanvasTitle: 'Cuộn chuột để phóng to/thu nhỏ tại vị trí con trỏ · Kéo giữ chuột để di chuyển trong khung',
+      stageColorLabel: 'Đổi màu:',
+      stageResetColorTitle: 'Khôi phục màu gốc',
+      detailVariantsTitle: 'Biến thể ({count} Variants)',
+      detailPaletteTitle: 'Bảng màu gốc trong SVG (Bấm để copy HEX)',
+      detailStylePrefix: 'Phong cách:',
+      detailDownloadSvgBtn: 'Tải .SVG',
+      detailPngExportTitle: 'Xuất ảnh PNG chất lượng cao:',
+      detailPngBtnTitle: 'Tải file PNG {size}×{size}px',
+      detailCopyPngTitle: 'Copy ảnh PNG 256px vào Clipboard',
+      detailCopyCodeBtn: 'Copy Code',
+      detailCopiedBtn: 'Đã Copy',
+      metaCollection: 'Bộ sưu tập',
+      metaGridSize: 'Kích thước lưới',
+      metaFileSize: 'Dung lượng',
+      metaLicense: 'Giấy phép (License)',
+      metaAuthor: 'Tác giả',
+      detailTagsLabel: 'Từ khóa phân loại (Bấm vào tag để tìm các icon cùng từ khóa)',
+      recSimilarTitle: 'Gợi ý tương đồng (Cùng từ khóa, chủ đề & phong cách)',
+      recSameStyleTitle: 'Cùng phong cách "{style}" & chủ đề "{category}"',
+      recSameColTitle: 'Cùng bộ sưu tập "{collection}"',
+      recViewAllCol: 'Xem toàn bộ bộ sưu tập',
+      recEmpty: 'Chưa có thêm icon trong nhóm này.',
+      customizerTitle: 'Tuỳ chỉnh Vector (Màu sắc · Nền · Độ dày nét Stroke)',
+      ctrlColors: 'Colors',
+      ctrlBackground: 'Background',
+      ctrlTransparent: 'Transparent',
+      ctrlStroke: 'Stroke',
+      strokeLight: 'light',
+      strokeRegular: 'regular',
+      strokeBold: 'bold',
+      motionPanelTitle: 'Trạng thái Chuyển động (Animation States)',
+      motionLiveLoop: 'Tự chạy lặp trên khung',
+      motionPlayOnce: 'Chạy thử',
+      exportModeTitle: 'Tuỳ chọn xuất & tải SVG',
+      exportModeStatic: 'SVG Tĩnh (Static)',
+      exportModeStaticSub: 'File SVG nhẹ nguyên bản (~3–15 KB)',
+      exportModeHover: 'SVG Động khi Hover',
+      exportModeHoverSub: 'Tự chuyển động khi rê chuột (:hover)',
+      exportModeLoop: 'SVG Động tự chạy (Auto Loop)',
+      exportModeLoopSub: 'Tự chạy lặp liên tục (infinite)',
+      exportModeLottie: 'Tải Lottie .JSON',
+      exportModeLottieSub: 'File dữ liệu gốc Lottie JSON',
+      toastCompilingAnimSvg: 'Đang đóng gói Animation + Màu + Stroke vào file SVG...',
+      lordiconAllCategories: 'Tất cả danh mục (All Categories)',
+      lordiconTopicLabel: 'Danh mục Icon động:',
+      categories: {
+        ai: 'AI & Trí tuệ nhân tạo',
+        cloud: 'Cloud & Hạ tầng mạng',
+        devtools: 'Công cụ Lập trình & Code',
+        interface: 'Giao diện & Điều khiển UI',
+        design: 'Thiết kế & Sáng tạo',
+        security: 'Bảo mật, Xác thực & Riêng tư',
+        finance: 'Tài chính, Thanh toán & Mua sắm',
+        social: 'Mạng xã hội & Giao tiếp',
+        productivity: 'Năng suất & Không gian làm việc',
+        hardware: 'Phần cứng, Hệ điều hành & Thiết bị',
+        animals: 'Động vật, Thiên nhiên & Thời tiết',
+        architecture: 'Kiến trúc, Địa điểm & Nhà cửa',
+        food: 'Ẩm thực & Đồ uống',
+        health: 'Y tế, Thể thao & Trò chơi',
+        transport: 'Giao thông, Bản đồ & Du lịch',
+        brand: 'Logo Thương hiệu & Công ty',
+        animation: 'Icon Động & Chuyển động (Animation)',
+      },
+      styles: {
+        outlined: 'Outlined (Nét viền)',
+        filled: 'Filled (Đặc / Glyph)',
+        duotone: 'Duotone (Hai tông màu)',
+        multicolor: 'Multicolor (Đa sắc / Brand)',
+        monocolor: 'Monocolor (Đơn sắc)',
+      },
+      iconTypes: {
+        'ui-icon': 'UI / System Icon',
+        animated: 'Animated / Motion SVG',
+        'brand-logo': 'Logo Thương hiệu / Tech',
+        architecture: 'Kiến trúc Cloud',
+        badge: 'Huy hiệu / Nút Xác thực',
+      },
+    },
+  };
+
+  function t(key, vars = {}) {
+    const dict = I18N[currentLang] || I18N.en;
+    let str = dict[key] !== undefined ? dict[key] : I18N.en[key] || key;
+    for (const [k, v] of Object.entries(vars)) {
+      str = str.replace(new RegExp(`\\{${k}\\}`, 'g'), String(v ?? ''));
+    }
+    return str;
+  }
+
+  function getCatLabel(catId, fallback = '') {
+    if (!catId) return fallback || 'General';
+    if (String(catId).startsWith('lordicon:')) {
+      const lId = String(catId).slice(9);
+      const lObj = (catalogSummary?.lordiconCategories || []).find((c) => c.id === lId);
+      if (lObj) return currentLang === 'vi' && lObj.labelVi ? lObj.labelVi : lObj.label;
+      return fallback || lId;
+    }
+    const dict = I18N[currentLang]?.categories || I18N.en.categories;
+    if (dict[catId]) return dict[catId];
+    const lObj = (catalogSummary?.lordiconCategories || []).find((c) => c.id === catId);
+    if (lObj) return currentLang === 'vi' && lObj.labelVi ? lObj.labelVi : lObj.label;
+    return fallback || catId || 'General';
+  }
+
+  function getStyleLabel(styleId, fallback = '') {
+    const dict = I18N[currentLang]?.styles || I18N.en.styles;
+    return dict[styleId] || fallback || styleId || '';
+  }
+
+  function getTypeLabel(typeId, fallback = '') {
+    const dict = I18N[currentLang]?.iconTypes || I18N.en.iconTypes;
+    return dict[typeId] || fallback || typeId || '';
+  }
 
   const countFavorites = document.getElementById('countFavorites');
   const navAllIcons = document.getElementById('navAllIcons');
+  const navAnimatedIcons = document.getElementById('navAnimatedIcons');
+  const sidebarCountAnimated = document.getElementById('sidebarCountAnimated');
   const navCollectionsDirectory = document.getElementById('navCollectionsDirectory');
   const sidebarCountCollections = document.getElementById('sidebarCountCollections');
   const navBrandsDirectory = document.getElementById('navBrandsDirectory');
@@ -133,6 +567,7 @@
 
   const alphabetBar = document.getElementById('alphabetBar');
   const activeFiltersBar = document.getElementById('activeFiltersBar');
+  const lordiconCategoryBar = document.getElementById('lordiconCategoryBar');
   const showingCount = document.getElementById('showingCount');
   const totalMatchedCount = document.getElementById('totalMatchedCount');
   const heroHeading = document.getElementById('heroHeading');
@@ -180,7 +615,7 @@
       },
     });
     if (res.status === 429) {
-      showToast('Bạn thao tác quá nhanh, vui lòng đợi vài giây...');
+      showToast(t('toastRateLimit'));
       throw new Error('Rate limited (429)');
     }
     if (!res.ok) {
@@ -198,7 +633,7 @@
     }
     const res = await fetch(url);
     if (res.status === 429) {
-      showToast('Bạn thao tác quá nhanh, vui lòng đợi vài giây...');
+      showToast(t('toastRateLimit'));
       return '';
     }
     if (!res.ok) return '';
@@ -257,6 +692,7 @@
   }
 
   function getCategoryIconSvg(iconKeyOrId) {
+    const cleanKey = String(iconKeyOrId || '').replace(/^lordicon:/, '');
     const mapByCatId = {
       ai: ICONS.sparkles,
       cloud: ICONS.cloud,
@@ -268,10 +704,15 @@
       social: ICONS['message-square'],
       productivity: ICONS.layers,
       hardware: ICONS.cpu,
+      animals: ICONS.sun,
+      architecture: ICONS.home,
+      food: ICONS.coffee,
+      health: ICONS.activity,
+      transport: ICONS.compass,
       brand: ICONS.hexagon,
       animation: ICONS['play-circle'],
     };
-    return ICONS[iconKeyOrId] || mapByCatId[iconKeyOrId] || ICONS.hexagon;
+    return ICONS[cleanKey] || mapByCatId[cleanKey] || ICONS.waveform || ICONS.hexagon;
   }
 
   function getStyleIconSvg(styleId) {
@@ -470,13 +911,13 @@
 
           canvas.toBlob(async (pngBlob) => {
             if (!pngBlob) {
-              reject(new Error('Không thể tạo PNG'));
+              reject(new Error('Failed to create PNG'));
               return;
             }
             if (copyToClipboard && navigator.clipboard && window.ClipboardItem) {
               try {
                 await navigator.clipboard.write([new ClipboardItem({ 'image/png': pngBlob })]);
-                showToast(`Đã copy ảnh PNG (${sizePx}×${sizePx}px) vào Clipboard`);
+                showToast(t('toastPngCopied', { size: sizePx }));
                 resolve();
                 return;
               } catch {
@@ -486,12 +927,13 @@
             const dlUrl = URL.createObjectURL(pngBlob);
             const a = document.createElement('a');
             a.href = dlUrl;
-            a.download = `${fileNameBase}-${sizePx}px.png`;
+            const fileName = `${fileNameBase}-${sizePx}px.png`;
+            a.download = fileName;
             document.body.appendChild(a);
             a.click();
             a.remove();
             setTimeout(() => URL.revokeObjectURL(dlUrl), 1000);
-            showToast(`Đã tải xuống ${fileNameBase}-${sizePx}px.png`);
+            showToast(t('toastPngDownloaded', { file: fileName }));
             resolve();
           }, 'image/png');
         } catch (err) {
@@ -516,9 +958,9 @@
     const chars = ['', '#', ...'ABCDEFGHIJKLMNOPQRSTUVWXYZ'.split('')];
     alphabetBar.innerHTML = chars
       .map((ch) => {
-        const label = ch === '' ? 'All' : ch;
+        const label = ch === '' ? t('resetAll') : ch;
         const isActive = filters.letter === ch;
-        return `<button type="button" class="alpha-btn ${isActive ? 'active' : ''}" data-letter="${ch}">${label}</button>`;
+        return `<button type="button" class="alpha-btn ${isActive ? 'active' : ''}" data-letter="${ch}">${escapeHtml(label)}</button>`;
       })
       .join('');
   }
@@ -612,7 +1054,7 @@
     const slice = matched.slice(0, 150);
 
     if (!slice.length) {
-      filterCollectionOptions.innerHTML = `<div style="padding:14px 10px;text-align:center;color:var(--text-dim);font-size:0.78rem">Không tìm thấy bộ sưu tập phù hợp</div>`;
+      filterCollectionOptions.innerHTML = `<div style="padding:14px 10px;text-align:center;color:var(--text-dim);font-size:0.78rem">${escapeHtml(t('noCollectionsFound'))}</div>`;
       return;
     }
 
@@ -638,18 +1080,8 @@
   // ============================================================================
   // LOAD CATALOG SUMMARY & POPULATE SIDEBAR + FILTER DROPDOWNS
   // ============================================================================
-  async function loadSummary(bypassCache = false) {
-    catalogSummary = await apiFetchJson('/api/catalog/summary', { bypassCache });
-
-    countFavorites.textContent = favorites.size;
-    const totalColsCount = catalogSummary.totalCollections || (catalogSummary.collections || []).length;
-    badgeTotalCollections.textContent = totalColsCount;
-    if (sidebarCountCollections) {
-      sidebarCountCollections.textContent = totalColsCount.toLocaleString();
-    }
-    if (sidebarCountBrands) {
-      sidebarCountBrands.textContent = (catalogSummary.totalBrands || 49).toLocaleString();
-    }
+  function renderSummaryTaxonomyLists() {
+    if (!catalogSummary) return;
 
     // 1. Left Sidebar: Categories only (with custom SVG icons)
     sidebarCategories.innerHTML = (catalogSummary.categories || [])
@@ -658,7 +1090,7 @@
         <button type="button" class="nav-item ${filters.category === c.id ? 'active' : ''}" data-filter-cat="${escapeHtml(c.id)}">
           <span class="nav-item-left">
             <span class="nav-icon">${getCategoryIconSvg(c.id || c.icon)}</span>
-            <span>${escapeHtml(c.label)}</span>
+            <span>${escapeHtml(getCatLabel(c.id, c.label))}</span>
           </span>
           <span class="nav-count">${(c.count || 0).toLocaleString()}</span>
         </button>
@@ -673,7 +1105,7 @@
         <button type="button" class="dropdown-option ${filters.styleType === s.id ? 'active' : ''}" data-filter-style="${escapeHtml(s.id)}">
           <span class="dropdown-option-left">
             <span class="nav-icon">${getStyleIconSvg(s.id)}</span>
-            <span class="dropdown-option-title">${escapeHtml(s.label)}</span>
+            <span class="dropdown-option-title">${escapeHtml(getStyleLabel(s.id, s.label))}</span>
           </span>
           <span class="nav-count">${(s.count || 0).toLocaleString()}</span>
         </button>
@@ -684,13 +1116,13 @@
     // 3. Top Dropdown: Icon Types
     filterIconTypeOptions.innerHTML = (catalogSummary.iconTypes || [])
       .map(
-        (t) => `
-        <button type="button" class="dropdown-option ${filters.iconType === t.id ? 'active' : ''}" data-filter-type="${escapeHtml(t.id)}">
+        (tItem) => `
+        <button type="button" class="dropdown-option ${filters.iconType === tItem.id ? 'active' : ''}" data-filter-type="${escapeHtml(tItem.id)}">
           <span class="dropdown-option-left">
-            <span class="nav-icon">${getIconTypeSvg(t.id)}</span>
-            <span class="dropdown-option-title">${escapeHtml(t.label)}</span>
+            <span class="nav-icon">${getIconTypeSvg(tItem.id)}</span>
+            <span class="dropdown-option-title">${escapeHtml(getTypeLabel(tItem.id, tItem.label))}</span>
           </span>
-          <span class="nav-count">${(t.count || 0).toLocaleString()}</span>
+          <span class="nav-count">${(tItem.count || 0).toLocaleString()}</span>
         </button>
       `
       )
@@ -698,7 +1130,28 @@
 
     // 4. Top Dropdown: Collections
     renderCollectionsDropdownList(collectionSearchInput.value);
+  }
 
+  async function loadSummary(bypassCache = false) {
+    catalogSummary = await apiFetchJson('/api/catalog/summary', { bypassCache });
+
+    countFavorites.textContent = favorites.size;
+    const totalColsCount = catalogSummary.totalCollections || (catalogSummary.collections || []).length;
+    badgeTotalCollections.textContent = totalColsCount;
+    if (sidebarCountCollections) {
+      sidebarCountCollections.textContent = totalColsCount.toLocaleString();
+    }
+    if (sidebarCountBrands) {
+      sidebarCountBrands.textContent = (catalogSummary.totalBrands || 49).toLocaleString();
+    }
+    if (sidebarCountAnimated) {
+      const animTypeObj = (catalogSummary.iconTypes || []).find((tItem) => tItem.id === 'animated');
+      const animCatObj = (catalogSummary.categories || []).find((c) => c.id === 'animation');
+      const animCount = animTypeObj?.count ?? animCatObj?.count ?? 0;
+      sidebarCountAnimated.textContent = animCount.toLocaleString();
+    }
+
+    renderSummaryTaxonomyLists();
     updateNavActiveStates();
   }
 
@@ -713,6 +1166,15 @@
       !filters.onlyFavorites;
 
     navAllIcons.classList.toggle('active', isAllIcons);
+    if (navAnimatedIcons) {
+      navAnimatedIcons.classList.toggle(
+        'active',
+        viewMode === 'icons' &&
+          filters.iconType === 'animated' &&
+          !activeCollectionState &&
+          !filters.onlyFavorites
+      );
+    }
     if (navCollectionsDirectory) {
       navCollectionsDirectory.classList.toggle(
         'active',
@@ -743,7 +1205,11 @@
     }
     if (resultsUnitLabel) {
       resultsUnitLabel.textContent =
-        viewMode === 'brands' ? 'thương hiệu' : viewMode === 'collections' ? 'bộ sưu tập' : 'icons';
+        viewMode === 'brands'
+          ? t('unitBrands')
+          : viewMode === 'collections'
+            ? t('unitCollections')
+            : t('unitIcons');
     }
     if (iconsGrid && collectionsDirectoryGrid) {
       iconsGrid.style.display = isDirMode ? 'none' : 'grid';
@@ -769,11 +1235,15 @@
 
     // Update top filter dropdown button labels & active states
     const selectedStyleObj = (catalogSummary?.styles || []).find((s) => s.id === filters.styleType);
-    labelTriggerStyle.textContent = selectedStyleObj ? selectedStyleObj.label.split(' (')[0] : 'Phong cách';
+    labelTriggerStyle.textContent = selectedStyleObj
+      ? getStyleLabel(selectedStyleObj.id, selectedStyleObj.label).split(' (')[0]
+      : t('styleTriggerDefault');
     btnTriggerStyle.classList.toggle('has-value', Boolean(filters.styleType));
 
-    const selectedTypeObj = (catalogSummary?.iconTypes || []).find((t) => t.id === filters.iconType);
-    labelTriggerIconType.textContent = selectedTypeObj ? selectedTypeObj.label : 'Loại Icon';
+    const selectedTypeObj = (catalogSummary?.iconTypes || []).find((tItem) => tItem.id === filters.iconType);
+    labelTriggerIconType.textContent = selectedTypeObj
+      ? getTypeLabel(selectedTypeObj.id, selectedTypeObj.label)
+      : t('iconTypeTriggerDefault');
     btnTriggerIconType.classList.toggle('has-value', Boolean(filters.iconType));
 
     const selectedColObj = (catalogSummary?.collections || []).find((c) => c.slug === activeColSlug);
@@ -781,7 +1251,7 @@
       ? selectedColObj.name.length > 20
         ? selectedColObj.name.slice(0, 18) + '…'
         : selectedColObj.name
-      : 'Bộ sưu tập';
+      : t('collectionsTriggerDefault');
     btnTriggerCollections.classList.toggle('has-value', Boolean(activeColSlug));
 
     renderActiveFiltersChips();
@@ -794,15 +1264,15 @@
       const catObj = (catalogSummary?.categories || []).find((c) => c.id === filters.category);
       inlineTags.push({
         key: 'category',
-        label: catObj ? catObj.label.split(' & ')[0] : filters.category,
+        label: getCatLabel(filters.category, catObj?.label).split(' & ')[0],
         icon: getCategoryIconSvg(filters.category),
       });
     }
     if (filters.iconType) {
-      const tpObj = (catalogSummary?.iconTypes || []).find((t) => t.id === filters.iconType);
+      const tpObj = (catalogSummary?.iconTypes || []).find((tItem) => tItem.id === filters.iconType);
       inlineTags.push({
         key: 'iconType',
-        label: tpObj ? tpObj.label : filters.iconType,
+        label: getTypeLabel(filters.iconType, tpObj?.label),
         icon: getIconTypeSvg(filters.iconType),
       });
     }
@@ -810,7 +1280,7 @@
       const stObj = (catalogSummary?.styles || []).find((s) => s.id === filters.styleType);
       inlineTags.push({
         key: 'styleType',
-        label: stObj ? stObj.label.split(' (')[0] : filters.styleType,
+        label: getStyleLabel(filters.styleType, stObj?.label).split(' (')[0],
         icon: getStyleIconSvg(filters.styleType),
       });
     }
@@ -826,11 +1296,11 @@
 
     searchInlineChips.innerHTML = inlineTags
       .map(
-        (t) => `
+        (tag) => `
         <span class="search-inline-chip">
-          <span class="icon-inline" style="width:12px;height:12px">${t.icon}</span>
-          <span>${escapeHtml(t.label)}</span>
-          <button type="button" data-remove-inline-tag="${t.key}" title="Gỡ tag lọc">${ICONS.close}</button>
+          <span class="icon-inline" style="width:12px;height:12px">${tag.icon}</span>
+          <span>${escapeHtml(tag.label)}</span>
+          <button type="button" data-remove-inline-tag="${tag.key}" title="${escapeHtml(t('removeFilterTag'))}">${ICONS.close}</button>
         </span>
       `
       )
@@ -848,17 +1318,17 @@
     searchPopoverContent.innerHTML = `
       <div class="search-pop-group">
         <div class="search-pop-title">
-          <span>Loại Icon &amp; Brand (Icon Kind)</span>
-          <span style="font-weight:500;text-transform:none">Gắn tag để lọc nhanh</span>
+          <span>${escapeHtml(t('popIconKindTitle'))}</span>
+          <span style="font-weight:500;text-transform:none">${escapeHtml(t('popIconKindHint'))}</span>
         </div>
         <div class="search-pop-pills">
           ${iconTypes
             .map(
-              (t) => `
-              <button type="button" class="search-pop-pill ${filters.iconType === t.id ? 'active' : ''}" data-pop-tag-type="iconType" data-pop-tag-val="${escapeHtml(t.id)}">
-                <span class="icon-inline">${getIconTypeSvg(t.id)}</span>
-                <span>${escapeHtml(t.label)}</span>
-                <span class="pill-count">${(t.count || 0).toLocaleString()}</span>
+              (tItem) => `
+              <button type="button" class="search-pop-pill ${filters.iconType === tItem.id ? 'active' : ''}" data-pop-tag-type="iconType" data-pop-tag-val="${escapeHtml(tItem.id)}">
+                <span class="icon-inline">${getIconTypeSvg(tItem.id)}</span>
+                <span>${escapeHtml(getTypeLabel(tItem.id, tItem.label))}</span>
+                <span class="pill-count">${(tItem.count || 0).toLocaleString()}</span>
               </button>
             `
             )
@@ -868,7 +1338,7 @@
 
       <div class="search-pop-group">
         <div class="search-pop-title">
-          <span>Chủ đề (Categories)</span>
+          <span>${escapeHtml(t('popCategoriesTitle'))}</span>
         </div>
         <div class="search-pop-pills">
           ${categories
@@ -876,7 +1346,7 @@
               (c) => `
               <button type="button" class="search-pop-pill ${filters.category === c.id ? 'active' : ''}" data-pop-tag-type="category" data-pop-tag-val="${escapeHtml(c.id)}">
                 <span class="icon-inline">${getCategoryIconSvg(c.id)}</span>
-                <span>${escapeHtml(c.label)}</span>
+                <span>${escapeHtml(getCatLabel(c.id, c.label))}</span>
                 <span class="pill-count">${(c.count || 0).toLocaleString()}</span>
               </button>
             `
@@ -887,7 +1357,7 @@
 
       <div class="search-pop-group">
         <div class="search-pop-title">
-          <span>Phong cách (Styles)</span>
+          <span>${escapeHtml(t('popStylesTitle'))}</span>
         </div>
         <div class="search-pop-pills">
           ${styles
@@ -895,7 +1365,7 @@
               (s) => `
               <button type="button" class="search-pop-pill ${filters.styleType === s.id ? 'active' : ''}" data-pop-tag-type="styleType" data-pop-tag-val="${escapeHtml(s.id)}">
                 <span class="icon-inline">${getStyleIconSvg(s.id)}</span>
-                <span>${escapeHtml(s.label.split(' (')[0])}</span>
+                <span>${escapeHtml(getStyleLabel(s.id, s.label).split(' (')[0])}</span>
                 <span class="pill-count">${(s.count || 0).toLocaleString()}</span>
               </button>
             `
@@ -909,7 +1379,7 @@
           ? `
         <div class="search-pop-group">
           <div class="search-pop-title">
-            <span>Bộ sưu tập nổi bật (Mở màn hình Bộ sưu tập)</span>
+            <span>${escapeHtml(t('popTopColsTitle'))}</span>
           </div>
           <div class="search-pop-pills">
             ${topCols
@@ -931,39 +1401,118 @@
     `;
   }
 
+  function renderLordiconCategoryBar() {
+    if (!lordiconCategoryBar) return;
+    const isAnimContext =
+      filters.iconType === 'animated' ||
+      filters.category === 'animation' ||
+      String(filters.category || '').startsWith('lordicon:') ||
+      String(filters.collection || '').startsWith('lordicon-');
+
+    const lCats = catalogSummary?.lordiconCategories || [];
+    if (!isAnimContext || !lCats.length || viewMode === 'brands') {
+      lordiconCategoryBar.style.display = 'none';
+      return;
+    }
+
+    const activeLCat = String(filters.category || '').startsWith('lordicon:')
+      ? String(filters.category).slice(9)
+      : '';
+    const totalAnimCount =
+      (catalogSummary?.sites || []).find((s) => s.id === 'lordicon')?.count || 18064;
+
+    lordiconCategoryBar.style.display = 'flex';
+    lordiconCategoryBar.innerHTML = `
+      <div class="lordicon-cat-select-wrap">
+        <span class="icon-inline" style="color:var(--brand-orange)">${ICONS.waveform}</span>
+        <select id="lordiconCategorySelect" aria-label="${escapeHtml(t('lordiconTopicLabel'))}">
+          <option value="" ${!activeLCat ? 'selected' : ''}>${escapeHtml(t('lordiconAllCategories'))} (${totalAnimCount.toLocaleString()})</option>
+          ${lCats
+            .map((lc) => {
+              const lbl = currentLang === 'vi' && lc.labelVi ? `${lc.label} (${lc.labelVi})` : lc.label;
+              return `<option value="${escapeHtml(lc.id)}" ${activeLCat === lc.id ? 'selected' : ''}>${escapeHtml(lbl)} (${(lc.count || 0).toLocaleString()})</option>`;
+            })
+            .join('')}
+        </select>
+      </div>
+      <div class="lordicon-cat-pills scroller-x">
+        <button type="button" class="pill-btn ${!activeLCat ? 'active' : ''}" data-lordicon-cat="">
+          <span>${escapeHtml(t('lordiconAllCategories'))}</span>
+        </button>
+        ${lCats
+          .map((lc) => {
+            const lbl = currentLang === 'vi' && lc.labelVi ? lc.labelVi : lc.label;
+            return `
+              <button type="button" class="pill-btn ${activeLCat === lc.id ? 'active' : ''}" data-lordicon-cat="${escapeHtml(lc.id)}">
+                <span>${escapeHtml(lbl)}</span>
+                <span class="pill-count" style="opacity:0.7;font-size:0.7rem">${(lc.count || 0).toLocaleString()}</span>
+              </button>
+            `;
+          })
+          .join('')}
+      </div>
+    `;
+
+    const sel = document.getElementById('lordiconCategorySelect');
+    if (sel) {
+      sel.addEventListener('change', () => {
+        const val = sel.value;
+        filters.iconType = 'animated';
+        filters.category = val ? `lordicon:${val}` : '';
+        updateNavActiveStates();
+        showCatalogView(true);
+        loadCatalogData(true);
+      });
+    }
+  }
+
+  if (lordiconCategoryBar) {
+    lordiconCategoryBar.addEventListener('click', (e) => {
+      const btn = e.target.closest('[data-lordicon-cat]');
+      if (!btn) return;
+      const val = btn.dataset.lordiconCat;
+      filters.iconType = 'animated';
+      filters.category = val ? `lordicon:${val}` : '';
+      updateNavActiveStates();
+      showCatalogView(true);
+      loadCatalogData(true);
+    });
+  }
+
   function renderActiveFiltersChips() {
     renderSearchInlineChips();
     renderSearchPopoverContent();
+    renderLordiconCategoryBar();
 
     const chips = [];
     if (filters.category) {
       const catObj = (catalogSummary?.categories || []).find((c) => c.id === filters.category);
-      chips.push({ key: 'category', label: `Chủ đề: ${catObj ? catObj.label : filters.category}` });
+      chips.push({ key: 'category', label: `${t('chipCategory')}: ${getCatLabel(filters.category, catObj?.label)}` });
     }
     if (filters.styleType) {
       const stObj = (catalogSummary?.styles || []).find((s) => s.id === filters.styleType);
-      chips.push({ key: 'styleType', label: `Phong cách: ${stObj ? stObj.label : filters.styleType}` });
+      chips.push({ key: 'styleType', label: `${t('chipStyle')}: ${getStyleLabel(filters.styleType, stObj?.label)}` });
     }
     if (filters.iconType) {
-      const tpObj = (catalogSummary?.iconTypes || []).find((t) => t.id === filters.iconType);
-      chips.push({ key: 'iconType', label: `Loại: ${tpObj ? tpObj.label : filters.iconType}` });
+      const tpObj = (catalogSummary?.iconTypes || []).find((tItem) => tItem.id === filters.iconType);
+      chips.push({ key: 'iconType', label: `${t('chipType')}: ${getTypeLabel(filters.iconType, tpObj?.label)}` });
     }
     if (filters.collection) {
       const colObj = (catalogSummary?.collections || []).find((c) => c.slug === filters.collection);
-      chips.push({ key: 'collection', label: `Bộ sưu tập: ${colObj ? colObj.name : filters.collection}` });
+      chips.push({ key: 'collection', label: `${t('chipCollection')}: ${colObj ? colObj.name : filters.collection}` });
     }
-    if (filters.letter) chips.push({ key: 'letter', label: `Chữ cái: ${filters.letter}` });
-    if (filters.q) chips.push({ key: 'q', label: `Từ khóa: "${filters.q}"` });
-    if (filters.onlyFavorites) chips.push({ key: 'onlyFavorites', label: 'Đã yêu thích' });
+    if (filters.letter) chips.push({ key: 'letter', label: `${t('chipLetter')}: ${filters.letter}` });
+    if (filters.q) chips.push({ key: 'q', label: `${t('chipKeyword')}: "${filters.q}"` });
+    if (filters.onlyFavorites) chips.push({ key: 'onlyFavorites', label: t('chipFavorites') });
 
     if (chips.length === 0) {
       activeFiltersBar.style.display = 'none';
       heroHeading.textContent =
         viewMode === 'brands'
-          ? 'Khám phá Logo & Hệ sinh thái Thương hiệu.'
+          ? t('heroHeadingBrands')
           : viewMode === 'collections'
-            ? 'Khám phá Bộ sưu tập Vector theo Chủ đề & Phong cách.'
-            : '500.000+ Vector Icons. Inspect. Customize. Ship.';
+            ? t('heroHeadingCollections')
+            : t('heroHeadingIcons');
       return;
     }
 
@@ -974,12 +1523,12 @@
           (c) => `
         <span class="filter-tag">
           <span>${escapeHtml(c.label)}</span>
-          <button type="button" data-clear-key="${c.key}" title="Bỏ bộ lọc">${ICONS.close}</button>
+          <button type="button" data-clear-key="${c.key}" title="${escapeHtml(t('removeFilterTag'))}">${ICONS.close}</button>
         </span>
       `
         )
         .join('') +
-      `<button type="button" class="pill-btn" id="btnClearAllFilters" style="font-size:0.74rem;padding:4px 10px">Xóa tất cả bộ lọc</button>`;
+      `<button type="button" class="pill-btn" id="btnClearAllFilters" style="font-size:0.74rem;padding:4px 10px">${escapeHtml(t('clearAllFilters'))}</button>`;
   }
 
   // ============================================================================
@@ -1223,7 +1772,7 @@
   async function loadCollectionsDirectory(resetOffset = true, { bypassCache = false } = {}) {
     if (!resetOffset && isLoadingMore) return;
     const isBrands = viewMode === 'brands';
-    const unitNoun = isBrands ? 'thương hiệu' : 'bộ sưu tập';
+    const unitNoun = isBrands ? t('unitBrands') : t('unitCollections');
     if (resetOffset) {
       currentOffset = 0;
       if (activeIconsAbortController) {
@@ -1232,7 +1781,7 @@
       activeIconsAbortController = new AbortController();
     } else {
       isLoadingMore = true;
-      loadMoreLabel.textContent = `Đang tự động tải thêm ${unitNoun}...`;
+      loadMoreLabel.textContent = t('loadingMoreItems', { unit: unitNoun });
     }
 
     const signal = resetOffset && activeIconsAbortController ? activeIconsAbortController.signal : undefined;
@@ -1267,7 +1816,11 @@
 
       if (currentCollections.length < totalMatched) {
         loadMoreWrap.style.display = 'flex';
-        loadMoreLabel.textContent = `Cuộn xuống để tải thêm (${currentCollections.length.toLocaleString()} / ${totalMatched.toLocaleString()} ${unitNoun})`;
+        loadMoreLabel.textContent = t('scrollLoadMore', {
+          shown: currentCollections.length.toLocaleString(),
+          total: totalMatched.toLocaleString(),
+          unit: unitNoun,
+        });
       } else {
         loadMoreWrap.style.display = 'none';
       }
@@ -1282,7 +1835,7 @@
     return cols
       .map((col) => {
         const catObj = (catalogSummary?.categories || []).find((c) => c.id === col.primaryCategory);
-        const catLabel = catObj ? catObj.label.split(' & ')[0] : col.primaryCategory || 'General';
+        const catLabel = getCatLabel(col.primaryCategory, catObj?.label).split(' & ')[0];
         const samples = (col.sampleIcons || []).slice(0, 8);
         const cellsHtml = [];
         for (let i = 0; i < 8; i += 1) {
@@ -1306,7 +1859,7 @@
             <div class="col-dir-info">
               <div class="col-dir-header-row">
                 <div class="col-dir-title" title="${escapeHtml(col.name)}">${escapeHtml(col.name)}</div>
-                <span class="col-dir-count-pill">${(col.count || 0).toLocaleString()} icons</span>
+                <span class="col-dir-count-pill">${(col.count || 0).toLocaleString()} ${escapeHtml(t('unitIcons'))}</span>
               </div>
               <div class="col-dir-badges">
                 <span class="col-dir-badge">
@@ -1328,17 +1881,20 @@
   function renderCollectionsDirectoryGrid(cols, append = false) {
     if (!collectionsDirectoryGrid) return;
     const isBrands = viewMode === 'brands';
+    const unitNoun = isBrands ? t('unitBrands') : t('unitCollections');
     if (!append && !cols.length) {
       collectionsDirectoryGrid.innerHTML = `
         <div style="grid-column:1/-1;text-align:center;padding:56px 20px;color:var(--text-muted);border:1px dashed var(--border-subtle);border-radius:16px">
           <div style="display:inline-flex;padding:12px;border-radius:12px;background:var(--bg-card);margin-bottom:10px;color:var(--brand-orange)">
             ${isBrands ? ICONS.hexagon : ICONS.folder}
           </div>
-          <p style="font-size:1rem;font-weight:600;color:var(--text-main);margin-bottom:6px">Không tìm thấy ${
-            isBrands ? 'Thương hiệu' : 'Bộ sưu tập'
-          } nào khớp bộ lọc</p>
-          <p style="font-size:0.83rem;margin-bottom:16px">Hãy thử chọn chủ đề khác hoặc đặt lại bộ lọc để xem toàn bộ danh sách.</p>
-          <button type="button" class="pill-btn active" id="btnEmptyColResetFilters">Đặt lại bộ lọc</button>
+          <p style="font-size:1rem;font-weight:600;color:var(--text-main);margin-bottom:6px">${escapeHtml(
+            t('emptyColsTitle', { unit: unitNoun })
+          )}</p>
+          <p style="font-size:0.83rem;margin-bottom:16px">${escapeHtml(t('emptyColsDesc'))}</p>
+          <button type="button" class="pill-btn active" id="btnEmptyColResetFilters">${escapeHtml(
+            t('resetFiltersBtn')
+          )}</button>
         </div>
       `;
       const emptyReset = document.getElementById('btnEmptyColResetFilters');
@@ -1376,7 +1932,7 @@
       activeIconsAbortController = new AbortController();
     } else {
       isLoadingMore = true;
-      loadMoreLabel.textContent = 'Đang tự động tải thêm icon...';
+      loadMoreLabel.textContent = t('loadingMoreIcons');
     }
 
     const signal = resetOffset && activeIconsAbortController ? activeIconsAbortController.signal : undefined;
@@ -1425,12 +1981,18 @@
         !filters.letter &&
         !filters.q &&
         !filters.onlyFavorites
-          ? '500.000+'
+          ? currentLang === 'vi'
+            ? '500.000+'
+            : '500,000+'
           : totalMatched.toLocaleString();
 
       if (!filters.onlyFavorites && currentItems.length < totalMatched) {
         loadMoreWrap.style.display = 'flex';
-        loadMoreLabel.textContent = `Cuộn xuống để tự động tải thêm (${currentItems.length.toLocaleString()} / ${totalMatched.toLocaleString()} icons)`;
+        loadMoreLabel.textContent = t('scrollLoadMore', {
+          shown: currentItems.length.toLocaleString(),
+          total: totalMatched.toLocaleString(),
+          unit: t('unitIcons'),
+        });
       } else {
         loadMoreWrap.style.display = 'none';
       }
@@ -1484,38 +2046,503 @@
     infiniteObserver.observe(loadMoreWrap);
   }
 
+  // ============================================================================
+  // LORDICON LOTTIE ENGINE, MULTI-COLOR / STROKE CUSTOMIZER & ANIMATED SVG COMPILER
+  // ============================================================================
+  let lottieLoadPromise = null;
+  function ensureLottieWebLoaded() {
+    if (typeof window !== 'undefined' && window.lottie) {
+      return Promise.resolve(window.lottie);
+    }
+    if (lottieLoadPromise) return lottieLoadPromise;
+    lottieLoadPromise = new Promise((resolve, reject) => {
+      const s = document.createElement('script');
+      s.src = 'https://cdnjs.cloudflare.com/ajax/libs/lottie-web/5.12.2/lottie.min.js';
+      s.async = true;
+      s.onload = () => resolve(window.lottie);
+      s.onerror = () => {
+        lottieLoadPromise = null;
+        reject(new Error('Failed to load lottie-web'));
+      };
+      document.head.appendChild(s);
+    });
+    return lottieLoadPromise;
+  }
+
+  function expandShortHex(hex = '') {
+    const clean = String(hex || '').trim().toLowerCase();
+    if (/^#[0-9a-f]{3}$/.test(clean)) {
+      return `#${clean[1]}${clean[1]}${clean[2]}${clean[2]}${clean[3]}${clean[3]}`;
+    }
+    if (/^#[0-9a-f]{6}$/.test(clean)) {
+      return clean;
+    }
+    return null;
+  }
+
+  function extractEditableColorsFromSvg(svgText = '') {
+    if (!svgText) return ['#121331'];
+    const found = [];
+    const seen = new Set();
+
+    const addHex = (rawHex, label = '') => {
+      const hex = expandShortHex(rawHex);
+      if (!hex || seen.has(hex)) return;
+      seen.add(hex);
+      found.push({ hex, label: label || `Color ${found.length + 1}` });
+    };
+
+    // 1. Prioritize Lordicon semantic classes (.primary, .secondary, .tertiary, .quaternary, etc.)
+    const semanticOrder = ['primary', 'secondary', 'tertiary', 'quaternary', 'quinary', 'senary', 'septenary'];
+    for (const cls of semanticOrder) {
+      const clsRegex = new RegExp(`class=["'][^"']*\\b${cls}\\b[^"']*["'][^>]*>`, 'gi');
+      let m;
+      while ((m = clsRegex.exec(svgText)) !== null) {
+        const tagStr = m[0];
+        const hexMatches = tagStr.match(/#(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{6})\b/g) || [];
+        for (const h of hexMatches) {
+          addHex(h, cls);
+        }
+      }
+    }
+
+    // 2. Scan all remaining hex colors in the SVG
+    const allHexes = svgText.match(/#(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{6})\b/g) || [];
+    for (const h of allHexes) {
+      if (found.length >= 6) break;
+      addHex(h);
+    }
+
+    if (found.length === 0) {
+      found.push({ hex: '#121331', label: 'primary' });
+    }
+    return found.slice(0, 6);
+  }
+
+  function getStrokeMultiplier(strokeMode = 'regular') {
+    if (strokeMode === 'light') return 0.55;
+    if (strokeMode === 'bold') return 1.45;
+    return 1.0;
+  }
+
+  function applyCustomizationsToSvgXml(
+    baseSvg = '',
+    { colorMap = {}, strokeMode = 'regular', bgTransparent = true, bgColor = '#ffffff' } = {}
+  ) {
+    if (!baseSvg || !baseSvg.includes('<svg')) return baseSvg;
+    let out = baseSvg;
+
+    // 1. Replace mapped hex colors using temporary tokens so swaps don't collide
+    const entries = Object.entries(colorMap).filter(
+      ([orig, next]) => orig && next && orig.toLowerCase() !== next.toLowerCase()
+    );
+    if (entries.length > 0) {
+      entries.forEach(([orig], idx) => {
+        const normOrig = expandShortHex(orig);
+        if (!normOrig) return;
+        const shortOrig =
+          normOrig[1] === normOrig[2] && normOrig[3] === normOrig[4] && normOrig[5] === normOrig[6]
+            ? `#${normOrig[1]}${normOrig[3]}${normOrig[5]}`
+            : null;
+        const token = `__SVGCRAFT_CLR_${idx}__`;
+        out = out.replace(new RegExp(`${normOrig}\\b`, 'gi'), token);
+        if (shortOrig) {
+          out = out.replace(new RegExp(`${shortOrig}\\b`, 'gi'), token);
+        }
+      });
+      entries.forEach(([, next], idx) => {
+        const token = `__SVGCRAFT_CLR_${idx}__`;
+        out = out.replace(new RegExp(token, 'g'), next);
+      });
+
+      // Also support monochrome currentColor icons when 1st color well is changed
+      if (!/#(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{6})\b/.test(baseSvg) && entries[0]) {
+        const firstColor = entries[0][1];
+        out = out.replace(/\bcurrentColor\b/g, firstColor);
+      }
+    }
+
+    // 2. Apply stroke-width multiplier (light: 0.55x, regular: 1.0x, bold: 1.45x)
+    const mult = getStrokeMultiplier(strokeMode);
+    if (Math.abs(mult - 1.0) > 0.01) {
+      out = out.replace(/\bstroke-width=["']([\d.]+)(px)?["']/gi, (full, numStr, unit) => {
+        const val = parseFloat(numStr);
+        if (Number.isNaN(val) || val <= 0) return full;
+        const scaled = Math.max(0.25, Number((val * mult).toFixed(2)));
+        return `stroke-width="${scaled}${unit || ''}"`;
+      });
+      out = out.replace(/\bstroke-width:\s*([\d.]+)(px)?/gi, (full, numStr, unit) => {
+        const val = parseFloat(numStr);
+        if (Number.isNaN(val) || val <= 0) return full;
+        const scaled = Math.max(0.25, Number((val * mult).toFixed(2)));
+        return `stroke-width:${scaled}${unit || ''}`;
+      });
+    }
+
+    // 3. Apply custom background rect if bgTransparent is false
+    if (!bgTransparent && bgColor) {
+      const vbMatch = out.match(/\bviewBox=["']([^"']+)["']/i);
+      let vbX = 0;
+      let vbY = 0;
+      let vbW = 24;
+      let vbH = 24;
+      if (vbMatch) {
+        const parts = vbMatch[1].trim().split(/[\s,]+/).map(Number);
+        if (parts.length === 4 && !parts.some(Number.isNaN)) {
+          [vbX, vbY, vbW, vbH] = parts;
+        }
+      } else {
+        const wM = out.match(/\bwidth=["']([\d.]+)/i);
+        const hM = out.match(/\bheight=["']([\d.]+)/i);
+        if (wM) vbW = parseFloat(wM[1]) || 24;
+        if (hM) vbH = parseFloat(hM[1]) || 24;
+      }
+      const bgRect = `<rect class="svgcraft-bg" x="${vbX}" y="${vbY}" width="${vbW}" height="${vbH}" fill="${bgColor}"/>`;
+      out = out.replace(/<svg\b[^>]*>/i, (openTag) => `${openTag}${bgRect}`);
+    }
+
+    return out;
+  }
+
+  function hexToNormalizedRgbArray(hex) {
+    const clean = expandShortHex(hex);
+    if (!clean) return null;
+    const r = parseInt(clean.slice(1, 3), 16) / 255;
+    const g = parseInt(clean.slice(3, 5), 16) / 255;
+    const b = parseInt(clean.slice(5, 7), 16) / 255;
+    return [Number(r.toFixed(4)), Number(g.toFixed(4)), Number(b.toFixed(4))];
+  }
+
+  function rgbArrayToHex(arr) {
+    if (!Array.isArray(arr) || arr.length < 3) return null;
+    const r = Math.max(0, Math.min(255, Math.round(Number(arr[0]) * 255)));
+    const g = Math.max(0, Math.min(255, Math.round(Number(arr[1]) * 255)));
+    const b = Math.max(0, Math.min(255, Math.round(Number(arr[2]) * 255)));
+    return `#${r.toString(16).padStart(2, '0')}${g.toString(16).padStart(2, '0')}${b.toString(16).padStart(2, '0')}`.toLowerCase();
+  }
+
+  function applyCustomizationsToLottieJson(lottieData, { colorMap = {}, strokeMode = 'regular' } = {}) {
+    const cloned = JSON.parse(JSON.stringify(lottieData));
+    const normalizedMap = {};
+    for (const [orig, next] of Object.entries(colorMap)) {
+      const k = expandShortHex(orig);
+      const v = hexToNormalizedRgbArray(next);
+      if (k && v) normalizedMap[k] = v;
+    }
+    const mult = getStrokeMultiplier(strokeMode);
+
+    function walk(node) {
+      if (!node || typeof node !== 'object') return;
+      if (Array.isArray(node)) {
+        node.forEach(walk);
+        return;
+      }
+
+      // Check Lottie fill ('fl') or stroke ('st') color property node.c.k
+      if ((node.ty === 'fl' || node.ty === 'st') && node.c && node.c.k) {
+        const ck = node.c.k;
+        if (Array.isArray(ck) && typeof ck[0] === 'number') {
+          const curHex = rgbArrayToHex(ck);
+          if (curHex && normalizedMap[curHex]) {
+            const [r, g, b] = normalizedMap[curHex];
+            ck[0] = r;
+            ck[1] = g;
+            ck[2] = b;
+          }
+        } else if (Array.isArray(ck)) {
+          ck.forEach((kf) => {
+            if (kf && Array.isArray(kf.s)) {
+              const curHex = rgbArrayToHex(kf.s);
+              if (curHex && normalizedMap[curHex]) {
+                const [r, g, b] = normalizedMap[curHex];
+                kf.s[0] = r;
+                kf.s[1] = g;
+                kf.s[2] = b;
+              }
+            }
+            if (kf && Array.isArray(kf.e)) {
+              const curHex = rgbArrayToHex(kf.e);
+              if (curHex && normalizedMap[curHex]) {
+                const [r, g, b] = normalizedMap[curHex];
+                kf.e[0] = r;
+                kf.e[1] = g;
+                kf.e[2] = b;
+              }
+            }
+          });
+        }
+      }
+
+      // Scale stroke width in Lottie stroke ('st') items
+      if (node.ty === 'st' && node.w && Math.abs(mult - 1.0) > 0.01) {
+        if (typeof node.w.k === 'number') {
+          node.w.k = Number((node.w.k * mult).toFixed(2));
+        } else if (Array.isArray(node.w.k)) {
+          node.w.k.forEach((kf) => {
+            if (kf && Array.isArray(kf.s) && typeof kf.s[0] === 'number') {
+              kf.s[0] = Number((kf.s[0] * mult).toFixed(2));
+            }
+            if (kf && Array.isArray(kf.e) && typeof kf.e[0] === 'number') {
+              kf.e[0] = Number((kf.e[0] * mult).toFixed(2));
+            }
+          });
+        }
+      }
+
+      for (const val of Object.values(node)) {
+        if (val && typeof val === 'object') walk(val);
+      }
+    }
+
+    walk(cloned);
+    return cloned;
+  }
+
+  /**
+   * Compile a Lordicon Lottie animation + selected Motion State + Custom Colors/Stroke/Background
+   * into a single standalone animated `.svg` file (either `hover` or `loop` trigger).
+   * Optimized to strip unused `<defs>`, hidden precomps, round float precision, and merge identical frames
+   * so only the exact data needed for the selected single animation is embedded.
+   */
+  async function compileStandaloneAnimatedSvg(
+    lottieData,
+    stateObj,
+    {
+      exportMode = 'loop', // 'loop' | 'hover'
+      colorMap = {},
+      strokeMode = 'regular',
+      bgTransparent = true,
+      bgColor = '#ffffff',
+      frameSamples = 14,
+    } = {}
+  ) {
+    const lottie = await ensureLottieWebLoaded();
+    const customizedLottie = applyCustomizationsToLottieJson(lottieData, { colorMap, strokeMode });
+
+    const w = Number(customizedLottie.w) || 430;
+    const h = Number(customizedLottie.h) || 430;
+    const fps = Number(customizedLottie.fr) || 60;
+    const startF = stateObj ? stateObj.startFrame : Number(customizedLottie.ip) || 0;
+    const endF = stateObj ? stateObj.endFrame : Number(customizedLottie.op) || 60;
+    const totalSpan = Math.max(1, endF - startF);
+    const durationSec = Math.max(0.45, Number((totalSpan / fps).toFixed(2)));
+    const count = Math.max(8, Math.min(20, frameSamples));
+
+    const offscreen = document.createElement('div');
+    offscreen.style.cssText = `position:fixed;left:-9999px;top:-9999px;width:${w}px;height:${h}px;visibility:hidden;pointer-events:none;`;
+    document.body.appendChild(offscreen);
+
+    try {
+      const anim = lottie.loadAnimation({
+        container: offscreen,
+        renderer: 'svg',
+        loop: false,
+        autoplay: false,
+        animationData: customizedLottie,
+      });
+
+      const rawFrames = [];
+      for (let k = 0; k < count; k++) {
+        const frameNum = Math.round(startF + (k / (count - 1)) * totalSpan);
+        anim.goToAndStop(frameNum, true);
+        const svgEl = offscreen.querySelector('svg');
+        if (!svgEl) continue;
+
+        const cloneSvg = svgEl.cloneNode(true);
+        // 1. Strip hidden layers (`display: none`) and zero-opacity groups belonging to other animations
+        cloneSvg
+          .querySelectorAll('[style*="display: none"], [style*="display:none"], [opacity="0"]')
+          .forEach((el) => {
+            if (!el.closest('defs')) el.remove();
+          });
+
+        // 2. Prune unreferenced <defs> children so we only keep clipPaths/masks/gradients used in THIS frame
+        const defsEl = cloneSvg.querySelector('defs');
+        if (defsEl) {
+          const bodyHtmlWithoutDefs = Array.from(cloneSvg.children)
+            .filter((ch) => ch.tagName.toLowerCase() !== 'defs')
+            .map((ch) => ch.outerHTML)
+            .join('');
+          const usedIds = new Set();
+          const collectRefs = (str) => {
+            let m;
+            const re = /url\(#([^)]+)\)|(?:xlink:href|href)=["']#([^"']+)["']/g;
+            while ((m = re.exec(str)) !== null) {
+              usedIds.add(m[1] || m[2]);
+            }
+          };
+          collectRefs(bodyHtmlWithoutDefs);
+          // Transitively keep defs referenced by other kept defs
+          let added = true;
+          while (added) {
+            added = false;
+            Array.from(defsEl.children).forEach((defChild) => {
+              const id = defChild.getAttribute('id');
+              if (id && usedIds.has(id)) {
+                const beforeSize = usedIds.size;
+                collectRefs(defChild.outerHTML);
+                if (usedIds.size > beforeSize) added = true;
+              }
+            });
+          }
+          Array.from(defsEl.children).forEach((defChild) => {
+            const id = defChild.getAttribute('id');
+            if (!id || !usedIds.has(id)) {
+              defChild.remove();
+            }
+          });
+          if (defsEl.children.length === 0) {
+            defsEl.remove();
+          }
+        }
+
+        // 3. Remove empty <g> containers left behind after pruning
+        let removedEmpty = true;
+        while (removedEmpty) {
+          removedEmpty = false;
+          cloneSvg.querySelectorAll('g').forEach((g) => {
+            if (!g.closest('defs') && g.children.length === 0 && !g.textContent.trim()) {
+              g.remove();
+              removedEmpty = true;
+            }
+          });
+        }
+
+        // 4. Compact coordinates & strip redundant default attributes
+        let rawInner = cloneSvg.innerHTML
+          .replace(/\sstyle=["']display:\s*block;?["']/gi, '')
+          .replace(/\stransform=["']matrix\(1,\s*0,\s*0,\s*1,\s*0,\s*0\)["']/gi, '')
+          .replace(/\s(?:opacity|fill-opacity|stroke-opacity)=["']1["']/gi, '')
+          .replace(/(\d+\.\d{2,})/g, (numStr) => String(Number(parseFloat(numStr).toFixed(1))));
+
+        rawInner = applyCustomizationsToSvgXml(`<svg viewBox="0 0 ${w} ${h}">${rawInner}</svg>`, {
+          colorMap,
+          strokeMode,
+          bgTransparent: true,
+        })
+          .replace(/^<svg[^>]*>/i, '')
+          .replace(/<\/svg>$/i, '');
+
+        // Normalize signature (ignoring defs IDs) to deduplicate consecutive identical frames
+        const signature = rawInner.replace(/\bid=["'][^"']+["']/g, '').replace(/url\(#[^)]+\)/g, '');
+        if (rawFrames.length > 0 && rawFrames[rawFrames.length - 1].signature === signature) {
+          rawFrames[rawFrames.length - 1].spanCount += 1;
+        } else {
+          rawFrames.push({
+            rawInner,
+            signature,
+            spanCount: 1,
+          });
+        }
+      }
+
+      anim.destroy();
+
+      const totalSampleSlots = rawFrames.reduce((acc, f) => acc + f.spanCount, 0) || 1;
+      let cursorSlot = 0;
+      const frameGroups = [];
+      const keyframesCss = [];
+
+      rawFrames.forEach((f, idx) => {
+        const prefix = `f${idx}_`;
+        const scopedInner = f.rawInner
+          .replace(/\bid=["']([^"']+)["']/g, `id="${prefix}$1"`)
+          .replace(/url\(#([^)]+)\)/g, `url(#${prefix}$1)`)
+          .replace(/\b(xlink:href|href)=["']#([^"']+)["']/g, `$1="#${prefix}$2"`);
+
+        frameGroups.push(`<g class="li-f li-f-${idx}">${scopedInner}</g>`);
+
+        const startPct = Number(((cursorSlot / totalSampleSlots) * 100).toFixed(2));
+        cursorSlot += f.spanCount;
+        const endPct = Number(((cursorSlot / totalSampleSlots) * 100).toFixed(2));
+        const endHoldPct = Math.max(startPct, Number((endPct - 0.01).toFixed(2)));
+
+        let kfRule = '';
+        if (startPct === 0 && endPct >= 100) {
+          kfRule = `@keyframes li-k-${idx}{0%,100%{opacity:1}}`;
+        } else if (startPct === 0) {
+          kfRule = `@keyframes li-k-${idx}{0%,${endHoldPct}%{opacity:1}${endPct}%,100%{opacity:0}}`;
+        } else if (endPct >= 100) {
+          const prePct = Math.max(0, Number((startPct - 0.01).toFixed(2)));
+          kfRule = `@keyframes li-k-${idx}{0%,${prePct}%{opacity:0}${startPct}%,100%{opacity:1}}`;
+        } else {
+          const prePct = Math.max(0, Number((startPct - 0.01).toFixed(2)));
+          kfRule = `@keyframes li-k-${idx}{0%,${prePct}%{opacity:0}${startPct}%,${endHoldPct}%{opacity:1}${endPct}%,100%{opacity:0}}`;
+        }
+
+        const triggerRule =
+          exportMode === 'hover'
+            ? `svg:hover .li-f-${idx}{opacity:0;animation:li-k-${idx} ${durationSec}s steps(1,end) infinite}`
+            : `.li-f-${idx}{animation:li-k-${idx} ${durationSec}s steps(1,end) infinite}`;
+
+        keyframesCss.push(`${kfRule}${triggerRule}`);
+      });
+
+      const baseRule =
+        exportMode === 'hover'
+          ? `.li-f{opacity:0}.li-f-0{opacity:1}`
+          : `.li-f{opacity:0}`;
+
+      const styleBlock = `<style>${baseRule}${keyframesCss.join('')}</style>`;
+      const bgRect =
+        !bgTransparent && bgColor
+          ? `<rect class="svgcraft-bg" x="0" y="0" width="${w}" height="${h}" fill="${bgColor}"/>`
+          : '';
+
+      return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${w} ${h}" width="${w}" height="${h}">${styleBlock}${bgRect}${frameGroups.join('')}</svg>`;
+    } finally {
+      offscreen.remove();
+    }
+  }
+
   function buildIconCardsHtml(items) {
     return items
-      .map((ic) => {
+      .map((ic, idx) => {
         const cleanKey = `${ic.collectionSlug}:${ic.id || ic.slug}`;
         const legacyKey = `${ic.site}:${ic.collectionSlug}:${ic.id || ic.slug}`;
         const isFav = favorites.has(cleanKey) || favorites.has(legacyKey);
         const variantCount = Object.keys(ic.variants || {}).length;
+        const isLordicon =
+          ic.site === 'lordicon' || (ic.collectionSlug && ic.collectionSlug.startsWith('lordicon-'));
+        const isAnimated = isLordicon || ic.iconType === 'animated' || ic.site === 'allsvgicons';
+        const styleTitle = `${t('detailStylePrefix')} ${getStyleLabel(ic.styleType, ic.styleType)}`;
+        const motionTitle = getTypeLabel('animated', 'Animated / Motion SVG');
+        const subCategoryText = isLordicon
+          ? ic.lordiconCategory || ic.rawCategory || ic.category
+          : ic.category;
+        const loadingAttr = idx < 24 ? 'eager' : 'lazy';
+        const priorityAttr = idx < 12 ? ' fetchpriority="high"' : '';
 
         return `
           <article class="icon-card" data-icon-card="${escapeHtml(cleanKey)}">
-            <div class="icon-preview-area" data-open-detail="${escapeHtml(cleanKey)}">
+            <div class="icon-preview-area" data-open-detail="${escapeHtml(cleanKey)}" ${
+              isLordicon
+                ? `data-lordicon-col="${escapeHtml(ic.collectionSlug)}" data-lordicon-slug="${escapeHtml(ic.slug)}"`
+                : ''
+            }>
               <div class="card-badges-top">
-                <span class="micro-badge">${escapeHtml(ic.styleType)}</span>
+                <span class="micro-icon-badge" title="${escapeHtml(styleTitle)}">${getStyleIconSvg(ic.styleType)}</span>
                 ${
-                  variantCount > 1
-                    ? `<span class="micro-badge" title="Có ${variantCount} biến thể">${variantCount}v</span>`
-                    : `<span class="micro-badge">${escapeHtml(ic.gridSize || '24x24')}</span>`
+                  isAnimated
+                    ? `<span class="micro-icon-badge motion-badge" title="${escapeHtml(motionTitle)}">${ICONS.waveform}</span>`
+                    : variantCount > 1
+                      ? `<span class="micro-badge" title="${escapeHtml(t('variantsTooltip', { count: variantCount }))}">${variantCount}v</span>`
+                      : `<span class="micro-badge">${escapeHtml(ic.gridSize || '24x24')}</span>`
                 }
               </div>
-              <img src="${escapeHtml(ic.assetUrl)}" alt="${escapeHtml(ic.title)}" loading="lazy" decoding="async" />
+              <img src="${escapeHtml(ic.assetUrl)}" alt="${escapeHtml(ic.title)}" loading="${loadingAttr}"${priorityAttr} decoding="async" />
             </div>
 
             <div class="icon-info-area" data-open-detail="${escapeHtml(cleanKey)}">
               <div class="icon-name" title="${escapeHtml(ic.title)}">${escapeHtml(ic.title || ic.slug)}</div>
-              <div class="icon-sub">${escapeHtml(ic.category)} · ${escapeHtml(ic.collectionName)}</div>
+              <div class="icon-sub">${escapeHtml(subCategoryText)} · ${escapeHtml(ic.collectionName)}</div>
             </div>
 
             <div class="icon-actions-bar">
-              <button type="button" class="act-btn" data-copy-svg="${escapeHtml(ic.assetUrl)}" title="Copy mã SVG gốc">SVG</button>
-              <button type="button" class="act-btn" data-copy-jsx="${escapeHtml(ic.assetUrl)}" data-title="${escapeHtml(ic.slug)}" title="Copy React JSX">JSX</button>
-              <a href="${escapeHtml(ic.assetUrl)}" download="${escapeHtml(ic.fileName)}" class="act-btn" title="Tải file .svg">${ICONS.download}</a>
-              <button type="button" class="act-btn ${isFav ? 'fav-active' : ''}" data-toggle-fav="${escapeHtml(cleanKey)}" title="Yêu thích">
+              <button type="button" class="act-btn" data-copy-svg="${escapeHtml(ic.assetUrl)}" title="${escapeHtml(t('copySvgTitle'))}">SVG</button>
+              <button type="button" class="act-btn" data-copy-jsx="${escapeHtml(ic.assetUrl)}" data-title="${escapeHtml(ic.slug)}" title="${escapeHtml(t('copyJsxTitle'))}">JSX</button>
+              <a href="${escapeHtml(ic.assetUrl)}" download="${escapeHtml(ic.fileName)}" class="act-btn" title="${escapeHtml(t('downloadSvgTitle'))}">${ICONS.download}</a>
+              <button type="button" class="act-btn ${isFav ? 'fav-active' : ''}" data-toggle-fav="${escapeHtml(cleanKey)}" title="${escapeHtml(t('favoriteTitle'))}">
                 ${isFav ? ICONS.heartFilled : ICONS.heart}
               </button>
             </div>
@@ -1525,6 +2552,114 @@
       .join('');
   }
 
+  // Hover animation on Grid Cards for Lordicon icons
+  function setupLordiconGridHover(gridEl) {
+    if (!gridEl || gridEl.__lordiconHoverBound) return;
+    gridEl.__lordiconHoverBound = true;
+
+    gridEl.addEventListener('pointerover', async (e) => {
+      const previewArea = e.target.closest('.icon-preview-area[data-lordicon-slug]');
+      if (!previewArea || previewArea.__hoverActive) return;
+      previewArea.__hoverActive = true;
+
+      const col = previewArea.dataset.lordiconCol;
+      const slug = previewArea.dataset.lordiconSlug;
+      if (!col || !slug) return;
+
+      const cleanupLottieLayer = () => {
+        if (previewArea.__lottieAnim) {
+          try {
+            previewArea.__lottieAnim.destroy();
+          } catch {
+            // Ignore
+          }
+          previewArea.__lottieAnim = null;
+        }
+        const layer = previewArea.querySelector('.lordicon-grid-lottie-layer');
+        if (layer) layer.remove();
+        const img = previewArea.querySelector('img');
+        if (img) img.style.opacity = '';
+      };
+
+      const onLeave = () => {
+        previewArea.__hoverActive = false;
+        previewArea.removeEventListener('pointerleave', onLeave);
+        const img = previewArea.querySelector('img');
+        const imgReady = img && img.complete && img.naturalWidth > 0;
+        if (!imgReady && previewArea.__lottieAnim) {
+          try {
+            previewArea.__lottieAnim.goToAndStop(0, true);
+          } catch {
+            // Ignore
+          }
+          if (img) {
+            img.addEventListener(
+              'load',
+              () => {
+                if (!previewArea.__hoverActive) cleanupLottieLayer();
+              },
+              { once: true }
+            );
+          }
+          return;
+        }
+        cleanupLottieLayer();
+      };
+      previewArea.addEventListener('pointerleave', onLeave);
+
+      if (previewArea.__lottieAnim) {
+        try {
+          previewArea.__lottieAnim.play();
+          return;
+        } catch {
+          cleanupLottieLayer();
+        }
+      }
+
+      try {
+        const [lottie, liData] = await Promise.all([
+          ensureLottieWebLoaded(),
+          apiFetchJson(
+            `/api/lordicon/lottie?collection=${encodeURIComponent(col)}&slug=${encodeURIComponent(slug)}`
+          ),
+        ]);
+        if (!previewArea.__hoverActive || !liData || !liData.lottie) return;
+
+        let layer = previewArea.querySelector('.lordicon-grid-lottie-layer');
+        if (!layer) {
+          layer = document.createElement('div');
+          layer.className = 'lordicon-grid-lottie-layer';
+          previewArea.appendChild(layer);
+        }
+        const img = previewArea.querySelector('img');
+        if (img) img.style.opacity = '0';
+
+        const defState =
+          (liData.states || []).find((s) => s.isDefault) ||
+          (liData.states || []).find((s) => s.id.includes('hover')) ||
+          (liData.states || [])[0];
+
+        const anim = lottie.loadAnimation({
+          container: layer,
+          renderer: 'svg',
+          loop: true,
+          autoplay: false,
+          animationData: JSON.parse(JSON.stringify(liData.lottie)),
+        });
+        previewArea.__lottieAnim = anim;
+        if (defState) {
+          anim.playSegments([defState.startFrame, defState.endFrame], true);
+        } else {
+          anim.play();
+        }
+      } catch {
+        // Ignore hover error
+      }
+    });
+  }
+
+  setupLordiconGridHover(iconsGrid);
+
   function renderIconsGrid(items, append = false) {
     if (!append && !items.length) {
       iconsGrid.innerHTML = `
@@ -1532,9 +2667,9 @@
           <div style="display:inline-flex;padding:12px;border-radius:12px;background:var(--bg-card);margin-bottom:10px;color:var(--brand-orange)">
             ${ICONS.sparkles}
           </div>
-          <p style="font-size:1rem;font-weight:600;color:var(--text-main);margin-bottom:6px">Không tìm thấy icon SVG nào khớp bộ lọc</p>
-          <p style="font-size:0.83rem;margin-bottom:16px">Hãy thử xóa bớt từ khóa hoặc đặt lại bộ lọc để xem toàn bộ kho lưu trữ.</p>
-          <button type="button" class="pill-btn active" id="btnEmptyResetFilters">Đặt lại bộ lọc</button>
+          <p style="font-size:1rem;font-weight:600;color:var(--text-main);margin-bottom:6px">${escapeHtml(t('emptyIconsTitle'))}</p>
+          <p style="font-size:0.83rem;margin-bottom:16px">${escapeHtml(t('emptyIconsDesc'))}</p>
+          <button type="button" class="pill-btn active" id="btnEmptyResetFilters">${escapeHtml(t('resetFiltersBtn'))}</button>
         </div>
       `;
       const emptyReset = document.getElementById('btnEmptyResetFilters');
@@ -1561,7 +2696,7 @@
       const svgText = await fetchSvgTextCached(url);
       if (!svgText) return;
       await navigator.clipboard.writeText(svgText);
-      showToast('Đã copy mã SVG vào Clipboard');
+      showToast(t('toastSvgCopied'));
       return;
     }
 
@@ -1573,7 +2708,7 @@
       const svgText = await fetchSvgTextCached(url);
       if (!svgText) return;
       await navigator.clipboard.writeText(svgToJsx(svgText, compName));
-      showToast(`Đã copy component <${compName} /> (JSX)`);
+      showToast(t('toastJsxCopied', { comp: compName }));
       return;
     }
 
@@ -1615,11 +2750,13 @@
     const safeSite = 'any';
     const initQ = initialParams.q || '';
     const initStyle = initialParams.styleType || '';
+    const initCat = initialParams.category || '';
     const initSort = initialParams.sort || 'az';
 
     const queryInit = new URLSearchParams({
       q: initQ,
       styleType: initStyle,
+      category: initCat,
       sort: initSort,
       limit: String(PAGE_SIZE),
       offset: '0',
@@ -1631,7 +2768,7 @@
         `/api/catalog/collection/${encodeURIComponent(safeSite)}/${encodeURIComponent(collectionSlug)}?${queryInit.toString()}`
       );
     } catch {
-      showToast('Không tìm thấy bộ sưu tập này');
+      showToast(t('toastColNotFound'));
       return;
     }
     const col = data.collection;
@@ -1642,6 +2779,7 @@
       name: col.name,
       q: initQ,
       styleType: initStyle,
+      category: initCat,
       sort: initSort,
       offset: 0,
       total: data.total || 0,
@@ -1652,7 +2790,7 @@
     syncCollectionUrl(pushHistory);
     updateNavActiveStates();
 
-    document.title = `${col.name} — Bộ sưu tập SVG Icons | SVGCraft`;
+    document.title = `${col.name} — ${t('colPageTitleSuffix')}`;
     catalogView.style.display = 'none';
     detailView.style.display = 'none';
     collectionView.style.display = 'block';
@@ -1662,20 +2800,24 @@
     const authorLabel =
       !col.author || /^(thesvg|svg\s*repo)$/i.test(String(col.author).trim()) ? 'Open Source' : col.author;
 
+    const isLordiconStylePack =
+      String(col.slug || '').startsWith('lordicon-') && !String(col.slug || '').startsWith('lordicon-cat-');
+    const lCats = catalogSummary?.lordiconCategories || [];
+
     collectionView.innerHTML = `
       <div class="detail-topbar">
         <div class="detail-breadcrumbs">
           <button type="button" class="btn-back-catalog" id="btnColBackCatalog">
             ${ICONS.arrowLeft}
-            <span>Quay lại Kho lưu trữ</span>
+            <span>${escapeHtml(t('colBackCatalog'))}</span>
           </button>
           <span class="crumb-sep">${ICONS.chevronRight}</span>
-          <span style="color:var(--text-muted)">Bộ sưu tập</span>
+          <span style="color:var(--text-muted)">${escapeHtml(t('colBreadcrumb'))}</span>
           <span class="crumb-sep">${ICONS.chevronRight}</span>
           <span class="crumb-current">${escapeHtml(col.name)}</span>
         </div>
         <div class="detail-nav-actions">
-          <button type="button" class="icon-btn-square" id="btnColShare" title="Copy liên kết bộ sưu tập">
+          <button type="button" class="icon-btn-square" id="btnColShare" title="${escapeHtml(t('colShareTitle'))}">
             ${ICONS.share}
           </button>
         </div>
@@ -1690,9 +2832,9 @@
             <div>
               <h1 class="collection-h1">${escapeHtml(col.name)}</h1>
               <div class="collection-meta-pills">
-                <span class="col-stat-pill">Số lượng: <strong>${(col.totalIconsInCollection || data.total || 0).toLocaleString()} icons</strong></span>
-                <span class="col-stat-pill">Giấy phép: <strong>${escapeHtml(col.license || 'MIT / CC0')}</strong></span>
-                <span class="col-stat-pill">Tác giả: <strong>${escapeHtml(authorLabel)}</strong></span>
+                <span class="col-stat-pill">${escapeHtml(t('colStatCount'))} <strong>${(col.totalIconsInCollection || data.total || 0).toLocaleString()} ${escapeHtml(t('unitIcons'))}</strong></span>
+                <span class="col-stat-pill">${escapeHtml(t('colStatLicense'))} <strong>${escapeHtml(col.license || 'MIT / CC0')}</strong></span>
+                <span class="col-stat-pill">${escapeHtml(t('colStatAuthor'))} <strong>${escapeHtml(authorLabel)}</strong></span>
                 ${
                   col.gridSizes && col.gridSizes.length
                     ? `<span class="col-stat-pill">Grid: <strong>${escapeHtml(col.gridSizes.slice(0, 3).join(', '))}</strong></span>`
@@ -1708,12 +2850,31 @@
             <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
               <circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path>
             </svg>
-            <input type="search" id="colLocalSearchInput" value="${escapeHtml(initQ)}" placeholder="Tìm icon trong bộ sưu tập ${escapeHtml(col.name)}..." autocomplete="off" />
+            <input type="search" id="colLocalSearchInput" value="${escapeHtml(initQ)}" placeholder="${escapeHtml(t('colSearchPlaceholder', { name: col.name }))}" autocomplete="off" />
           </div>
+
+          ${
+            isLordiconStylePack && lCats.length
+              ? `
+            <div class="lordicon-cat-select-wrap">
+              <span class="icon-inline" style="color:var(--brand-orange)">${ICONS.waveform}</span>
+              <select id="colLordiconCatSelect" aria-label="${escapeHtml(t('lordiconTopicLabel'))}">
+                <option value="" ${!initCat ? 'selected' : ''}>${escapeHtml(t('lordiconAllCategories'))} (${(col.totalIconsInCollection || 0).toLocaleString()})</option>
+                ${lCats
+                  .map((lc) => {
+                    const lbl = currentLang === 'vi' && lc.labelVi ? `${lc.label} (${lc.labelVi})` : lc.label;
+                    return `<option value="${escapeHtml(lc.id)}" ${initCat === lc.id ? 'selected' : ''}>${escapeHtml(lbl)}</option>`;
+                  })
+                  .join('')}
+              </select>
+            </div>
+          `
+              : ''
+          }
 
           <div class="col-filter-pills-group" id="colStyleFilterGroup">
             <button type="button" class="pill-btn ${!initStyle ? 'active' : ''}" data-col-style="">
-              <span>Tất cả (${(col.totalIconsInCollection || 0).toLocaleString()})</span>
+              <span>${escapeHtml(t('colAllStyles', { count: (col.totalIconsInCollection || 0).toLocaleString() }))}</span>
             </button>
             ${(col.stylesBreakdown || [])
               .map(
@@ -1729,14 +2890,14 @@
 
           <div style="display:flex;align-items:center;gap:10px">
             <div class="sort-select-wrap">
-              <select id="colSortSelect" aria-label="Sắp xếp trong bộ sưu tập">
-                <option value="az" ${initSort === 'az' ? 'selected' : ''}>Tên A → Z</option>
-                <option value="za" ${initSort === 'za' ? 'selected' : ''}>Tên Z → A</option>
-                <option value="recent" ${initSort === 'recent' ? 'selected' : ''}>Mới cập nhật</option>
+              <select id="colSortSelect" aria-label="${escapeHtml(t('sortTitle'))}">
+                <option value="az" ${initSort === 'az' ? 'selected' : ''}>${escapeHtml(t('sortAz'))}</option>
+                <option value="za" ${initSort === 'za' ? 'selected' : ''}>${escapeHtml(t('sortZa'))}</option>
+                <option value="recent" ${initSort === 'recent' ? 'selected' : ''}>${escapeHtml(t('sortRecent'))}</option>
               </select>
             </div>
             <div class="results-counter">
-              Hiển thị <strong id="colShowingCount">${activeCollectionState.items.length}</strong> / <strong id="colTotalCount">${activeCollectionState.total}</strong>
+              ${escapeHtml(t('showingPrefix'))} <strong id="colShowingCount">${activeCollectionState.items.length}</strong> / <strong id="colTotalCount">${activeCollectionState.total}</strong>
             </div>
           </div>
         </div>
@@ -1748,7 +2909,7 @@
 
       <div id="colLoadMoreWrap" class="load-more-wrap" style="display:${activeCollectionState.items.length < activeCollectionState.total ? 'flex' : 'none'}">
         <button type="button" id="btnColLoadMore" class="btn-load-more">
-          <span>Tải thêm icon trong bộ sưu tập (${activeCollectionState.items.length} / ${activeCollectionState.total})</span>
+          <span>${escapeHtml(t('colLoadMoreBtn', { shown: activeCollectionState.items.length, total: activeCollectionState.total }))}</span>
         </button>
       </div>
     `;
@@ -1757,7 +2918,9 @@
     currentItems = activeCollectionState.items;
 
     const colIconsGrid = document.getElementById('colIconsGrid');
+    setupLordiconGridHover(colIconsGrid);
     const colLocalSearchInput = document.getElementById('colLocalSearchInput');
+    const colLordiconCatSelect = document.getElementById('colLordiconCatSelect');
     const colStyleFilterGroup = document.getElementById('colStyleFilterGroup');
     const colSortSelect = document.getElementById('colSortSelect');
     const colShowingCount = document.getElementById('colShowingCount');
@@ -1776,6 +2939,7 @@
         const params = new URLSearchParams({
           q: activeCollectionState.q,
           styleType: activeCollectionState.styleType,
+          category: activeCollectionState.category || '',
           sort: activeCollectionState.sort,
           offset: String(activeCollectionState.offset),
           limit: String(PAGE_SIZE),
@@ -1789,7 +2953,7 @@
         if (resetOffset) {
           activeCollectionState.items = newItems;
           if (!newItems.length) {
-            colIconsGrid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:48px 20px;color:var(--text-muted);border:1px dashed var(--border-subtle);border-radius:14px">Không tìm thấy icon nào khớp từ khóa trong bộ sưu tập này.</div>`;
+            colIconsGrid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:48px 20px;color:var(--text-muted);border:1px dashed var(--border-subtle);border-radius:14px">${escapeHtml(t('colEmptySearch'))}</div>`;
           } else {
             colIconsGrid.innerHTML = buildIconCardsHtml(newItems);
           }
@@ -1804,7 +2968,7 @@
 
         if (activeCollectionState.items.length < activeCollectionState.total) {
           colLoadMoreWrap.style.display = 'flex';
-          btnColLoadMore.innerHTML = `<span>Tải thêm icon trong bộ sưu tập (${activeCollectionState.items.length} / ${activeCollectionState.total})</span>`;
+          btnColLoadMore.innerHTML = `<span>${escapeHtml(t('colLoadMoreBtn', { shown: activeCollectionState.items.length, total: activeCollectionState.total }))}</span>`;
         } else {
           colLoadMoreWrap.style.display = 'none';
         }
@@ -1813,13 +2977,20 @@
       }
     }
 
+    if (colLordiconCatSelect) {
+      colLordiconCatSelect.addEventListener('change', () => {
+        activeCollectionState.category = colLordiconCatSelect.value;
+        fetchCollectionFiltered(true);
+      });
+    }
+
     document.getElementById('btnColBackCatalog').addEventListener('click', () => {
       showCatalogView(true);
     });
 
     document.getElementById('btnColShare').addEventListener('click', async () => {
       await navigator.clipboard.writeText(window.location.href);
-      showToast('Đã copy đường dẫn bộ sưu tập');
+      showToast(t('toastColLinkCopied'));
     });
 
     let colSearchTimer = null;
@@ -1867,18 +3038,42 @@
     brandGlowBackdrop.classList.toggle('active', activeDetailIconKey !== null);
   }
 
+  let activeStageLottieAnim = null;
+  function destroyActiveStageLottie() {
+    if (activeStageLottieAnim) {
+      try {
+        activeStageLottieAnim.destroy();
+      } catch {
+        // Ignore
+      }
+      activeStageLottieAnim = null;
+    }
+  }
+
   async function openDetailPage(site, collectionSlug, idOrSlug, pushHistory = true) {
+    destroyActiveStageLottie();
     let data;
     try {
       data = await apiFetchJson(
         `/api/catalog/icon/any/${encodeURIComponent(collectionSlug)}/${encodeURIComponent(idOrSlug)}`
       );
     } catch {
-      showToast('Không tìm thấy dữ liệu chi tiết cho icon này');
+      showToast(t('toastIconNotFound'));
       return;
     }
 
-    const { icon, svgVariantsContent = {}, variantAssetUrls = {}, recommendations = {} } = data;
+    const {
+      icon,
+      svgVariantsContent = {},
+      variantAssetUrls = {},
+      lordiconStyles = null,
+      recommendations = {},
+    } = data;
+    const isLordicon =
+      icon.site === 'lordicon' ||
+      (icon.collectionSlug && icon.collectionSlug.startsWith('lordicon-')) ||
+      Array.isArray(lordiconStyles);
+
     const favKey = `${icon.collectionSlug}:${icon.id || icon.slug}`;
     const legacyFavKey = `${icon.site}:${icon.collectionSlug}:${icon.id || icon.slug}`;
     activeDetailIconKey = favKey;
@@ -1929,9 +3124,29 @@
     let zoomScale = 1;
     let panX = 0;
     let panY = 0;
-    let customColor = null;
 
-    const primaryHex = (icon.colorPalette && icon.colorPalette[0]) || '#f97316';
+    // Advanced Studio Customizer State (Multi-Color Map, Background, Stroke Mode, Motion & Export Mode)
+    let baseRawSvgForCurrentStyle = svgVariantsContent[activeVariant] || data.rawSvg || '';
+    let editableColorSlots = extractEditableColorsFromSvg(baseRawSvgForCurrentStyle);
+    let colorMap = {};
+    editableColorSlots.forEach((slot) => {
+      colorMap[slot.hex] = slot.hex;
+    });
+    let bgTransparent = true;
+    let bgColor = '#ffffff';
+    let strokeMode = 'regular'; // 'light' | 'regular' | 'bold'
+
+    // Lordicon State
+    let activeLordiconFamily = icon.family || (icon.collectionSlug.startsWith('lordicon-') ? icon.collectionSlug.split('-')[1] : 'system');
+    let activeLordiconStyle = icon.lordiconStyle || (icon.collectionSlug.startsWith('lordicon-') ? icon.collectionSlug.split('-').slice(2).join('-') : 'outline');
+    let lordiconLottieData = null;
+    let lordiconMotionStates = [];
+    let activeMotionStateId = '';
+    let isStageLiveLooping = true;
+    let svgExportMode = 'static'; // 'static' | 'hover' | 'loop'
+    let compiledAnimatedSvgCache = null;
+
+    const primaryHex = editableColorSlots[0]?.hex || (icon.colorPalette && icon.colorPalette[0]) || '#f97316';
     updateBrandGlow(primaryHex);
 
     // Find prev/next icon in currentItems for quick keyboard/button navigation
@@ -1942,24 +3157,41 @@
     const nextItem = currentIdx >= 0 && currentIdx < currentItems.length - 1 ? currentItems[currentIdx + 1] : null;
 
     const catObj = (catalogSummary?.categories || []).find((c) => c.id === icon.category);
-    const catLabel = catObj ? catObj.label : icon.category;
+    const catLabel = getCatLabel(icon.category, catObj?.label);
+
+    function getCustomizedStaticSvg() {
+      const raw = baseRawSvgForCurrentStyle || svgVariantsContent[activeVariant] || data.rawSvg || '';
+      return applyCustomizationsToSvgXml(raw, {
+        colorMap,
+        strokeMode,
+        bgTransparent,
+        bgColor,
+      });
+    }
 
     function getActiveRawSvg() {
-      const baseSvg = svgVariantsContent[activeVariant] || data.rawSvg || '';
-      if (!customColor) return baseSvg;
-      // Apply custom color override to SVG string
-      const tempDiv = document.createElement('div');
-      tempDiv.innerHTML = baseSvg;
-      const svgEl = tempDiv.querySelector('svg');
-      if (!svgEl) return baseSvg;
-      svgEl.style.color = customColor;
-      svgEl.querySelectorAll('path, circle, rect, polygon, polyline, line, ellipse').forEach((shape) => {
-        const f = shape.getAttribute('fill');
-        const s = shape.getAttribute('stroke');
-        if (s && s !== 'none') shape.setAttribute('stroke', customColor);
-        if (!s && (!f || f !== 'none')) shape.setAttribute('fill', customColor);
-      });
-      return tempDiv.innerHTML;
+      if (isLordicon && (svgExportMode === 'hover' || svgExportMode === 'loop') && compiledAnimatedSvgCache) {
+        return compiledAnimatedSvgCache;
+      }
+      return getCustomizedStaticSvg();
+    }
+
+    async function getOrCompileExportSvg() {
+      if (isLordicon && (svgExportMode === 'hover' || svgExportMode === 'loop') && lordiconLottieData) {
+        if (compiledAnimatedSvgCache) return compiledAnimatedSvgCache;
+        showToast(t('toastCompilingAnimSvg'));
+        const stObj =
+          lordiconMotionStates.find((s) => s.id === activeMotionStateId) || lordiconMotionStates[0];
+        compiledAnimatedSvgCache = await compileStandaloneAnimatedSvg(lordiconLottieData, stObj, {
+          exportMode: svgExportMode,
+          colorMap,
+          strokeMode,
+          bgTransparent,
+          bgColor,
+        });
+        return compiledAnimatedSvgCache;
+      }
+      return getCustomizedStaticSvg();
     }
 
     function getActiveAssetUrl() {
@@ -1991,7 +3223,7 @@
 
     function renderMiniCardsSection(list) {
       if (!list || !list.length) {
-        return `<div style="color:var(--text-dim);font-size:0.82rem;padding:12px 0">Chưa có thêm icon trong nhóm này.</div>`;
+        return `<div style="color:var(--text-dim);font-size:0.82rem;padding:12px 0">${escapeHtml(t('recEmpty'))}</div>`;
       }
       return `
         <div class="rec-strip">
@@ -2010,6 +3242,20 @@
       `;
     }
 
+    function buildColorWellsHtml() {
+      return editableColorSlots
+        .map((slot, idx) => {
+          const curVal = colorMap[slot.hex] || slot.hex;
+          return `
+            <label class="color-well-item" style="background:${escapeHtml(curVal)}" title="${escapeHtml(slot.label)}: ${escapeHtml(curVal.toUpperCase())}">
+              <input type="color" data-color-slot="${escapeHtml(slot.hex)}" data-color-idx="${idx}" value="${escapeHtml(curVal)}" />
+              <span class="color-well-tag">${escapeHtml(curVal)}</span>
+            </label>
+          `;
+        })
+        .join('');
+    }
+
     const isFav = favorites.has(favKey) || favorites.has(legacyFavKey);
     const paletteColors = icon.colorPalette && icon.colorPalette.length ? icon.colorPalette : [];
 
@@ -2019,7 +3265,7 @@
         <div class="detail-breadcrumbs">
           <button type="button" class="btn-back-catalog" id="btnBackToCatalog">
             ${ICONS.arrowLeft}
-            <span>Quay lại</span>
+            <span>${escapeHtml(t('detailBack'))}</span>
           </button>
           <button type="button" class="crumb-btn" data-crumb-cat="${escapeHtml(icon.category)}">
             ${escapeHtml(catLabel)}
@@ -2033,16 +3279,16 @@
         </div>
 
         <div class="detail-nav-actions">
-          <button type="button" class="icon-btn-square" id="btnDetailPrev" ${prevItem ? '' : 'disabled'} title="Icon trước đó (←)">
+          <button type="button" class="icon-btn-square" id="btnDetailPrev" ${prevItem ? '' : 'disabled'} title="${escapeHtml(t('detailPrevTitle'))}">
             ${ICONS.chevronLeft}
           </button>
-          <button type="button" class="icon-btn-square" id="btnDetailNext" ${nextItem ? '' : 'disabled'} title="Icon tiếp theo (→)">
+          <button type="button" class="icon-btn-square" id="btnDetailNext" ${nextItem ? '' : 'disabled'} title="${escapeHtml(t('detailNextTitle'))}">
             ${ICONS.chevronRight}
           </button>
-          <button type="button" class="icon-btn-square ${isFav ? 'active-fav' : ''}" id="btnDetailFav" title="Lưu vào Yêu thích">
+          <button type="button" class="icon-btn-square ${isFav ? 'active-fav' : ''}" id="btnDetailFav" title="${escapeHtml(t('detailFavTitle'))}">
             ${isFav ? ICONS.heartFilled : ICONS.heart}
           </button>
-          <button type="button" class="icon-btn-square" id="btnDetailShare" title="Copy liên kết trực tiếp">
+          <button type="button" class="icon-btn-square" id="btnDetailShare" title="${escapeHtml(t('detailShareTitle'))}">
             ${ICONS.share}
           </button>
         </div>
@@ -2050,41 +3296,41 @@
 
       <!-- Main Hero Grid (thesvg.org 2-Column Layout) -->
       <div class="detail-hero-grid">
-        <!-- Left Column: Interactive Vector Stage, Variants & Palette -->
+        <!-- Left Column: Interactive Vector Stage, Customizer (Colors/Bg/Stroke), Variants & Palette -->
         <div class="detail-stage-col">
           <div class="stage-card">
             <div class="stage-toolbar-top">
               <!-- Background Switcher -->
-              <div class="stage-control-group" role="group" aria-label="Nền khung vẽ">
-                <button type="button" class="stage-ctrl-btn ${stageTone === 'checker' ? 'active' : ''}" data-stage-tone="checker" title="Nền trong suốt (Checkerboard)">
+              <div class="stage-control-group" role="group" aria-label="Canvas background">
+                <button type="button" class="stage-ctrl-btn ${stageTone === 'checker' ? 'active' : ''}" data-stage-tone="checker" title="${escapeHtml(t('stageToneChecker'))}">
                   ${ICONS.checkerboard}
                 </button>
-                <button type="button" class="stage-ctrl-btn ${stageTone === 'dark' ? 'active' : ''}" data-stage-tone="dark" title="Nền tối (Dark)">
+                <button type="button" class="stage-ctrl-btn ${stageTone === 'dark' ? 'active' : ''}" data-stage-tone="dark" title="${escapeHtml(t('stageToneDark'))}">
                   ${ICONS.moon}
                 </button>
-                <button type="button" class="stage-ctrl-btn ${stageTone === 'light' ? 'active' : ''}" data-stage-tone="light" title="Nền sáng (Light)">
+                <button type="button" class="stage-ctrl-btn ${stageTone === 'light' ? 'active' : ''}" data-stage-tone="light" title="${escapeHtml(t('stageToneLight'))}">
                   ${ICONS.sun}
                 </button>
-                <button type="button" class="stage-ctrl-btn ${stageTone === 'auto' ? 'active' : ''}" data-stage-tone="auto" title="Nền tự động theo giao diện (Auto)">
+                <button type="button" class="stage-ctrl-btn ${stageTone === 'auto' ? 'active' : ''}" data-stage-tone="auto" title="${escapeHtml(t('stageToneAuto'))}">
                   <span>Auto</span>
                 </button>
               </div>
 
               <!-- Keyline Grid & Zoom Inspector -->
               <div style="display:flex;align-items:center;gap:6px">
-                <button type="button" class="stage-ctrl-btn" id="btnToggleKeyline" style="border:1px solid var(--border-subtle);background:var(--bg-page);height:30px" title="Bật/Tắt lưới chuẩn thiết kế (Keyline Grid)">
+                <button type="button" class="stage-ctrl-btn" id="btnToggleKeyline" style="border:1px solid var(--border-subtle);background:var(--bg-page);height:30px" title="${escapeHtml(t('stageKeylineTitle'))}">
                   ${ICONS.grid}
                   <span>Grid</span>
                 </button>
                 <div class="stage-control-group">
-                  <button type="button" class="stage-ctrl-btn" id="btnZoomOut" title="Thu nhỏ">${ICONS.zoomOut}</button>
-                  <button type="button" class="stage-ctrl-btn stage-zoom-readout" id="stageZoomReadout" title="Cuộn chuột để Zoom tại con trỏ · Bấm để đặt lại 100%">${BASE_STAGE_SIZE}px</button>
-                  <button type="button" class="stage-ctrl-btn" id="btnZoomIn" title="Phóng to">${ICONS.zoomIn}</button>
+                  <button type="button" class="stage-ctrl-btn" id="btnZoomOut" title="${escapeHtml(t('stageZoomOutTitle'))}">${ICONS.zoomOut}</button>
+                  <button type="button" class="stage-ctrl-btn stage-zoom-readout" id="stageZoomReadout" title="${escapeHtml(t('stageZoomResetTitle'))}">${BASE_STAGE_SIZE}px</button>
+                  <button type="button" class="stage-ctrl-btn" id="btnZoomIn" title="${escapeHtml(t('stageZoomInTitle'))}">${ICONS.zoomIn}</button>
                 </div>
               </div>
             </div>
 
-            <div class="stage-canvas" id="stageCanvas" data-tone="${stageTone}" title="Cuộn chuột để phóng to/thu nhỏ tại vị trí con trỏ · Kéo giữ chuột để di chuyển trong khung">
+            <div class="stage-canvas" id="stageCanvas" data-tone="${stageTone}" title="${escapeHtml(t('stageCanvasTitle'))}">
               <div class="stage-vector-box" id="stageVectorBox" style="width:${BASE_STAGE_SIZE}px;height:${BASE_STAGE_SIZE}px">
                 <div id="stageSvgMount" style="width:100%;height:100%;display:flex;align-items:center;justify-content:center">
                   ${getActiveRawSvg()}
@@ -2097,39 +3343,119 @@
 
             <div class="stage-footer-bar">
               <div class="stage-meta-mono">
-                <span>viewBox: <strong>${escapeHtml(icon.viewBox || '0 0 24 24')}</strong></span>
+                <span>viewBox: <strong id="stageViewBoxLabel">${escapeHtml(icon.viewBox || '0 0 24 24')}</strong></span>
                 <span> · </span>
                 <span id="stageBytesLabel">${formatBytes(icon.fileSizeBytes)}</span>
-              </div>
-              <div class="color-picker-wrap">
-                <label for="detailColorPicker" style="font-size:0.72rem">Đổi màu:</label>
-                <input type="color" id="detailColorPicker" class="color-picker-input" value="${escapeHtml(primaryHex)}" />
-                <button type="button" class="stage-ctrl-btn" id="btnResetColor" title="Khôi phục màu gốc" style="display:none">
-                  ${ICONS.rotateCcw}
-                </button>
               </div>
             </div>
           </div>
 
-          <!-- Variant Selector Box -->
+          <!-- Vector Customizer Box: Multi-Colors, Background (Transparent + Picker), Stroke (light | regular | bold) -->
+          <div class="studio-customizer-box">
+            <div class="panel-box-label" style="margin-bottom:2px">
+              <span>${escapeHtml(t('customizerTitle'))}</span>
+              <button type="button" class="stage-ctrl-btn" id="btnResetAllCustomizations" title="${escapeHtml(t('stageResetColorTitle'))}">
+                ${ICONS.rotateCcw}
+              </button>
+            </div>
+
+            <!-- Row 1: Multi-Color Wells -->
+            <div class="studio-ctrl-row">
+              <span class="studio-ctrl-label">${escapeHtml(t('ctrlColors'))}</span>
+              <div class="color-wells-list" id="studioColorWellsList">
+                ${buildColorWellsHtml()}
+              </div>
+            </div>
+
+            <!-- Row 2: Background (Transparent Checkbox + Color Well) -->
+            <div class="studio-ctrl-row">
+              <span class="studio-ctrl-label">${escapeHtml(t('ctrlBackground'))}</span>
+              <div class="studio-ctrl-right">
+                <label class="bg-transparent-toggle">
+                  <input type="checkbox" id="chkBgTransparent" checked />
+                  <span>${escapeHtml(t('ctrlTransparent'))}</span>
+                </label>
+                <label class="color-well-item" id="bgColorWellWrap" style="max-width:72px;background:${escapeHtml(bgColor)};opacity:0.45" title="Background HEX">
+                  <input type="color" id="inputBgColorPicker" value="${escapeHtml(bgColor)}" />
+                  <span class="color-well-tag" id="bgColorWellTag">${escapeHtml(bgColor)}</span>
+                </label>
+              </div>
+            </div>
+
+            <!-- Row 3: Stroke Width (light | regular | bold) -->
+            <div class="studio-ctrl-row">
+              <span class="studio-ctrl-label">${escapeHtml(t('ctrlStroke'))}</span>
+              <div class="stroke-segmented-group" id="strokeSegmentedGroup" role="group" aria-label="Stroke width">
+                <button type="button" class="stroke-seg-btn" data-stroke-mode="light">${escapeHtml(t('strokeLight'))}</button>
+                <button type="button" class="stroke-seg-btn active" data-stroke-mode="regular">${escapeHtml(t('strokeRegular'))}</button>
+                <button type="button" class="stroke-seg-btn" data-stroke-mode="bold">${escapeHtml(t('strokeBold'))}</button>
+              </div>
+            </div>
+          </div>
+
+          ${
+            isLordicon
+              ? `
+            <!-- Lordicon Motion States Box -->
+            <div class="detail-panel-box" id="lordiconMotionBox">
+              <div class="panel-box-label">
+                <span>${escapeHtml(t('motionPanelTitle'))}</span>
+                <span id="activeMotionStateLabel" style="text-transform:none;font-weight:600;color:var(--brand-orange)">Loading...</span>
+              </div>
+              <div class="motion-states-wrap" id="lordiconMotionStatesWrap">
+                <span style="font-size:0.75rem;color:var(--text-dim)">Loading Lottie motion states...</span>
+              </div>
+            </div>
+          `
+              : ''
+          }
+
+          <!-- Variant Selector Box (Supports both standard variants & all 10 Lordicon Cross-Style Variants) -->
           <div class="detail-panel-box">
             <div class="panel-box-label">
-              <span>Biến thể (${variantKeys.length} Variants)</span>
-              <span style="text-transform:none;font-weight:500" id="activeVariantLabel">${escapeHtml(activeVariant)}</span>
+              <span>${escapeHtml(
+                t('detailVariantsTitle', {
+                  count: Array.isArray(lordiconStyles) && lordiconStyles.length
+                    ? lordiconStyles.length
+                    : variantKeys.length,
+                })
+              )}</span>
+              <span style="text-transform:none;font-weight:500" id="activeVariantLabel">${escapeHtml(
+                Array.isArray(lordiconStyles) && lordiconStyles.length
+                  ? `${activeLordiconFamily}/${activeLordiconStyle}`
+                  : activeVariant
+              )}</span>
             </div>
             <div class="variants-strip-grid" id="detailVariantStrip">
-              ${variantKeys
-                .map(
-                  (vKey) => `
-                  <button type="button" class="variant-mini-btn ${vKey === activeVariant ? 'active' : ''}" data-var-key="${escapeHtml(vKey)}">
-                    <span class="variant-mini-thumb">
-                      <img src="${escapeHtml(variantAssetUrls[vKey] || icon.assetUrl)}" alt="${escapeHtml(vKey)}" />
-                    </span>
-                    <span class="variant-mini-name">${escapeHtml(vKey)}</span>
-                  </button>
-                `
-                )
-                .join('')}
+              ${
+                Array.isArray(lordiconStyles) && lordiconStyles.length
+                  ? lordiconStyles
+                      .map((stItem) => {
+                        const isCurrent =
+                          stItem.family === activeLordiconFamily && stItem.style === activeLordiconStyle;
+                        return `
+                          <button type="button" class="variant-mini-btn ${isCurrent ? 'active' : ''}" data-lordicon-var="${escapeHtml(stItem.family)}:${escapeHtml(stItem.style)}:${escapeHtml(stItem.collectionSlug)}:${stItem.isLocal ? '1' : '0'}">
+                            <span class="variant-mini-thumb">
+                              <img src="${escapeHtml(stItem.localAssetUrl || stItem.svgUrl)}" alt="${escapeHtml(stItem.label)}" loading="lazy" />
+                            </span>
+                            <span class="variant-mini-name" title="${escapeHtml(stItem.label)}">${escapeHtml(stItem.label)}</span>
+                          </button>
+                        `;
+                      })
+                      .join('')
+                  : variantKeys
+                      .map(
+                        (vKey) => `
+                        <button type="button" class="variant-mini-btn ${vKey === activeVariant ? 'active' : ''}" data-var-key="${escapeHtml(vKey)}">
+                          <span class="variant-mini-thumb">
+                            <img src="${escapeHtml(variantAssetUrls[vKey] || icon.assetUrl)}" alt="${escapeHtml(vKey)}" />
+                          </span>
+                          <span class="variant-mini-name">${escapeHtml(vKey)}</span>
+                        </button>
+                      `
+                      )
+                      .join('')
+              }
             </div>
           </div>
 
@@ -2139,13 +3465,13 @@
               ? `
             <div class="detail-panel-box">
               <div class="panel-box-label">
-                <span>Bảng màu gốc trong SVG (Bấm để copy HEX)</span>
+                <span>${escapeHtml(t('detailPaletteTitle'))}</span>
               </div>
               <div class="palette-swatches">
                 ${paletteColors
                   .map(
                     (hex) => `
-                    <button type="button" class="swatch-pill" data-copy-hex="${escapeHtml(hex)}" title="Copy mã màu ${escapeHtml(hex)}">
+                    <button type="button" class="swatch-pill" data-copy-hex="${escapeHtml(hex)}" title="${escapeHtml(hex)}">
                       <span class="swatch-dot" style="background:${escapeHtml(hex)}"></span>
                       <span>${escapeHtml(hex.toUpperCase())}</span>
                     </button>
@@ -2159,7 +3485,7 @@
           }
         </div>
 
-        <!-- Right Column: Icon Metadata, Quick Copy/Download, PNG Export & Code Studio -->
+        <!-- Right Column: Icon Metadata, Export Mode Selector, Quick Copy/Download, PNG Export & Code Studio -->
         <div class="detail-info-col">
           <div>
             <div class="detail-title-row">
@@ -2174,7 +3500,7 @@
               </button>
               <button type="button" class="pill-btn" data-jump-style="${escapeHtml(icon.styleType)}">
                 ${getStyleIconSvg(icon.styleType)}
-                <span>Phong cách: ${escapeHtml(icon.styleType)}</span>
+                <span>${escapeHtml(t('detailStylePrefix'))} ${escapeHtml(icon.styleType)}</span>
               </button>
               <button type="button" class="pill-btn" data-jump-type="${escapeHtml(icon.iconType)}">
                 ${getIconTypeSvg(icon.iconType)}
@@ -2182,6 +3508,33 @@
               </button>
             </div>
           </div>
+
+          ${
+            isLordicon
+              ? `
+            <!-- Option A1 On-Demand Animated SVG Export Mode Selector -->
+            <div class="export-mode-bar" id="lordiconExportModeBar">
+              <div class="export-mode-header">
+                <span>⚡ ${escapeHtml(t('exportModeTitle'))}</span>
+              </div>
+              <div class="export-mode-pills">
+                <button type="button" class="export-mode-btn active" data-svg-export-mode="static">
+                  <span class="export-mode-btn-title">${escapeHtml(t('exportModeStatic'))}</span>
+                  <span class="export-mode-btn-sub">${escapeHtml(t('exportModeStaticSub'))}</span>
+                </button>
+                <button type="button" class="export-mode-btn" data-svg-export-mode="hover">
+                  <span class="export-mode-btn-title">${escapeHtml(t('exportModeHover'))}</span>
+                  <span class="export-mode-btn-sub">${escapeHtml(t('exportModeHoverSub'))}</span>
+                </button>
+                <button type="button" class="export-mode-btn" data-svg-export-mode="loop">
+                  <span class="export-mode-btn-title">${escapeHtml(t('exportModeLoop'))}</span>
+                  <span class="export-mode-btn-sub">${escapeHtml(t('exportModeLoopSub'))}</span>
+                </button>
+              </div>
+            </div>
+          `
+              : ''
+          }
 
           <!-- Primary Copy & Download Row (thesvg.org style) -->
           <div class="detail-actions-row">
@@ -2203,7 +3556,7 @@
             </button>
             <button type="button" class="btn-action-hero" id="btnHeroDownloadSvg">
               ${ICONS.download}
-              <span>Tải .SVG</span>
+              <span>${escapeHtml(t('detailDownloadSvgBtn'))}</span>
             </button>
           </div>
 
@@ -2211,20 +3564,20 @@
           <div class="png-export-bar">
             <div class="png-export-title">
               ${ICONS.image}
-              <span>Xuất ảnh PNG chất lượng cao:</span>
+              <span>${escapeHtml(t('detailPngExportTitle'))}</span>
             </div>
             <div class="png-size-buttons">
               ${[32, 64, 128, 256, 512]
                 .map(
                   (sz) => `
-                  <button type="button" class="btn-png-size" data-export-png="${sz}" title="Tải file PNG ${sz}×${sz}px">
+                  <button type="button" class="btn-png-size" data-export-png="${sz}" title="${escapeHtml(t('detailPngBtnTitle', { size: sz }))}">
                     ${ICONS.download}
                     <span>${sz}px</span>
                   </button>
                 `
                 )
                 .join('')}
-              <button type="button" class="btn-png-size" data-copy-png="256" title="Copy ảnh PNG 256px vào Clipboard">
+              <button type="button" class="btn-png-size" data-copy-png="256" title="${escapeHtml(t('detailCopyPngTitle'))}">
                 ${ICONS.copy}
                 <span>Copy PNG</span>
               </button>
@@ -2260,7 +3613,7 @@
                 <span class="code-lang-badge" id="codeLangBadge">XML / SVG</span>
                 <button type="button" class="btn-copy-code-snippet" id="btnCopyActiveCode">
                   ${ICONS.copy}
-                  <span>Copy Code</span>
+                  <span>${escapeHtml(t('detailCopyCodeBtn'))}</span>
                 </button>
               </div>
             </div>
@@ -2270,26 +3623,26 @@
           <!-- Metadata Cards Grid -->
           <div class="detail-meta-grid">
             <div class="meta-stat-card">
-              <span class="meta-stat-label">Bộ sưu tập</span>
+              <span class="meta-stat-label">${escapeHtml(t('metaCollection'))}</span>
               <button type="button" class="meta-stat-link" data-open-col="${escapeHtml(icon.collectionSlug)}">
                 ${ICONS.folder}
                 <span style="overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${escapeHtml(icon.collectionName)}</span>
               </button>
             </div>
             <div class="meta-stat-card">
-              <span class="meta-stat-label">Kích thước lưới</span>
+              <span class="meta-stat-label">${escapeHtml(t('metaGridSize'))}</span>
               <span class="meta-stat-val">${escapeHtml(icon.gridSize || '24x24')}</span>
             </div>
             <div class="meta-stat-card">
-              <span class="meta-stat-label">Dung lượng</span>
-              <span class="meta-stat-val">${formatBytes(icon.fileSizeBytes)}</span>
+              <span class="meta-stat-label">${escapeHtml(t('metaFileSize'))}</span>
+              <span class="meta-stat-val" id="metaFileSizeVal">${formatBytes(icon.fileSizeBytes)}</span>
             </div>
             <div class="meta-stat-card">
-              <span class="meta-stat-label">Giấy phép (License)</span>
+              <span class="meta-stat-label">${escapeHtml(t('metaLicense'))}</span>
               <span class="meta-stat-val">${escapeHtml(icon.license || 'MIT / CC0')}</span>
             </div>
             <div class="meta-stat-card">
-              <span class="meta-stat-label">Tác giả</span>
+              <span class="meta-stat-label">${escapeHtml(t('metaAuthor'))}</span>
               <span class="meta-stat-val">${escapeHtml(
                 !icon.author || /^(thesvg|svg\s*repo)$/i.test(String(icon.author).trim())
                   ? 'Open Source'
@@ -2301,13 +3654,13 @@
           <!-- Tags Row -->
           <div>
             <div class="panel-box-label" style="margin-bottom:6px">
-              <span>Từ khóa phân loại (Bấm vào tag để tìm các icon cùng từ khóa)</span>
+              <span>${escapeHtml(t('detailTagsLabel'))}</span>
             </div>
             <div style="display:flex;flex-wrap:wrap;gap:6px">
               ${(icon.tags || [])
                 .map(
-                  (t) =>
-                    `<button type="button" class="pill-btn" data-jump-tag="${escapeHtml(t)}" style="font-size:0.75rem;padding:4px 10px">#${escapeHtml(t)}</button>`
+                  (tag) =>
+                    `<button type="button" class="pill-btn" data-jump-tag="${escapeHtml(tag)}" style="font-size:0.75rem;padding:4px 10px">#${escapeHtml(tag)}</button>`
                 )
                 .join('')}
             </div>
@@ -2320,7 +3673,7 @@
         <div class="detail-section-header">
           <h2 class="detail-section-title">
             <span class="nav-icon" style="color:var(--brand-orange)">${ICONS.sparkles}</span>
-            <span>Gợi ý tương đồng (Cùng từ khóa, chủ đề &amp; phong cách)</span>
+            <span>${escapeHtml(t('recSimilarTitle'))}</span>
           </h2>
         </div>
         ${renderMiniCardsSection(recommendations?.similar)}
@@ -2331,7 +3684,7 @@
         <div class="detail-section-header">
           <h2 class="detail-section-title">
             <span class="nav-icon" style="color:var(--brand-orange)">${getStyleIconSvg(icon.styleType)}</span>
-            <span>Cùng phong cách "${escapeHtml(icon.styleType)}" &amp; chủ đề "${escapeHtml(catLabel)}"</span>
+            <span>${escapeHtml(t('recSameStyleTitle', { style: icon.styleType, category: catLabel }))}</span>
           </h2>
         </div>
         ${renderMiniCardsSection(recommendations?.sameStyle)}
@@ -2342,10 +3695,10 @@
         <div class="detail-section-header">
           <h2 class="detail-section-title">
             <span class="nav-icon" style="color:var(--brand-orange)">${ICONS.folder}</span>
-            <span>Cùng bộ sưu tập "${escapeHtml(icon.collectionName)}"</span>
+            <span>${escapeHtml(t('recSameColTitle', { collection: icon.collectionName }))}</span>
           </h2>
           <button type="button" class="pill-btn" data-open-col="${escapeHtml(icon.collectionSlug)}">
-            <span>Xem toàn bộ bộ sưu tập</span>
+            <span>${escapeHtml(t('recViewAllCol'))}</span>
             ${ICONS.chevronRight}
           </button>
         </div>
@@ -2359,17 +3712,77 @@
     const stageSvgMount = document.getElementById('stageSvgMount');
     const stageKeylineMount = document.getElementById('stageKeylineMount');
     const stageZoomReadout = document.getElementById('stageZoomReadout');
+    const stageBytesLabel = document.getElementById('stageBytesLabel');
+    const metaFileSizeVal = document.getElementById('metaFileSizeVal');
     const btnZoomOut = document.getElementById('btnZoomOut');
     const btnZoomIn = document.getElementById('btnZoomIn');
     const btnToggleKeyline = document.getElementById('btnToggleKeyline');
-    const detailColorPicker = document.getElementById('detailColorPicker');
-    const btnResetColor = document.getElementById('btnResetColor');
     const activeVariantLabel = document.getElementById('activeVariantLabel');
     const codeStudioPre = document.getElementById('codeStudioPre');
     const codeLangBadge = document.getElementById('codeLangBadge');
+    const studioColorWellsList = document.getElementById('studioColorWellsList');
+    const chkBgTransparent = document.getElementById('chkBgTransparent');
+    const inputBgColorPicker = document.getElementById('inputBgColorPicker');
+    const bgColorWellWrap = document.getElementById('bgColorWellWrap');
+    const bgColorWellTag = document.getElementById('bgColorWellTag');
+    const strokeSegmentedGroup = document.getElementById('strokeSegmentedGroup');
+    const btnResetAllCustomizations = document.getElementById('btnResetAllCustomizations');
 
-    function mountCrispStageSvg() {
-      stageSvgMount.innerHTML = getActiveRawSvg();
+    function syncExportModeButtonsUI() {
+      detailView.querySelectorAll('[data-svg-export-mode]').forEach((b) => {
+        b.classList.toggle('active', b.dataset.svgExportMode === svgExportMode);
+      });
+    }
+
+    function mountStageVisual(playOnceInHoverMode = false) {
+      if (!bgTransparent && bgColor) {
+        stageCanvas.style.background = bgColor;
+      } else {
+        stageCanvas.style.background = '';
+      }
+
+      if (
+        isLordicon &&
+        lordiconLottieData &&
+        (svgExportMode === 'hover' || svgExportMode === 'loop') &&
+        window.lottie
+      ) {
+        destroyActiveStageLottie();
+        stageSvgMount.innerHTML = '';
+        const customizedLottie = applyCustomizationsToLottieJson(lordiconLottieData, {
+          colorMap,
+          strokeMode,
+        });
+        const stObj =
+          lordiconMotionStates.find((s) => s.id === activeMotionStateId) || lordiconMotionStates[0];
+        activeStageLottieAnim = window.lottie.loadAnimation({
+          container: stageSvgMount,
+          renderer: 'svg',
+          loop: svgExportMode === 'loop' || !playOnceInHoverMode,
+          autoplay: false,
+          animationData: customizedLottie,
+        });
+        if (svgExportMode === 'loop') {
+          if (stObj) {
+            activeStageLottieAnim.playSegments([stObj.startFrame, stObj.endFrame], true);
+          } else {
+            activeStageLottieAnim.play();
+          }
+        } else {
+          // 'hover' mode: stand still at startFrame unless hovering or previewing a newly clicked state
+          if (playOnceInHoverMode && stObj) {
+            activeStageLottieAnim.loop = false;
+            activeStageLottieAnim.playSegments([stObj.startFrame, stObj.endFrame], true);
+          } else {
+            activeStageLottieAnim.goToAndStop(stObj ? stObj.startFrame : 0, true);
+          }
+        }
+        return;
+      }
+
+      // 'static' mode: stand completely still with the lightweight static SVG
+      destroyActiveStageLottie();
+      stageSvgMount.innerHTML = getCustomizedStaticSvg();
       const svgEl = stageSvgMount.querySelector('svg');
       if (svgEl) {
         if (!svgEl.getAttribute('viewBox')) {
@@ -2385,17 +3798,220 @@
       }
     }
 
-    function refreshStageAndCode() {
-      mountCrispStageSvg();
-      codeStudioPre.innerHTML = `<code>${renderHighlightedCodeBlock(getFormattedCodeForTab(activeCodeTab), activeCodeTab)}</code>`;
-      if (codeLangBadge) codeLangBadge.textContent = getLangBadgeForTab(activeCodeTab);
-      activeVariantLabel.textContent = activeVariant;
+    // Stage hover listener for 'hover' mode
+    if (isLordicon && stageCanvas) {
+      stageCanvas.addEventListener('pointerenter', () => {
+        if (svgExportMode !== 'hover' || !activeStageLottieAnim) return;
+        const stObj =
+          lordiconMotionStates.find((s) => s.id === activeMotionStateId) || lordiconMotionStates[0];
+        activeStageLottieAnim.loop = true;
+        if (stObj) {
+          activeStageLottieAnim.playSegments([stObj.startFrame, stObj.endFrame], true);
+        } else {
+          activeStageLottieAnim.play();
+        }
+      });
+
+      stageCanvas.addEventListener('pointerleave', () => {
+        if (svgExportMode !== 'hover' || !activeStageLottieAnim) return;
+        const stObj =
+          lordiconMotionStates.find((s) => s.id === activeMotionStateId) || lordiconMotionStates[0];
+        activeStageLottieAnim.goToAndStop(stObj ? stObj.startFrame : 0, true);
+      });
     }
 
-    mountCrispStageSvg();
+    async function refreshStageAndCode(recompileIfAnimated = false, playOnceInHoverMode = false) {
+      compiledAnimatedSvgCache = null;
+      mountStageVisual(playOnceInHoverMode);
+      if (recompileIfAnimated && isLordicon && (svgExportMode === 'hover' || svgExportMode === 'loop')) {
+        await getOrCompileExportSvg();
+      }
+      const currentCodeSvg = getActiveRawSvg();
+      const byteLen = new Blob([currentCodeSvg]).size;
+      if (stageBytesLabel) stageBytesLabel.textContent = formatBytes(byteLen);
+      if (metaFileSizeVal) metaFileSizeVal.textContent = formatBytes(byteLen);
+
+      codeStudioPre.innerHTML = `<code>${renderHighlightedCodeBlock(getFormattedCodeForTab(activeCodeTab), activeCodeTab)}</code>`;
+      if (codeLangBadge) codeLangBadge.textContent = getLangBadgeForTab(activeCodeTab);
+      if (activeVariantLabel) {
+        activeVariantLabel.textContent =
+          Array.isArray(lordiconStyles) && lordiconStyles.length
+            ? `${activeLordiconFamily}/${activeLordiconStyle}`
+            : activeVariant;
+      }
+    }
+
+    function bindColorWellsInputs() {
+      if (!studioColorWellsList) return;
+      studioColorWellsList.querySelectorAll('input[data-color-slot]').forEach((inp) => {
+        inp.addEventListener('input', (e) => {
+          const origHex = inp.dataset.colorSlot;
+          const nextHex = e.target.value.toLowerCase();
+          colorMap[origHex] = nextHex;
+          const well = inp.closest('.color-well-item');
+          if (well) {
+            well.style.background = nextHex;
+            const tag = well.querySelector('.color-well-tag');
+            if (tag) tag.textContent = nextHex;
+          }
+          if (inp.dataset.colorIdx === '0') {
+            updateBrandGlow(nextHex);
+          }
+          refreshStageAndCode(false);
+        });
+      });
+    }
+
+    bindColorWellsInputs();
+    mountStageVisual();
+
+    // Background Transparent & Picker Events
+    if (chkBgTransparent && inputBgColorPicker) {
+      chkBgTransparent.addEventListener('change', () => {
+        bgTransparent = chkBgTransparent.checked;
+        if (bgColorWellWrap) bgColorWellWrap.style.opacity = bgTransparent ? '0.45' : '1';
+        refreshStageAndCode(false);
+      });
+      inputBgColorPicker.addEventListener('input', (e) => {
+        bgColor = e.target.value.toLowerCase();
+        bgTransparent = false;
+        chkBgTransparent.checked = false;
+        if (bgColorWellWrap) {
+          bgColorWellWrap.style.opacity = '1';
+          bgColorWellWrap.style.background = bgColor;
+        }
+        if (bgColorWellTag) bgColorWellTag.textContent = bgColor;
+        refreshStageAndCode(false);
+      });
+    }
+
+    // Stroke Width Segmented Buttons (light | regular | bold)
+    if (strokeSegmentedGroup) {
+      strokeSegmentedGroup.addEventListener('click', (e) => {
+        const btn = e.target.closest('[data-stroke-mode]');
+        if (!btn) return;
+        strokeMode = btn.dataset.strokeMode;
+        strokeSegmentedGroup.querySelectorAll('[data-stroke-mode]').forEach((b) => b.classList.remove('active'));
+        btn.classList.add('active');
+        refreshStageAndCode(false);
+      });
+    }
+
+    // Reset All Customizations
+    if (btnResetAllCustomizations) {
+      btnResetAllCustomizations.addEventListener('click', () => {
+        editableColorSlots.forEach((slot) => {
+          colorMap[slot.hex] = slot.hex;
+        });
+        bgTransparent = true;
+        bgColor = '#ffffff';
+        strokeMode = 'regular';
+        if (chkBgTransparent) chkBgTransparent.checked = true;
+        if (bgColorWellWrap) {
+          bgColorWellWrap.style.opacity = '0.45';
+          bgColorWellWrap.style.background = bgColor;
+        }
+        if (bgColorWellTag) bgColorWellTag.textContent = bgColor;
+        if (strokeSegmentedGroup) {
+          strokeSegmentedGroup.querySelectorAll('[data-stroke-mode]').forEach((b) => {
+            b.classList.toggle('active', b.dataset.strokeMode === 'regular');
+          });
+        }
+        if (studioColorWellsList) {
+          studioColorWellsList.innerHTML = buildColorWellsHtml();
+          bindColorWellsInputs();
+        }
+        updateBrandGlow(editableColorSlots[0]?.hex || primaryHex);
+        refreshStageAndCode(false);
+      });
+    }
+
+    // Load Lordicon Lottie & Motion States
+    async function loadLordiconStyleLottie(family, style, includeSvg = false) {
+      try {
+        const [lottie, liRes] = await Promise.all([
+          ensureLottieWebLoaded(),
+          apiFetchJson(
+            `/api/lordicon/lottie?family=${encodeURIComponent(family)}&style=${encodeURIComponent(style)}&slug=${encodeURIComponent(icon.slug)}${includeSvg ? '&includeSvg=1' : ''}`
+          ),
+        ]);
+        if (!liRes || !liRes.lottie) return;
+        lordiconLottieData = liRes.lottie;
+        lordiconMotionStates = liRes.states || [];
+        const defState =
+          lordiconMotionStates.find((s) => s.isDefault) ||
+          lordiconMotionStates.find((s) => s.id.includes('hover')) ||
+          lordiconMotionStates[0];
+        activeMotionStateId = defState ? defState.id : '';
+
+        if (includeSvg && liRes.rawSvg) {
+          baseRawSvgForCurrentStyle = liRes.rawSvg;
+          editableColorSlots = extractEditableColorsFromSvg(baseRawSvgForCurrentStyle);
+          colorMap = {};
+          editableColorSlots.forEach((slot) => {
+            colorMap[slot.hex] = slot.hex;
+          });
+          if (studioColorWellsList) {
+            studioColorWellsList.innerHTML = buildColorWellsHtml();
+            bindColorWellsInputs();
+          }
+        }
+
+        const statesWrap = document.getElementById('lordiconMotionStatesWrap');
+        const stateLabel = document.getElementById('activeMotionStateLabel');
+        if (stateLabel && defState) {
+          stateLabel.textContent = defState.label;
+        }
+        if (statesWrap) {
+          statesWrap.innerHTML = lordiconMotionStates
+            .map(
+              (st) => `
+              <button type="button" class="motion-state-pill ${st.id === activeMotionStateId ? 'active' : ''}" data-motion-state="${escapeHtml(st.id)}">
+                ${ICONS['play-circle']}
+                <span>${escapeHtml(st.label)}</span>
+              </button>
+            `
+            )
+            .join('');
+
+          statesWrap.querySelectorAll('[data-motion-state]').forEach((btn) => {
+            btn.addEventListener('click', () => {
+              activeMotionStateId = btn.dataset.motionState;
+              statesWrap.querySelectorAll('[data-motion-state]').forEach((b) => b.classList.remove('active'));
+              btn.classList.add('active');
+              const picked = lordiconMotionStates.find((s) => s.id === activeMotionStateId);
+              if (stateLabel && picked) stateLabel.textContent = picked.label;
+              if (svgExportMode === 'static') {
+                svgExportMode = 'hover';
+                syncExportModeButtonsUI();
+              }
+              refreshStageAndCode(true, svgExportMode === 'hover');
+            });
+          });
+        }
+
+        refreshStageAndCode(svgExportMode === 'hover' || svgExportMode === 'loop');
+      } catch {
+        // Fallback to static SVG if .li is unavailable
+      }
+    }
+
+    if (isLordicon) {
+      loadLordiconStyleLottie(activeLordiconFamily, activeLordiconStyle, false);
+
+      // Export Mode Selector (Static SVG | Animated SVG On Hover | Animated SVG Auto Loop)
+      detailView.querySelectorAll('[data-svg-export-mode]').forEach((btn) => {
+        btn.addEventListener('click', async () => {
+          svgExportMode = btn.dataset.svgExportMode;
+          syncExportModeButtonsUI();
+          await refreshStageAndCode(true, false);
+        });
+      });
+    }
 
     // Back button: if user came from a Collection View, return to that Collection View; otherwise return to Catalog
     document.getElementById('btnBackToCatalog').addEventListener('click', () => {
+      destroyActiveStageLottie();
       if (activeCollectionState && activeCollectionState.slug === icon.collectionSlug) {
         openCollectionPage('any', activeCollectionState.slug, true);
       } else {
@@ -2425,12 +4041,12 @@
         favorites.delete(legacyFavKey);
         btnDetailFav.classList.remove('active-fav');
         btnDetailFav.innerHTML = ICONS.heart;
-        showToast('Đã bỏ khỏi danh sách Yêu thích');
+        showToast(t('toastFavRemoved'));
       } else {
         favorites.add(favKey);
         btnDetailFav.classList.add('active-fav');
         btnDetailFav.innerHTML = ICONS.heartFilled;
-        showToast('Đã lưu vào danh sách Yêu thích');
+        showToast(t('toastFavAdded'));
       }
       saveFavorites();
     });
@@ -2438,7 +4054,7 @@
     // Share Link
     document.getElementById('btnDetailShare').addEventListener('click', async () => {
       await navigator.clipboard.writeText(window.location.href);
-      showToast('Đã copy đường dẫn chi tiết icon');
+      showToast(t('toastIconLinkCopied'));
     });
 
     // Stage Tone Switcher (Checker / Dark / Light / Auto)
@@ -2469,7 +4085,6 @@
       const pad = 20;
       const maxX = Math.max(0, (cw + Math.abs(cw - scaledSize)) / 2 - pad);
       const maxY = Math.max(0, (ch + Math.abs(ch - scaledSize)) / 2 - pad);
-      // Strict boundary so the icon can never be dragged outside the stage frame
       const boundX = Math.max((cw - scaledSize) / 2 - pad, (scaledSize - cw) / 2 + pad);
       const boundY = Math.max((ch - scaledSize) / 2 - pad, (scaledSize - ch) / 2 + pad);
       const limitX = Math.max(0, Math.min(maxX, boundX));
@@ -2494,7 +4109,6 @@
       const clamped = Math.max(MIN_SCALE, Math.min(MAX_SCALE, nextScale));
       if (Math.abs(clamped - zoomScale) < 0.001) return;
       const ratio = clamped / zoomScale;
-      // Keep the point under cursor stationary while zooming
       panX = focalX - (focalX - panX) * ratio;
       panY = focalY - (focalY - panY) * ratio;
       zoomScale = clamped;
@@ -2575,29 +4189,39 @@
       zoomAtPoint(zoomScale * 1.25, 0, 0);
     });
 
-    // Live Color Picker & Reset
-    detailColorPicker.addEventListener('input', (e) => {
-      customColor = e.target.value;
-      btnResetColor.style.display = 'inline-flex';
-      updateBrandGlow(customColor);
-      refreshStageAndCode();
-    });
-
-    btnResetColor.addEventListener('click', () => {
-      customColor = null;
-      detailColorPicker.value = primaryHex;
-      btnResetColor.style.display = 'none';
-      updateBrandGlow(primaryHex);
-      refreshStageAndCode();
-    });
-
-    // Variant Switching
+    // Standard Variant Switching
     detailView.querySelectorAll('[data-var-key]').forEach((btn) => {
       btn.addEventListener('click', () => {
         activeVariant = btn.dataset.varKey;
+        baseRawSvgForCurrentStyle = svgVariantsContent[activeVariant] || data.rawSvg || '';
+        editableColorSlots = extractEditableColorsFromSvg(baseRawSvgForCurrentStyle);
+        colorMap = {};
+        editableColorSlots.forEach((slot) => {
+          colorMap[slot.hex] = slot.hex;
+        });
+        if (studioColorWellsList) {
+          studioColorWellsList.innerHTML = buildColorWellsHtml();
+          bindColorWellsInputs();
+        }
         detailView.querySelectorAll('[data-var-key]').forEach((b) => b.classList.remove('active'));
         btn.classList.add('active');
-        refreshStageAndCode();
+        refreshStageAndCode(false);
+      });
+    });
+
+    // Lordicon 10-Style Cross-Variant Switching
+    detailView.querySelectorAll('[data-lordicon-var]').forEach((btn) => {
+      btn.addEventListener('click', async () => {
+        const [fam, st, colSlug, isLocalFlag] = btn.dataset.lordiconVar.split(':');
+        if (isLocalFlag === '1' && colSlug && colSlug !== icon.collectionSlug) {
+          openDetailPage('lordicon', colSlug, icon.slug, true);
+          return;
+        }
+        activeLordiconFamily = fam;
+        activeLordiconStyle = st;
+        detailView.querySelectorAll('[data-lordicon-var]').forEach((b) => b.classList.remove('active'));
+        btn.classList.add('active');
+        await loadLordiconStyleLottie(fam, st, true);
       });
     });
 
@@ -2606,58 +4230,69 @@
       btn.addEventListener('click', async () => {
         const hex = btn.dataset.copyHex;
         await navigator.clipboard.writeText(hex);
-        showToast(`Đã copy mã màu ${hex.toUpperCase()}`);
+        showToast(t('toastHexCopied', { hex: hex.toUpperCase() }));
       });
     });
 
-    // Primary Copy / Download Actions
+    // Primary Copy / Download Actions (honors Static vs Hover Animated vs Loop Animated SVG export mode!)
     document.getElementById('btnHeroCopySvg').addEventListener('click', async () => {
-      await navigator.clipboard.writeText(getActiveRawSvg().trim());
-      showToast('Đã copy mã SVG XML');
+      const finalSvg = await getOrCompileExportSvg();
+      await navigator.clipboard.writeText(finalSvg.trim());
+      await refreshStageAndCode(false);
+      showToast(t('toastSvgCopied'));
     });
 
     document.getElementById('btnHeroCopyJsx').addEventListener('click', async () => {
+      const finalSvg = await getOrCompileExportSvg();
       const compName = toPascalCaseComponentName(icon.slug || icon.title);
-      await navigator.clipboard.writeText(svgToJsx(getActiveRawSvg(), compName));
-      showToast(`Đã copy component <${compName} /> (React JSX)`);
+      await navigator.clipboard.writeText(svgToJsx(finalSvg, compName));
+      showToast(t('toastJsxCopied', { comp: compName }));
     });
 
     document.getElementById('btnHeroCopyVue').addEventListener('click', async () => {
-      await navigator.clipboard.writeText(svgToVue(getActiveRawSvg()));
-      showToast('Đã copy mã Vue Template');
+      const finalSvg = await getOrCompileExportSvg();
+      await navigator.clipboard.writeText(svgToVue(finalSvg));
+      showToast(t('toastVueCopied'));
     });
 
     document.getElementById('btnHeroCopyDataUri').addEventListener('click', async () => {
-      await navigator.clipboard.writeText(svgToDataUri(getActiveRawSvg()));
-      showToast('Đã copy SVG Data URI');
+      const finalSvg = await getOrCompileExportSvg();
+      await navigator.clipboard.writeText(svgToDataUri(finalSvg));
+      showToast(t('toastDataUriCopied'));
     });
 
-    document.getElementById('btnHeroDownloadSvg').addEventListener('click', () => {
-      const svgBlob = new Blob([getActiveRawSvg()], { type: 'image/svg+xml;charset=utf-8' });
+    document.getElementById('btnHeroDownloadSvg').addEventListener('click', async () => {
+      const finalSvg = await getOrCompileExportSvg();
+      const svgBlob = new Blob([finalSvg], { type: 'image/svg+xml;charset=utf-8' });
       const dlUrl = URL.createObjectURL(svgBlob);
       const a = document.createElement('a');
       a.href = dlUrl;
-      const suffix = activeVariant !== 'default' ? `-${activeVariant}` : '';
-      a.download = `${icon.slug || 'icon'}${suffix}.svg`;
+      const modeSuffix =
+        isLordicon && svgExportMode !== 'static'
+          ? `-${activeLordiconFamily}-${activeLordiconStyle}-${svgExportMode}`
+          : activeVariant !== 'default'
+            ? `-${activeVariant}`
+            : '';
+      a.download = `${icon.slug || 'icon'}${modeSuffix}.svg`;
       document.body.appendChild(a);
       a.click();
       a.remove();
       setTimeout(() => URL.revokeObjectURL(dlUrl), 1000);
-      showToast(`Đã tải xuống ${a.download}`);
+      showToast(t('toastFileDownloaded', { file: a.download }));
     });
 
     // PNG Export Buttons (32px, 64px, 128px, 256px, 512px & Copy PNG)
     detailView.querySelectorAll('[data-export-png]').forEach((btn) => {
       btn.addEventListener('click', () => {
         const sz = Number(btn.dataset.exportPng) || 128;
-        exportSvgToPng(getActiveRawSvg(), sz, icon.slug || 'icon', false);
+        exportSvgToPng(getCustomizedStaticSvg(), sz, icon.slug || 'icon', false);
       });
     });
 
     detailView.querySelectorAll('[data-copy-png]').forEach((btn) => {
       btn.addEventListener('click', () => {
         const sz = Number(btn.dataset.copyPng) || 256;
-        exportSvgToPng(getActiveRawSvg(), sz, icon.slug || 'icon', true);
+        exportSvgToPng(getCustomizedStaticSvg(), sz, icon.slug || 'icon', true);
       });
     });
 
@@ -2674,13 +4309,14 @@
 
     const btnCopyActiveCode = document.getElementById('btnCopyActiveCode');
     btnCopyActiveCode.addEventListener('click', async () => {
+      await getOrCompileExportSvg();
       await navigator.clipboard.writeText(getFormattedCodeForTab(activeCodeTab));
       btnCopyActiveCode.classList.add('copied');
-      btnCopyActiveCode.innerHTML = `${ICONS.check}<span>Đã Copy</span>`;
-      showToast(`Đã copy mã ${activeCodeTab.toUpperCase()}`);
+      btnCopyActiveCode.innerHTML = `${ICONS.check}<span>${escapeHtml(t('detailCopiedBtn'))}</span>`;
+      showToast(t('toastCodeCopied', { tab: activeCodeTab.toUpperCase() }));
       setTimeout(() => {
         btnCopyActiveCode.classList.remove('copied');
-        btnCopyActiveCode.innerHTML = `${ICONS.copy}<span>Copy Code</span>`;
+        btnCopyActiveCode.innerHTML = `${ICONS.copy}<span>${escapeHtml(t('detailCopyCodeBtn'))}</span>`;
       }, 1600);
     });
   }
@@ -2750,6 +4386,20 @@
     viewMode = 'icons';
     resetAllFilters(true);
   });
+
+  if (navAnimatedIcons) {
+    navAnimatedIcons.addEventListener('click', () => {
+      viewMode = 'icons';
+      filters.category = '';
+      filters.styleType = '';
+      filters.collection = '';
+      filters.onlyFavorites = false;
+      filters.iconType = filters.iconType === 'animated' ? '' : 'animated';
+      updateNavActiveStates();
+      showCatalogView(true);
+      loadCatalogData(true);
+    });
+  }
 
   if (navCollectionsDirectory) {
     navCollectionsDirectory.addEventListener('click', () => {
@@ -2851,7 +4501,7 @@
     lastManualReloadTs = now;
     isSyncing = true;
     reloadSpinIcon.classList.add('spin-anim');
-    reloadBtnText.textContent = 'Đang đồng bộ...';
+    reloadBtnText.textContent = t('reloadingText');
     btnReloadCatalog.disabled = true;
     try {
       apiJsonCache.clear();
@@ -2865,10 +4515,10 @@
       } else if (!activeDetailIconKey) {
         await loadCatalogData(true, { bypassCache: true });
       }
-      showToast(`Đã đồng bộ kho SVGCraft (${(catalogSummary?.totalIcons || 0).toLocaleString()} icons)`);
+      showToast(t('toastSynced', { count: (catalogSummary?.totalIcons || 0).toLocaleString() }));
     } finally {
       reloadSpinIcon.classList.remove('spin-anim');
-      reloadBtnText.textContent = 'Làm mới';
+      reloadBtnText.textContent = t('reloadBtnText');
       btnReloadCatalog.disabled = false;
       isSyncing = false;
     }
@@ -2878,6 +4528,124 @@
     e.preventDefault();
     resetAllFilters();
   });
+
+  // ============================================================================
+  // LANGUAGE SWITCHER (EN / VI) & STATIC UI TRANSLATION
+  // ============================================================================
+  function setTextById(id, text) {
+    const el = document.getElementById(id);
+    if (el) el.textContent = text;
+  }
+
+  function applyLanguageUI(reRenderViews = false) {
+    document.documentElement.lang = currentLang;
+    if (langTextLabel) {
+      langTextLabel.textContent = currentLang.toUpperCase();
+    }
+    if (btnToggleLang) {
+      btnToggleLang.title = t('langTitle');
+      btnToggleLang.setAttribute('aria-label', t('langTitle'));
+    }
+    if (btnCycleTone) {
+      btnCycleTone.title = t('toneTitle');
+    }
+    if (btnToggleTheme) {
+      btnToggleTheme.title = t('themeTitle');
+    }
+    setTextById('tonePrefixLabel', t('tonePrefix'));
+
+    if (searchInput) {
+      searchInput.placeholder = t('searchPlaceholder');
+    }
+    setTextById('sidebarExploreHeading', t('exploreHeading'));
+    setTextById('navLabelAllIcons', t('navAllIcons'));
+    setTextById('navLabelAnimated', t('navAnimated'));
+    setTextById('navLabelCollections', t('navCollections'));
+    setTextById('navLabelBrands', t('navBrands'));
+    setTextById('navLabelFavorites', t('navFavorites'));
+    setTextById('sidebarCategoriesHeading', t('categoriesHeading'));
+    setTextById('btnResetCategory', t('resetAll'));
+
+    const heroSub = document.getElementById('heroSubheading');
+    if (heroSub) heroSub.innerHTML = t('heroSubheading');
+
+    setTextById('headerPanelStyle', t('styleHeader'));
+    setTextById('btnClearStyleDropdown', t('clearSelection'));
+    setTextById('headerPanelIconType', t('iconTypeHeader'));
+    setTextById('btnClearTypeDropdown', t('clearSelection'));
+    setTextById('headerPanelCollections', t('collectionsHeader'));
+    setTextById('btnClearColDropdown', t('clearSelection'));
+    if (collectionSearchInput) {
+      collectionSearchInput.placeholder = t('collectionSearchPlaceholder');
+    }
+
+    if (sortSelect) {
+      sortSelect.setAttribute('aria-label', t('sortTitle'));
+    }
+    setTextById('optSortRecent', t('sortRecent'));
+    setTextById('optSortAz', t('sortAz'));
+    setTextById('optSortZa', t('sortZa'));
+
+    if (btnReloadCatalog) {
+      btnReloadCatalog.title = t('reloadBtnTitle');
+    }
+    if (!isSyncing && reloadBtnText) {
+      reloadBtnText.textContent = t('reloadBtnText');
+    }
+
+    setTextById('tabLabelIcons', t('tabIcons'));
+    setTextById('tabLabelCollections', t('tabCollections'));
+    setTextById('tabLabelBrands', t('tabBrands'));
+    setTextById('showingPrefixLabel', t('showingPrefix'));
+
+    initAlphabetBar();
+    renderSummaryTaxonomyLists();
+    updateNavActiveStates();
+
+    if (reRenderViews) {
+      if (activeDetailIconKey) {
+        const parts = activeDetailIconKey.split(':');
+        if (parts.length >= 2) {
+          openDetailPage('any', parts[0], parts[1], false);
+        }
+      } else if (activeCollectionState) {
+        openCollectionPage('any', activeCollectionState.slug, false, {
+          q: activeCollectionState.q,
+          styleType: activeCollectionState.styleType,
+          sort: activeCollectionState.sort,
+        });
+      } else {
+        if (viewMode === 'collections' || viewMode === 'brands') {
+          renderCollectionsDirectoryGrid(currentCollections, false);
+          const unitNoun = viewMode === 'brands' ? t('unitBrands') : t('unitCollections');
+          if (currentCollections.length < totalMatched) {
+            loadMoreLabel.textContent = t('scrollLoadMore', {
+              shown: currentCollections.length.toLocaleString(),
+              total: totalMatched.toLocaleString(),
+              unit: unitNoun,
+            });
+          }
+        } else {
+          renderIconsGrid(currentItems, false);
+          if (!filters.onlyFavorites && currentItems.length < totalMatched) {
+            loadMoreLabel.textContent = t('scrollLoadMore', {
+              shown: currentItems.length.toLocaleString(),
+              total: totalMatched.toLocaleString(),
+              unit: t('unitIcons'),
+            });
+          }
+        }
+      }
+    }
+  }
+
+  if (btnToggleLang) {
+    btnToggleLang.addEventListener('click', () => {
+      currentLang = currentLang === 'en' ? 'vi' : 'en';
+      localStorage.setItem('svg_hub_lang', currentLang);
+      applyLanguageUI(true);
+    });
+  }
 
   function restoreSavedThemeAndTone() {
     const savedTheme = localStorage.getItem('svg_hub_theme');
@@ -2999,11 +4767,11 @@
 
   async function init() {
     restoreSavedThemeAndTone();
-    initAlphabetBar();
+    applyLanguageUI(false);
     await Promise.all([
       handleInitialOrPopStateRoute(),
       loadSummary().then(() => {
-        updateActiveFiltersBar();
+        renderActiveFiltersChips();
       }),
     ]);
   }

@@ -3,11 +3,13 @@ const path = require('path');
 const zlib = require('zlib');
 const {
   CATEGORY_DEFINITIONS,
+  LORDICON_CATEGORIES,
   STYLE_TYPES,
   ICON_TYPES,
   parseSvgMetadata,
   extractTagsFromText,
   classifyIcon,
+  resolveLordiconCategory,
   findRelatedIcons,
 } = require('./taxonomy');
 const { loadEnvFiles } = require('./r2Client');
@@ -53,8 +55,28 @@ function cleanCollectionDisplayName(rawName, slug = '') {
   return raw
     .replace(/\s+PAGE\s*\d+\b/gi, '')
     .replace(/\btheSVG\b/gi, 'Brand')
+    .replace(/\bLordicon\b\s*[—-]?\s*/gi, 'Animated ')
+    .replace(/\bAll\s*SVG\s*Icons\b\s*[—-]?\s*/gi, '')
+    .replace(/\bSVG\s*Repo\b\s*[—-]?\s*/gi, '')
+    .replace(/^Animated\s+Animated\b/i, 'Animated')
     .replace(/\s{2,}/g, ' ')
     .trim();
+}
+
+function cleanAuthorName(rawAuthor) {
+  const a = String(rawAuthor || '').trim();
+  if (!a || /^(lordicon|thesvg|svg\s*repo|all\s*svg\s*icons)$/i.test(a)) {
+    return 'Open Source';
+  }
+  return a.replace(/\bLordicon\b/gi, 'Animated Studio').trim();
+}
+
+function cleanLicenseName(rawLicense) {
+  const l = String(rawLicense || '').trim();
+  if (!l || /lordicon/i.test(l)) {
+    return 'MIT / CC0';
+  }
+  return l;
 }
 
 const BRAND_ECOSYSTEM_DEFINITIONS = [
@@ -455,6 +477,11 @@ class StateManager {
       return this._collectionSiteCache.get(collectionSlug);
     }
 
+    if (String(collectionSlug).startsWith('lordicon-')) {
+      this._collectionSiteCache.set(collectionSlug, 'lordicon');
+      return 'lordicon';
+    }
+
     // 1. Fast O(1) lookup if catalog snapshot is already in memory
     if (this._catalogSnapshot && this._catalogSnapshot.colSiteMap) {
       const site = this._catalogSnapshot.colSiteMap.get(collectionSlug) || null;
@@ -464,9 +491,9 @@ class StateManager {
       }
     }
 
-    // 2. Fast local directory check (3 stat/exists checks instead of loading 225k icons)
+    // 2. Fast local directory check (4 stat/exists checks instead of loading 242k icons)
     const safeSlug = String(collectionSlug).replace(/[^a-zA-Z0-9-_]/g, '_');
-    for (const siteId of ['allsvgicons', 'thesvg', 'svgrepo']) {
+    for (const siteId of ['lordicon', 'allsvgicons', 'thesvg', 'svgrepo']) {
       if (runtimeFs['existsSync'](path.join(OUTPUT_DIR, siteId, safeSlug))) {
         this._collectionSiteCache.set(collectionSlug, siteId);
         return siteId;
@@ -505,6 +532,15 @@ class StateManager {
           lastUpdatedAt: null,
         },
         allsvgicons: {
+          currentCategory: 'all',
+          currentListPage: 1,
+          completedCollections: [],
+          collectionProgress: {},
+          totalCollectionsCrawled: 0,
+          totalIconsDownloaded: 0,
+          lastUpdatedAt: null,
+        },
+        lordicon: {
           currentCategory: 'all',
           currentListPage: 1,
           completedCollections: [],
@@ -684,28 +720,35 @@ class StateManager {
 
     this._activeCollectionMem = { key, meta };
 
+    const rawCat = iconData.rawCategory || meta.collection?.category || '';
     const classification = classifyIcon({
       siteId,
       collectionSlug,
       collectionName: meta.collection?.name || collectionSlug,
-      rawCategory: iconData.rawCategory || meta.collection?.category || '',
+      rawCategory: rawCat,
       title: iconData.title || iconData.slug || '',
       slug: iconData.slug || '',
       detectedStyle: dimensions.detectedStyle,
       hasAnimation: dimensions.hasAnimation,
     });
 
+    const lordiconMeta =
+      siteId === 'lordicon' ? resolveLordiconCategory(rawCat, iconData.slug, iconData.title) : null;
+
     const isAnimated =
       dimensions.hasAnimation ||
       classification.category === 'animation' ||
       classification.iconType === 'animated' ||
-      siteId === 'allsvgicons';
+      siteId === 'allsvgicons' ||
+      siteId === 'lordicon';
 
     const iconTags = Array.from(
       new Set([
         ...(isAnimated ? ['animation', 'animated'] : []),
+        ...(siteId === 'lordicon' ? ['lordicon', 'lottie'] : []),
+        ...(lordiconMeta ? [lordiconMeta.lordiconCategory] : []),
         ...(iconData.tags || []),
-        ...extractTagsFromText(iconData.slug, iconData.title, iconData.rawCategory, collectionSlug),
+        ...extractTagsFromText(iconData.slug, iconData.title, rawCat, collectionSlug),
       ])
     );
 
@@ -724,16 +767,14 @@ class StateManager {
       gridSize: dimensions.gridSize,
       fileSizeBytes: dimensions.fileSizeBytes,
       colorPalette: dimensions.colorPalette || [],
-      category: iconData.category || classification.category,
-      rawCategory: iconData.rawCategory || meta.collection?.category || '',
+      category: siteId === 'lordicon' ? classification.category : iconData.category || classification.category,
+      rawCategory: rawCat,
+      ...(lordiconMeta ? { lordiconCategory: lordiconMeta.lordiconCategory } : {}),
       styleType: iconData.styleType || classification.styleType,
       iconType: iconData.iconType || classification.iconType,
-      license: iconData.license || meta.collection?.license || 'MIT / CC0',
-      author:
-        iconData.author ||
-        meta.collection?.author ||
-        (siteId === 'thesvg' ? 'theSVG' : siteId === 'allsvgicons' ? 'All SVG Icons' : 'SVG Repo'),
-      tags: iconTags,
+      license: cleanLicenseName(iconData.license || meta.collection?.license || 'MIT / CC0'),
+      author: cleanAuthorName(iconData.author || meta.collection?.author || 'Open Source'),
+      tags: iconTags.filter((t) => !/^(lordicon|thesvg|svgrepo|allsvgicons)$/i.test(t)),
       downloadedAt: new Date().toISOString(),
     };
 
@@ -769,27 +810,48 @@ class StateManager {
 
     const colSlug = collection?.slug || '';
     const colName = collection?.name || colSlug;
+    const rawCat = icon.rawCategory || collection?.category || '';
 
-    if (!category || !styleType || !iconType || siteId === 'allsvgicons') {
+    if (!category || !styleType || !iconType || siteId === 'allsvgicons' || siteId === 'lordicon') {
       const classification = classifyIcon({
         siteId,
         collectionSlug: colSlug,
         collectionName: colName,
-        rawCategory: icon.rawCategory || collection?.category || '',
+        rawCategory: rawCat,
         title: icon.title || icon.slug || '',
         slug: icon.slug || '',
         detectedStyle: icon.styleType || 'filled',
-        hasAnimation: siteId === 'allsvgicons' || icon.category === 'animation' || icon.iconType === 'animated',
+        hasAnimation:
+          siteId === 'allsvgicons' ||
+          siteId === 'lordicon' ||
+          icon.category === 'animation' ||
+          icon.iconType === 'animated',
       });
-      category = category || classification.category;
+      category = siteId === 'lordicon' ? classification.category : category || classification.category;
       styleType = styleType || classification.styleType;
-      iconType = iconType || classification.iconType;
+      iconType = siteId === 'lordicon' ? 'animated' : iconType || classification.iconType;
     }
 
-    const baseTags = Array.isArray(icon.tags) ? icon.tags : [];
+    const lordiconMeta =
+      siteId === 'lordicon' ? resolveLordiconCategory(rawCat, icon.slug, icon.title) : null;
+
+    const baseTags = Array.isArray(icon.tags)
+      ? icon.tags.filter((t) => !/^(lordicon|thesvg|svgrepo|allsvgicons)$/i.test(t))
+      : [];
     const tags =
-      category === 'animation' || iconType === 'animated' || siteId === 'allsvgicons'
-        ? Array.from(new Set(['animation', 'animated', ...baseTags]))
+      category === 'animation' ||
+      iconType === 'animated' ||
+      siteId === 'allsvgicons' ||
+      siteId === 'lordicon'
+        ? Array.from(
+            new Set([
+              'animation',
+              'animated',
+              ...(siteId === 'lordicon' ? ['motion', 'lottie'] : []),
+              ...(lordiconMeta ? [lordiconMeta.lordiconCategory] : []),
+              ...baseTags,
+            ])
+          )
         : baseTags;
 
     return {
@@ -801,11 +863,12 @@ class StateManager {
       variants: icon.variants || { default: icon.relativePath },
       gridSize: icon.gridSize,
       category,
-      rawCategory: icon.rawCategory || '',
+      rawCategory: rawCat,
+      lordiconCategory: lordiconMeta ? lordiconMeta.lordiconCategory : icon.lordiconCategory || '',
       styleType,
       iconType,
-      author: icon.author,
-      license: icon.license,
+      author: cleanAuthorName(icon.author || collection?.author),
+      license: cleanLicenseName(icon.license || collection?.license),
       tags,
       downloadedAt: icon.downloadedAt,
       _ts: icon.downloadedAt ? Date.parse(icon.downloadedAt) || 0 : 0,
@@ -845,6 +908,8 @@ class StateManager {
       ...meta.collection,
       slug: resolvedSlug,
       name: cleanCollectionDisplayName(meta.collection?.name || cSlug, resolvedSlug),
+      author: cleanAuthorName(meta.collection?.author),
+      license: cleanLicenseName(meta.collection?.license),
       downloadedIconsCount: (meta.icons || []).length,
     };
 
@@ -892,6 +957,8 @@ class StateManager {
       ...meta.collection,
       slug: resolvedSlug,
       name: cleanCollectionDisplayName(meta.collection?.name || cSlug, resolvedSlug),
+      author: cleanAuthorName(meta.collection?.author),
+      license: cleanLicenseName(meta.collection?.license),
       downloadedIconsCount: (meta.icons || []).length,
     };
 
@@ -977,8 +1044,8 @@ class StateManager {
         site,
         slug,
         name: cleanCollectionDisplayName(name || slug, slug),
-        author: author || 'Open Source',
-        license: license || 'MIT / CC0',
+        author: cleanAuthorName(author),
+        license: cleanLicenseName(license),
         downloadedIconsCount: count || 0,
         totalIcons: count || 0,
       };
@@ -990,8 +1057,15 @@ class StateManager {
     });
 
     const allIcons = (parsed.icons || []).map((row, idx) => {
-      const [siteCode, colSlug, id, slug, title, category, styleType, iconType, gridSize, varKeys] = row;
-      const siteId = siteCode === 2 ? 'allsvgicons' : siteCode === 1 ? 'thesvg' : 'svgrepo';
+      const [siteCode, colSlug, id, slug, title, category, styleType, iconType, gridSize, varKeys, rawCatFromIdx] = row;
+      const siteId =
+        siteCode === 3
+          ? 'lordicon'
+          : siteCode === 2
+            ? 'allsvgicons'
+            : siteCode === 1
+              ? 'thesvg'
+              : 'svgrepo';
       const colObj = colMap.get(`${siteId}:${colSlug}`);
       const safeIconSlug = String(slug || 'icon').replace(/[^a-zA-Z0-9-_]/g, '-');
       const fileName = id ? `${safeIconSlug}-${id}.svg` : `${safeIconSlug}.svg`;
@@ -1006,10 +1080,20 @@ class StateManager {
         }
       }
 
-      const resolvedCategory = category || (siteId === 'allsvgicons' ? 'animation' : 'interface');
-      const resolvedIconType = iconType || (resolvedCategory === 'animation' ? 'animated' : 'ui-icon');
+      const rawCategory = rawCatFromIdx || '';
+      const lordiconMeta =
+        siteId === 'lordicon' ? resolveLordiconCategory(rawCategory, slug, title) : null;
+
+      const resolvedCategory =
+        category ||
+        (lordiconMeta ? lordiconMeta.appCategory : siteId === 'allsvgicons' ? 'animation' : 'interface');
+      const resolvedIconType =
+        iconType || (resolvedCategory === 'animation' || siteId === 'lordicon' ? 'animated' : 'ui-icon');
       const isAnim =
-        resolvedCategory === 'animation' || resolvedIconType === 'animated' || siteId === 'allsvgicons';
+        resolvedCategory === 'animation' ||
+        resolvedIconType === 'animated' ||
+        siteId === 'allsvgicons' ||
+        siteId === 'lordicon';
 
       return {
         id: String(id || slug),
@@ -1020,12 +1104,21 @@ class StateManager {
         variants,
         gridSize: gridSize || '24x24',
         category: resolvedCategory,
-        rawCategory: '',
+        rawCategory,
+        lordiconCategory: lordiconMeta ? lordiconMeta.lordiconCategory : '',
         styleType: styleType || 'filled',
         iconType: resolvedIconType,
         author: colObj?.author || 'Open Source',
         license: colObj?.license || 'MIT / CC0',
-        tags: isAnim ? ['animation', 'animated'] : [],
+        tags: isAnim
+          ? [
+              'animation',
+              'animated',
+              ...(siteId === 'lordicon' ? ['motion', 'lottie'] : []),
+              ...(lordiconMeta ? [lordiconMeta.lordiconCategory] : []),
+              ...(rawCategory ? [rawCategory] : []),
+            ]
+          : [],
         _ts: 1700000000000 - idx,
         site: siteId,
         collectionSlug: colSlug,
@@ -1051,9 +1144,9 @@ class StateManager {
    * Uses compressed catalog-index.json.gz whenever up-to-date (~120ms cold start instead of ~10s disk scan)
    * and only merges newer collections from output/ if any were crawled after the index was built.
    */
-  loadAllEnrichedIcons() {
+  loadAllEnrichedIcons({ forceDiskScan = false } = {}) {
     const now = Date.now();
-    if (this._catalogSnapshot && now - (this._catalogSnapshot.lastCheckedAt || 0) < 5000) {
+    if (!forceDiskScan && this._catalogSnapshot && now - (this._catalogSnapshot.lastCheckedAt || 0) < 5000) {
       return {
         allIcons: this._catalogSnapshot.allIcons,
         collections: this._catalogSnapshot.collections,
@@ -1061,7 +1154,7 @@ class StateManager {
     }
 
     // Fast path: Use pre-built compressed index if present and up-to-date with crawl-state.json
-    if (fs.existsSync(CATALOG_INDEX_GZ_FILE)) {
+    if (!forceDiskScan && fs.existsSync(CATALOG_INDEX_GZ_FILE)) {
       const gzStat = fs.statSync(CATALOG_INDEX_GZ_FILE);
       const stateMtime = runtimeFs['existsSync'](STATE_FILE)
         ? runtimeFs['statSync'](STATE_FILE).mtimeMs
@@ -1158,6 +1251,7 @@ class StateManager {
     }
 
     const categoryCounts = {};
+    const lordiconCategoryCounts = {};
     const styleCounts = {};
     const typeCounts = {};
     const siteCounts = {};
@@ -1165,6 +1259,16 @@ class StateManager {
 
     for (const ic of allIcons) {
       categoryCounts[ic.category] = (categoryCounts[ic.category] || 0) + 1;
+      if (
+        ic.category !== 'animation' &&
+        (ic.iconType === 'animated' || ic.site === 'allsvgicons' || ic.site === 'lordicon')
+      ) {
+        categoryCounts.animation = (categoryCounts.animation || 0) + 1;
+      }
+      if (ic.site === 'lordicon' && ic.lordiconCategory) {
+        lordiconCategoryCounts[ic.lordiconCategory] =
+          (lordiconCategoryCounts[ic.lordiconCategory] || 0) + 1;
+      }
       styleCounts[ic.styleType] = (styleCounts[ic.styleType] || 0) + 1;
       typeCounts[ic.iconType] = (typeCounts[ic.iconType] || 0) + 1;
       siteCounts[ic.site] = (siteCounts[ic.site] || 0) + 1;
@@ -1188,6 +1292,13 @@ class StateManager {
         icon: c.icon,
         count: categoryCounts[c.id] || 0,
       })),
+      lordiconCategories: LORDICON_CATEGORIES.map((lc) => ({
+        id: lc.id,
+        label: lc.label,
+        labelVi: lc.labelVi,
+        appCategory: lc.appCategory,
+        count: lordiconCategoryCounts[lc.id] || 0,
+      })),
       styles: STYLE_TYPES.map((s) => ({
         id: s.id,
         label: s.label,
@@ -1199,9 +1310,10 @@ class StateManager {
         count: typeCounts[t.id] || 0,
       })),
       sites: [
-        { id: 'svgrepo', label: 'SVG Repo', count: siteCounts.svgrepo || 0 },
-        { id: 'thesvg', label: 'theSVG.org', count: siteCounts.thesvg || 0 },
-        { id: 'allsvgicons', label: 'All SVG Icons', count: siteCounts.allsvgicons || 0 },
+        { id: 'svgrepo', label: 'Vector Pack', count: siteCounts.svgrepo || 0 },
+        { id: 'thesvg', label: 'Brand Pack', count: siteCounts.thesvg || 0 },
+        { id: 'allsvgicons', label: 'Motion Pack', count: siteCounts.allsvgicons || 0 },
+        { id: 'lordicon', label: 'Interactive Motion', count: siteCounts.lordicon || 0 },
       ],
       gridSizes: Object.entries(gridCounts).map(([size, count]) => ({ size, count })),
       collections: collections.map((c) => ({
@@ -1263,12 +1375,40 @@ class StateManager {
       };
     }
 
+    const isLordiconCatPrefix = category.startsWith('lordicon:');
+    const targetLordiconCat = isLordiconCatPrefix ? category.slice(9) : '';
+    const isLordiconVirtualCol = collection.startsWith('lordicon-cat-');
+    const virtualLordiconCatId = isLordiconVirtualCol ? collection.replace(/^lordicon-cat-/, '') : '';
+
     let filtered = allIcons.filter((ic) => {
       if (site && ic.site !== site) return false;
-      if (category && ic.category !== category) return false;
+      if (category) {
+        if (category === 'animation') {
+          const isAnimIcon =
+            ic.category === 'animation' ||
+            ic.iconType === 'animated' ||
+            ic.site === 'allsvgicons' ||
+            ic.site === 'lordicon';
+          if (!isAnimIcon) return false;
+        } else if (isLordiconCatPrefix) {
+          if (ic.site !== 'lordicon' || ic.lordiconCategory !== targetLordiconCat) return false;
+        } else if (
+          ic.category !== category &&
+          ic.lordiconCategory !== category &&
+          ic.rawCategory !== category
+        ) {
+          return false;
+        }
+      }
       if (styleType && ic.styleType !== styleType) return false;
       if (iconType && ic.iconType !== iconType) return false;
-      if (collection && ic.collectionSlug !== collection) return false;
+      if (collection) {
+        if (isLordiconVirtualCol) {
+          if (ic.site !== 'lordicon' || ic.lordiconCategory !== virtualLordiconCatId) return false;
+        } else if (ic.collectionSlug !== collection) {
+          return false;
+        }
+      }
       if (gridSize && ic.gridSize !== gridSize) return false;
       if (letter) {
         const firstChar = (ic.title || ic.slug || '').charAt(0).toUpperCase();
@@ -1284,6 +1424,7 @@ class StateManager {
           ic.slug,
           ic.collectionName,
           ic.category,
+          ic.lordiconCategory,
           ic.rawCategory,
           ic.styleType,
           ic.author,
@@ -1325,7 +1466,8 @@ class StateManager {
     let targetSite = siteId;
     let entry = null;
 
-    if (targetSite && targetSite !== 'any') {
+    const isLordiconVirtualCol = String(collectionSlug).startsWith('lordicon-cat-');
+    if (!isLordiconVirtualCol && targetSite && targetSite !== 'any') {
       entry = this._getCachedCollectionEntry(targetSite, collectionSlug);
     }
 
@@ -1335,7 +1477,24 @@ class StateManager {
     let colInfo = null;
     let allColIcons = [];
 
-    if (brandDef) {
+    if (isLordiconVirtualCol) {
+      targetSite = 'lordicon';
+      const lordiconCatId = String(collectionSlug).replace(/^lordicon-cat-/, '');
+      const lCatDef = LORDICON_CATEGORIES.find((c) => c.id === lordiconCatId);
+      allColIcons = allIcons.filter(
+        (ic) => ic.site === 'lordicon' && ic.lordiconCategory === lordiconCatId
+      );
+      if (allColIcons.length === 0) return null;
+      colInfo = {
+        site: 'lordicon',
+        slug: collectionSlug,
+        name: `Animated — ${lCatDef ? lCatDef.label : lordiconCatId}`,
+        author: 'Open Source',
+        license: 'MIT / CC0',
+        downloadedIconsCount: allColIcons.length,
+        totalIcons: allColIcons.length,
+      };
+    } else if (brandDef) {
       targetSite = 'any';
       const primaryFamilyIcons = allIcons.filter((ic) => ic.collectionSlug === brandDef.slug);
       const primaryKeys = new Set(primaryFamilyIcons.map((ic) => `${ic.collectionSlug}:${ic.id || ic.slug}`));
@@ -1388,9 +1547,24 @@ class StateManager {
 
     let filtered = allColIcons.filter((ic) => {
       if (styleType && ic.styleType !== styleType) return false;
-      if (category && ic.category !== category) return false;
+      if (
+        category &&
+        ic.category !== category &&
+        ic.lordiconCategory !== category &&
+        ic.rawCategory !== category
+      ) {
+        return false;
+      }
       if (query) {
-        const haystack = [ic.title, ic.slug, ic.category, ic.styleType, ...(ic.tags || [])]
+        const haystack = [
+          ic.title,
+          ic.slug,
+          ic.category,
+          ic.lordiconCategory,
+          ic.rawCategory,
+          ic.styleType,
+          ...(ic.tags || []),
+        ]
           .join(' ')
           .toLowerCase();
         if (!haystack.includes(query)) return false;
@@ -1451,6 +1625,8 @@ class StateManager {
       });
     }
 
+    const lordiconCatDefMap = new Map(LORDICON_CATEGORIES.map((lc) => [lc.id, lc]));
+
     for (const ic of allIcons) {
       const key = `${ic.site}:${ic.collectionSlug}`;
       let agg = colAggMap.get(key);
@@ -1489,6 +1665,58 @@ class StateManager {
       if (agg.keywordSet.size < 35) {
         if (ic.title) agg.keywordSet.add(String(ic.title).toLowerCase());
         if (ic.category) agg.keywordSet.add(String(ic.category).toLowerCase());
+      }
+
+      // Also populate virtual Thematic Animated Category Collections (28 categories)
+      if (ic.site === 'lordicon' && ic.lordiconCategory) {
+        const lCatDef = lordiconCatDefMap.get(ic.lordiconCategory);
+        if (lCatDef) {
+          const vSlug = `lordicon-cat-${lCatDef.id}`;
+          const vKey = `lordicon:${vSlug}`;
+          let vAgg = colAggMap.get(vKey);
+          if (!vAgg) {
+            const vName = `Animated — ${lCatDef.label}`;
+            vAgg = {
+              slug: vSlug,
+              name: vName,
+              license: 'MIT / CC0',
+              author: 'Open Source',
+              count: 0,
+              categoryCounts: {},
+              styleCounts: {},
+              typeCounts: {},
+              sampleIcons: [],
+              keywordSet: new Set([
+                vName.toLowerCase(),
+                lCatDef.id,
+                lCatDef.label.toLowerCase(),
+                (lCatDef.labelVi || '').toLowerCase(),
+                'animated',
+                'motion',
+              ]),
+            };
+            colAggMap.set(vKey, vAgg);
+          }
+
+          vAgg.count += 1;
+          if (ic.category) vAgg.categoryCounts[ic.category] = (vAgg.categoryCounts[ic.category] || 0) + 1;
+          if (ic.styleType) vAgg.styleCounts[ic.styleType] = (vAgg.styleCounts[ic.styleType] || 0) + 1;
+          if (ic.iconType) vAgg.typeCounts[ic.iconType] = (vAgg.typeCounts[ic.iconType] || 0) + 1;
+
+          if (vAgg.sampleIcons.length < 8) {
+            vAgg.sampleIcons.push({
+              id: ic.id,
+              slug: ic.slug,
+              title: ic.title,
+              assetUrl: ic.assetUrl,
+              styleType: ic.styleType,
+              category: ic.category,
+            });
+          }
+          if (vAgg.keywordSet.size < 45 && ic.title) {
+            vAgg.keywordSet.add(String(ic.title).toLowerCase());
+          }
+        }
       }
     }
 
@@ -1752,11 +1980,45 @@ class StateManager {
 
     const recommendations = findRelatedIcons(mergedTarget, allIcons, 12);
 
+    let lordiconStyles = null;
+    if (resolvedSite === 'lordicon' || /^lordicon-/i.test(collectionSlug)) {
+      const styleDefs = [
+        { colSlug: 'lordicon-system-outline', family: 'system', style: 'outline', label: 'System Outline' },
+        { colSlug: 'lordicon-system-solid', family: 'system', style: 'solid', label: 'System Solid' },
+        { colSlug: 'lordicon-doodle-color', family: 'doodle', style: 'color', label: 'Doodle Color' },
+        { colSlug: 'lordicon-doodle-motif', family: 'doodle', style: 'motif', label: 'Doodle Motif' },
+        { colSlug: 'lordicon-doodle-outline', family: 'doodle', style: 'outline', label: 'Doodle Outline' },
+        { colSlug: 'lordicon-doodle-black', family: 'doodle', style: 'black', label: 'Doodle Black' },
+        { colSlug: 'lordicon-wired-outline', family: 'wired', style: 'outline', label: 'Wired Outline' },
+        { colSlug: 'lordicon-wired-flat', family: 'wired', style: 'flat', label: 'Wired Flat' },
+        { colSlug: 'lordicon-wired-lineal', family: 'wired', style: 'lineal', label: 'Wired Lineal' },
+        { colSlug: 'lordicon-wired-gradient', family: 'wired', style: 'gradient', label: 'Wired Gradient' },
+      ];
+      const iconSlug = mergedTarget.slug;
+      lordiconStyles = styleDefs.map((sd) => {
+        const crawledSibling = allIcons.find(
+          (ic) => ic.collectionSlug === sd.colSlug && ic.slug === iconSlug
+        );
+        return {
+          ...sd,
+          iconSlug,
+          isCurrent: sd.colSlug === collectionSlug,
+          isCrawled: Boolean(crawledSibling),
+          assetUrl: crawledSibling
+            ? crawledSibling.assetUrl
+            : `https://media.lordicon.com/icons/${sd.family}/${sd.style}/${iconSlug}.svg`,
+          cdnSvgUrl: `https://media.lordicon.com/icons/${sd.family}/${sd.style}/${iconSlug}.svg`,
+          cdnLiUrl: `https://media.lordicon.com/icons/${sd.family}/${sd.style}/${iconSlug}.li`,
+        };
+      });
+    }
+
     return {
       icon: mergedTarget,
       rawSvg,
       svgVariantsContent,
       variantAssetUrls,
+      lordiconStyles,
       recommendations,
     };
   }

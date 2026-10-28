@@ -1,8 +1,10 @@
 export default function Sidebar() {
   return (
-    <aside className="sidebar scroller" aria-label="Danh mục chủ đề SVG">
+    <aside className="sidebar scroller" aria-label="SVG Categories">
       <div className="sidebar-section">
-        <div className="sidebar-heading">Khám phá</div>
+        <div className="sidebar-heading" id="sidebarExploreHeading">
+          Explore
+        </div>
         <button type="button" className="nav-item active" id="navAllIcons">
           <span className="nav-item-left">
             <span className="nav-icon">
@@ -23,7 +25,7 @@ export default function Sidebar() {
                 <rect width="7" height="7" x="3" y="14" rx="1.5" />
               </svg>
             </span>
-            <span>Tất cả Icons</span>
+            <span id="navLabelAllIcons">All Icons</span>
           </span>
         </button>
         <button type="button" className="nav-item" id="navCollectionsDirectory">
@@ -44,7 +46,7 @@ export default function Sidebar() {
                 <path d="M2 10h20" />
               </svg>
             </span>
-            <span>Bộ sưu tập</span>
+            <span id="navLabelCollections">Collections</span>
           </span>
           <span className="nav-count" id="sidebarCountCollections">
             0
@@ -68,9 +70,32 @@ export default function Sidebar() {
                 <circle cx="12" cy="12" r="3" />
               </svg>
             </span>
-            <span>Thương hiệu</span>
+            <span id="navLabelBrands">Brands</span>
           </span>
           <span className="nav-count" id="sidebarCountBrands">
+            0
+          </span>
+        </button>
+        <button type="button" className="nav-item" id="navAnimatedIcons">
+          <span className="nav-item-left">
+            <span className="nav-icon">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="16"
+                height="16"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M22 12h-2.48a2 2 0 0 0-1.93 1.46l-2.35 8.36a.25.25 0 0 1-.48 0L9.24 2.18a.25.25 0 0 0-.48 0l-2.35 8.36A2 2 0 0 1 4.49 12H2" />
+              </svg>
+            </span>
+            <span id="navLabelAnimated">Animated Icons</span>
+          </span>
+          <span className="nav-count" id="sidebarCountAnimated">
             0
           </span>
         </button>
@@ -91,7 +116,7 @@ export default function Sidebar() {
                 <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z" />
               </svg>
             </span>
-            <span>Đã yêu thích</span>
+            <span id="navLabelFavorites">Favorites</span>
           </span>
           <span className="nav-count" id="countFavorites">
             0
@@ -101,15 +126,17 @@ export default function Sidebar() {
 
       <div className="sidebar-section">
         <div className="sidebar-heading-row">
-          <span className="sidebar-heading">Chủ đề (Categories)</span>
+          <span className="sidebar-heading" id="sidebarCategoriesHeading">
+            Categories
+          </span>
           <button
             type="button"
             id="btnResetCategory"
             className="sidebar-mini-reset"
             style={{ display: 'none' }}
-            title="Bỏ lọc chủ đề"
+            title="Clear category filter"
           >
-            Tất cả
+            All
           </button>
         </div>
         <div id="sidebarCategories" className="sidebar-list" />
