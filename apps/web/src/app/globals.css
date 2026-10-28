@@ -2740,58 +2740,44 @@ body[data-preview-tone="light"] .col-dir-thumb-cell {
 }
 
 /* ============================================================================
-   LORDICON 28-CATEGORY FILTER BAR
+   ANIMATED ICONS COMPACT STYLE PACK FILTER STRIP (NO SCROLLBARS)
    ============================================================================ */
 .lordicon-category-bar {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 10px;
-  margin-bottom: 14px;
-  padding: 10px 12px;
-  border-radius: 14px;
-  background: var(--bg-surface);
-  border: 1px solid var(--border-subtle);
-  overflow: hidden;
+  gap: 6px;
+  margin-bottom: 12px;
+  padding: 0;
+  background: transparent;
+  border: none;
 }
 
-.lordicon-cat-select-wrap {
-  position: relative;
+.lordicon-row-badge {
   display: inline-flex;
   align-items: center;
-  gap: 7px;
-  height: 36px;
-  padding: 0 11px;
-  border-radius: 10px;
-  border: 1px solid var(--brand-orange-border);
-  background: var(--brand-orange-soft);
-  color: var(--brand-orange);
+  gap: 5px;
+  height: 28px;
+  padding: 0 8px 0 2px;
+  font-size: 0.73rem;
+  font-weight: 700;
+  color: var(--text-muted);
   flex-shrink: 0;
-}
-
-.lordicon-cat-select-wrap select {
-  border: none;
-  background: transparent;
-  color: var(--text-main);
-  font-size: 0.78rem;
-  font-weight: 600;
-  outline: none;
-  cursor: pointer;
-  padding-right: 4px;
 }
 
 .lordicon-cat-pills {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 6px;
-  overflow-x: auto;
-  scrollbar-width: thin;
-  padding-bottom: 2px;
+  gap: 5px;
   flex: 1;
 }
 
-.lordicon-cat-pills .category-pill {
-  flex-shrink: 0;
-  height: 32px;
-  padding: 0 11px;
-  font-size: 0.75rem;
+.lordicon-cat-pills .pill-btn {
+  height: 28px;
+  padding: 0 10px;
+  font-size: 0.73rem;
+  border-radius: 8px;
+  gap: 5px;
 }
+

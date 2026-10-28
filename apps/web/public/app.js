@@ -261,23 +261,39 @@
       lordiconAllCategories: 'All Categories',
       lordiconTopicLabel: 'Animated Categories:',
       categories: {
+        popular: 'Popular',
+        interface: 'Interface',
+        animals: 'Animals',
+        'architecture-and-places': 'Architecture & Places',
+        'business-and-finance': 'Business & Finance',
+        celebrations: 'Celebrations',
+        'characters-and-symbols': 'Characters & Symbols',
+        communication: 'Communication',
+        culture: 'Culture',
+        'design-and-editing': 'Design & Editing',
+        'fashion-and-beauty': 'Fashion & Beauty',
+        'files-and-folders': 'Files & Folders',
+        'finance-and-stats': 'Finance & Stats',
+        'food-and-drink': 'Food & Drink',
+        'games-and-toys': 'Games & Toys',
+        'health-and-medical': 'Health & Medical',
+        household: 'Household',
+        'music-and-audio': 'Music & Audio',
+        'nature-and-weather': 'Nature & Weather',
+        people: 'People',
+        'photo-and-video': 'Photo & Video',
+        'science-and-industry': 'Science & Industry',
+        'security-and-military': 'Security & Military',
+        shopping: 'Shopping',
+        'sports-and-fitness': 'Sports & Fitness',
+        'tech-and-devices': 'Tech & Devices',
+        'time-and-date': 'Time & Date',
+        transport: 'Transport',
+        'work-and-education': 'Work & Education',
         ai: 'AI & Machine Learning',
         cloud: 'Cloud & Infrastructure',
         devtools: 'Developer Tools & Code',
-        interface: 'UI & Interface Controls',
-        design: 'Design & Creative',
-        security: 'Security, Auth & Privacy',
-        finance: 'Finance, Payment & Shopping',
-        social: 'Social & Communication',
-        productivity: 'Productivity & Workspace',
-        hardware: 'Hardware, OS & Devices',
-        animals: 'Animals, Nature & Weather',
-        architecture: 'Architecture, Places & Home',
-        food: 'Food, Drink & Dining',
-        health: 'Health, Sports & Games',
-        transport: 'Transport, Maps & Travel',
         brand: 'Brand & Company Logos',
-        animation: 'Animated & Motion Icons',
       },
       styles: {
         outlined: 'Outlined',
@@ -452,23 +468,39 @@
       lordiconAllCategories: 'Tất cả danh mục (All Categories)',
       lordiconTopicLabel: 'Danh mục Icon động:',
       categories: {
+        popular: 'Phổ biến (Popular)',
+        interface: 'Giao diện (Interface)',
+        animals: 'Động vật (Animals)',
+        'architecture-and-places': 'Kiến trúc & Địa điểm',
+        'business-and-finance': 'Kinh doanh & Tài chính',
+        celebrations: 'Lễ hội & Sự kiện',
+        'characters-and-symbols': 'Ký tự & Biểu tượng',
+        communication: 'Giao tiếp & Tin nhắn',
+        culture: 'Văn hóa & Tôn giáo',
+        'design-and-editing': 'Thiết kế & Chỉnh sửa',
+        'fashion-and-beauty': 'Thời trang & Làm đẹp',
+        'files-and-folders': 'Tệp tin & Thư mục',
+        'finance-and-stats': 'Thống kê & Biểu đồ',
+        'food-and-drink': 'Ẩm thực & Đồ uống',
+        'games-and-toys': 'Trò chơi & Đồ chơi',
+        'health-and-medical': 'Y tế & Sức khỏe',
+        household: 'Đồ gia dụng & Nội thất',
+        'music-and-audio': 'Âm nhạc & Âm thanh',
+        'nature-and-weather': 'Thiên nhiên & Thời tiết',
+        people: 'Con người & Cảm xúc',
+        'photo-and-video': 'Nhiếp ảnh & Video',
+        'science-and-industry': 'Khoa học & Công nghiệp',
+        'security-and-military': 'Bảo mật & Quân sự',
+        shopping: 'Mua sắm & Thương mại',
+        'sports-and-fitness': 'Thể thao & Thể hình',
+        'tech-and-devices': 'Công nghệ & Thiết bị',
+        'time-and-date': 'Thời gian & Lịch',
+        transport: 'Giao thông & Phương tiện',
+        'work-and-education': 'Công việc & Giáo dục',
         ai: 'AI & Trí tuệ nhân tạo',
         cloud: 'Cloud & Hạ tầng mạng',
         devtools: 'Công cụ Lập trình & Code',
-        interface: 'Giao diện & Điều khiển UI',
-        design: 'Thiết kế & Sáng tạo',
-        security: 'Bảo mật, Xác thực & Riêng tư',
-        finance: 'Tài chính, Thanh toán & Mua sắm',
-        social: 'Mạng xã hội & Giao tiếp',
-        productivity: 'Năng suất & Không gian làm việc',
-        hardware: 'Phần cứng, Hệ điều hành & Thiết bị',
-        animals: 'Động vật, Thiên nhiên & Thời tiết',
-        architecture: 'Kiến trúc, Địa điểm & Nhà cửa',
-        food: 'Ẩm thực & Đồ uống',
-        health: 'Y tế, Thể thao & Trò chơi',
-        transport: 'Giao thông, Bản đồ & Du lịch',
         brand: 'Logo Thương hiệu & Công ty',
-        animation: 'Icon Động & Chuyển động (Animation)',
       },
       styles: {
         outlined: 'Outlined (Nét viền)',
@@ -498,17 +530,12 @@
 
   function getCatLabel(catId, fallback = '') {
     if (!catId) return fallback || 'General';
-    if (String(catId).startsWith('lordicon:')) {
-      const lId = String(catId).slice(9);
-      const lObj = (catalogSummary?.lordiconCategories || []).find((c) => c.id === lId);
-      if (lObj) return currentLang === 'vi' && lObj.labelVi ? lObj.labelVi : lObj.label;
-      return fallback || lId;
-    }
+    const cleanId = String(catId).replace(/^lordicon:/, '');
     const dict = I18N[currentLang]?.categories || I18N.en.categories;
-    if (dict[catId]) return dict[catId];
-    const lObj = (catalogSummary?.lordiconCategories || []).find((c) => c.id === catId);
+    if (dict[cleanId]) return dict[cleanId];
+    const lObj = (catalogSummary?.lordiconCategories || []).find((c) => c.id === cleanId);
     if (lObj) return currentLang === 'vi' && lObj.labelVi ? lObj.labelVi : lObj.label;
-    return fallback || catId || 'General';
+    return fallback || cleanId || 'General';
   }
 
   function getStyleLabel(styleId, fallback = '') {
@@ -694,23 +721,39 @@
   function getCategoryIconSvg(iconKeyOrId) {
     const cleanKey = String(iconKeyOrId || '').replace(/^lordicon:/, '');
     const mapByCatId = {
+      popular: ICONS.sparkles,
+      interface: ICONS.sliders,
+      animals: ICONS.sun,
+      'architecture-and-places': ICONS.home,
+      'business-and-finance': ICONS.wallet,
+      celebrations: ICONS.sparkles,
+      'characters-and-symbols': ICONS.code,
+      communication: ICONS['message-square'],
+      culture: ICONS.compass,
+      'design-and-editing': ICONS['pen-tool'],
+      'fashion-and-beauty': ICONS.sparkles,
+      'files-and-folders': ICONS.layers,
+      'finance-and-stats': ICONS.activity,
+      'food-and-drink': ICONS.coffee,
+      'games-and-toys': ICONS['play-circle'],
+      'health-and-medical': ICONS.activity,
+      household: ICONS.home,
+      'music-and-audio': ICONS.waveform,
+      'nature-and-weather': ICONS.sun,
+      people: ICONS['message-square'],
+      'photo-and-video': ICONS['play-circle'],
+      'science-and-industry': ICONS.cpu,
+      'security-and-military': ICONS.shield,
+      shopping: ICONS.wallet,
+      'sports-and-fitness': ICONS.activity,
+      'tech-and-devices': ICONS.cpu,
+      'time-and-date': ICONS.compass,
+      transport: ICONS.compass,
+      'work-and-education': ICONS.layers,
       ai: ICONS.sparkles,
       cloud: ICONS.cloud,
       devtools: ICONS.code,
-      interface: ICONS.sliders,
-      design: ICONS['pen-tool'],
-      security: ICONS.shield,
-      finance: ICONS.wallet,
-      social: ICONS['message-square'],
-      productivity: ICONS.layers,
-      hardware: ICONS.cpu,
-      animals: ICONS.sun,
-      architecture: ICONS.home,
-      food: ICONS.coffee,
-      health: ICONS.activity,
-      transport: ICONS.compass,
       brand: ICONS.hexagon,
-      animation: ICONS['play-circle'],
     };
     return ICONS[cleanKey] || mapByCatId[cleanKey] || ICONS.waveform || ICONS.hexagon;
   }
@@ -1080,11 +1123,35 @@
   // ============================================================================
   // LOAD CATALOG SUMMARY & POPULATE SIDEBAR + FILTER DROPDOWNS
   // ============================================================================
-  function renderSummaryTaxonomyLists() {
-    if (!catalogSummary) return;
+  function renderSidebarCategoriesList() {
+    if (!catalogSummary || !sidebarCategories) return;
 
-    // 1. Left Sidebar: Categories only (with custom SVG icons)
-    sidebarCategories.innerHTML = (catalogSummary.categories || [])
+    const isAnimContext =
+      viewMode === 'icons' &&
+      !activeCollectionState &&
+      !filters.onlyFavorites &&
+      (filters.iconType === 'animated' ||
+        String(filters.collection || '').startsWith('lordicon-'));
+    const isBrandsContext = viewMode === 'brands' && !activeCollectionState;
+
+    const lCatCountMap = new Map(
+      (catalogSummary.lordiconCategories || []).map((lc) => [lc.id, lc.count || 0])
+    );
+
+    const visibleCats = (catalogSummary.categories || [])
+      .filter((c) => c.id !== 'animation')
+      .map((c) => {
+        let modeCount = c.count || 0;
+        if (isAnimContext) {
+          modeCount = c.animatedCount !== undefined ? c.animatedCount : lCatCountMap.get(c.id) || 0;
+        } else if (isBrandsContext && c.brandCount !== undefined) {
+          modeCount = c.brandCount;
+        }
+        return { ...c, modeCount };
+      })
+      .filter((c) => c.modeCount > 0 || filters.category === c.id);
+
+    sidebarCategories.innerHTML = visibleCats
       .map(
         (c) => `
         <button type="button" class="nav-item ${filters.category === c.id ? 'active' : ''}" data-filter-cat="${escapeHtml(c.id)}">
@@ -1092,11 +1159,18 @@
             <span class="nav-icon">${getCategoryIconSvg(c.id || c.icon)}</span>
             <span>${escapeHtml(getCatLabel(c.id, c.label))}</span>
           </span>
-          <span class="nav-count">${(c.count || 0).toLocaleString()}</span>
+          <span class="nav-count">${(c.modeCount || 0).toLocaleString()}</span>
         </button>
       `
       )
       .join('');
+  }
+
+  function renderSummaryTaxonomyLists() {
+    if (!catalogSummary) return;
+
+    // 1. Left Sidebar: Context-aware Thematic Categories (never shows empty 0-count rows)
+    renderSidebarCategoriesList();
 
     // 2. Top Dropdown: Styles
     filterStyleOptions.innerHTML = (catalogSummary.styles || [])
@@ -1133,7 +1207,7 @@
   }
 
   async function loadSummary(bypassCache = false) {
-    catalogSummary = await apiFetchJson('/api/catalog/summary', { bypassCache });
+    catalogSummary = await apiFetchJson('/api/catalog/summary?v=4', { bypassCache });
 
     countFavorites.textContent = favorites.size;
     const totalColsCount = catalogSummary.totalCollections || (catalogSummary.collections || []).length;
@@ -1165,15 +1239,17 @@
       !filters.collection &&
       !filters.onlyFavorites;
 
+    const isAnimatedExplorerActive =
+      viewMode === 'icons' &&
+      !activeCollectionState &&
+      !filters.onlyFavorites &&
+      (filters.iconType === 'animated' ||
+        String(filters.category || '').startsWith('lordicon:') ||
+        String(filters.collection || '').startsWith('lordicon-'));
+
     navAllIcons.classList.toggle('active', isAllIcons);
     if (navAnimatedIcons) {
-      navAnimatedIcons.classList.toggle(
-        'active',
-        viewMode === 'icons' &&
-          filters.iconType === 'animated' &&
-          !activeCollectionState &&
-          !filters.onlyFavorites
-      );
+      navAnimatedIcons.classList.toggle('active', isAnimatedExplorerActive);
     }
     if (navCollectionsDirectory) {
       navCollectionsDirectory.classList.toggle(
@@ -1216,9 +1292,7 @@
       collectionsDirectoryGrid.style.display = isDirMode ? 'grid' : 'none';
     }
 
-    sidebarCategories.querySelectorAll('[data-filter-cat]').forEach((el) => {
-      el.classList.toggle('active', el.dataset.filterCat === filters.category);
-    });
+    renderSidebarCategoriesList();
 
     filterStyleOptions.querySelectorAll('[data-filter-style]').forEach((el) => {
       el.classList.toggle('active', el.dataset.filterStyle === filters.styleType);
@@ -1310,7 +1384,7 @@
   function renderSearchPopoverContent() {
     if (!searchPopoverContent || !catalogSummary) return;
 
-    const categories = catalogSummary.categories || [];
+    const categories = (catalogSummary.categories || []).filter((c) => c.id !== 'animation' && (c.count || 0) > 0);
     const iconTypes = catalogSummary.iconTypes || [];
     const styles = catalogSummary.styles || [];
     const topCols = (catalogSummary.collections || []).slice(0, 8);
@@ -1401,78 +1475,64 @@
     `;
   }
 
+  const ANIMATED_STYLE_PACKS_ORDER = [
+    { slug: 'lordicon-wired-outline', label: 'Wired Outline', styleType: 'duotone' },
+    { slug: 'lordicon-wired-flat', label: 'Wired Flat', styleType: 'multicolor' },
+    { slug: 'lordicon-wired-lineal', label: 'Wired Lineal', styleType: 'multicolor' },
+    { slug: 'lordicon-wired-gradient', label: 'Wired Gradient', styleType: 'multicolor' },
+    { slug: 'lordicon-doodle-color', label: 'Doodle Color', styleType: 'multicolor' },
+    { slug: 'lordicon-doodle-motif', label: 'Doodle Motif', styleType: 'duotone' },
+    { slug: 'lordicon-doodle-outline', label: 'Doodle Outline', styleType: 'outlined' },
+    { slug: 'lordicon-doodle-black', label: 'Doodle Black', styleType: 'filled' },
+    { slug: 'lordicon-system-outline', label: 'System Outline', styleType: 'outlined' },
+    { slug: 'lordicon-system-solid', label: 'System Solid', styleType: 'filled' },
+  ];
+
   function renderLordiconCategoryBar() {
     if (!lordiconCategoryBar) return;
     const isAnimContext =
       filters.iconType === 'animated' ||
-      filters.category === 'animation' ||
-      String(filters.category || '').startsWith('lordicon:') ||
       String(filters.collection || '').startsWith('lordicon-');
 
-    const lCats = catalogSummary?.lordiconCategories || [];
-    if (!isAnimContext || !lCats.length || viewMode === 'brands') {
+    if (!isAnimContext || viewMode === 'brands' || viewMode === 'collections') {
       lordiconCategoryBar.style.display = 'none';
       return;
     }
 
-    const activeLCat = String(filters.category || '').startsWith('lordicon:')
-      ? String(filters.category).slice(9)
+    const activePackSlug = String(filters.collection || '').startsWith('lordicon-')
+      ? filters.collection
       : '';
-    const totalAnimCount =
-      (catalogSummary?.sites || []).find((s) => s.id === 'lordicon')?.count || 18064;
+    const allStylesLabel = currentLang === 'vi' ? 'Tất cả kiểu' : 'All Styles';
 
     lordiconCategoryBar.style.display = 'flex';
     lordiconCategoryBar.innerHTML = `
-      <div class="lordicon-cat-select-wrap">
-        <span class="icon-inline" style="color:var(--brand-orange)">${ICONS.waveform}</span>
-        <select id="lordiconCategorySelect" aria-label="${escapeHtml(t('lordiconTopicLabel'))}">
-          <option value="" ${!activeLCat ? 'selected' : ''}>${escapeHtml(t('lordiconAllCategories'))} (${totalAnimCount.toLocaleString()})</option>
-          ${lCats
-            .map((lc) => {
-              const lbl = currentLang === 'vi' && lc.labelVi ? `${lc.label} (${lc.labelVi})` : lc.label;
-              return `<option value="${escapeHtml(lc.id)}" ${activeLCat === lc.id ? 'selected' : ''}>${escapeHtml(lbl)} (${(lc.count || 0).toLocaleString()})</option>`;
-            })
-            .join('')}
-        </select>
-      </div>
-      <div class="lordicon-cat-pills scroller-x">
-        <button type="button" class="pill-btn ${!activeLCat ? 'active' : ''}" data-lordicon-cat="">
-          <span>${escapeHtml(t('lordiconAllCategories'))}</span>
+      <span class="lordicon-row-badge">
+        <span class="icon-inline">${ICONS.sliders}</span>
+        <span>${currentLang === 'vi' ? 'Kiểu vẽ:' : 'Style Pack:'}</span>
+      </span>
+      <div class="lordicon-cat-pills">
+        <button type="button" class="pill-btn ${!activePackSlug ? 'active' : ''}" data-lordicon-pack="">
+          <span>${escapeHtml(allStylesLabel)}</span>
         </button>
-        ${lCats
-          .map((lc) => {
-            const lbl = currentLang === 'vi' && lc.labelVi ? lc.labelVi : lc.label;
-            return `
-              <button type="button" class="pill-btn ${activeLCat === lc.id ? 'active' : ''}" data-lordicon-cat="${escapeHtml(lc.id)}">
-                <span>${escapeHtml(lbl)}</span>
-                <span class="pill-count" style="opacity:0.7;font-size:0.7rem">${(lc.count || 0).toLocaleString()}</span>
-              </button>
-            `;
-          })
-          .join('')}
+        ${ANIMATED_STYLE_PACKS_ORDER.map(
+          (pk) => `
+          <button type="button" class="pill-btn ${activePackSlug === pk.slug ? 'active' : ''}" data-lordicon-pack="${escapeHtml(pk.slug)}">
+            <span class="icon-inline">${getStyleIconSvg(pk.styleType)}</span>
+            <span>${escapeHtml(pk.label)}</span>
+          </button>
+        `
+        ).join('')}
       </div>
     `;
-
-    const sel = document.getElementById('lordiconCategorySelect');
-    if (sel) {
-      sel.addEventListener('change', () => {
-        const val = sel.value;
-        filters.iconType = 'animated';
-        filters.category = val ? `lordicon:${val}` : '';
-        updateNavActiveStates();
-        showCatalogView(true);
-        loadCatalogData(true);
-      });
-    }
   }
 
   if (lordiconCategoryBar) {
     lordiconCategoryBar.addEventListener('click', (e) => {
-      const btn = e.target.closest('[data-lordicon-cat]');
-      if (!btn) return;
-      const val = btn.dataset.lordiconCat;
+      const packBtn = e.target.closest('[data-lordicon-pack]');
+      if (!packBtn) return;
+      const packSlug = packBtn.dataset.lordiconPack;
       filters.iconType = 'animated';
-      filters.category = val ? `lordicon:${val}` : '';
+      filters.collection = filters.collection === packSlug && packSlug ? '' : packSlug;
       updateNavActiveStates();
       showCatalogView(true);
       loadCatalogData(true);
@@ -1484,6 +1544,21 @@
     renderSearchPopoverContent();
     renderLordiconCategoryBar();
 
+    const isAnimContext =
+      viewMode === 'icons' &&
+      (filters.iconType === 'animated' || String(filters.collection || '').startsWith('lordicon-'));
+
+    heroHeading.textContent =
+      viewMode === 'brands'
+        ? t('heroHeadingBrands')
+        : viewMode === 'collections'
+          ? t('heroHeadingCollections')
+          : isAnimContext
+            ? currentLang === 'vi'
+              ? '20.000+ Icon Động Vector. Tuỳ chỉnh Màu, Nét & Xuất SVG/Lottie.'
+              : '20,000+ Animated Vector Icons. Customize Colors, Stroke & Export.'
+            : t('heroHeadingIcons');
+
     const chips = [];
     if (filters.category) {
       const catObj = (catalogSummary?.categories || []).find((c) => c.id === filters.category);
@@ -1493,7 +1568,7 @@
       const stObj = (catalogSummary?.styles || []).find((s) => s.id === filters.styleType);
       chips.push({ key: 'styleType', label: `${t('chipStyle')}: ${getStyleLabel(filters.styleType, stObj?.label)}` });
     }
-    if (filters.iconType) {
+    if (filters.iconType && filters.iconType !== 'animated') {
       const tpObj = (catalogSummary?.iconTypes || []).find((tItem) => tItem.id === filters.iconType);
       chips.push({ key: 'iconType', label: `${t('chipType')}: ${getTypeLabel(filters.iconType, tpObj?.label)}` });
     }
@@ -1507,12 +1582,6 @@
 
     if (chips.length === 0) {
       activeFiltersBar.style.display = 'none';
-      heroHeading.textContent =
-        viewMode === 'brands'
-          ? t('heroHeadingBrands')
-          : viewMode === 'collections'
-            ? t('heroHeadingCollections')
-            : t('heroHeadingIcons');
       return;
     }
 
@@ -1596,7 +1665,7 @@
     viewMode = urlView === 'collections' || urlView === 'brands' ? urlView : 'icons';
     filters = {
       q: params.get('q') || '',
-      category: params.get('category') || '',
+      category: String(params.get('category') || '').replace(/^lordicon:/, ''),
       styleType: params.get('style') || '',
       iconType: params.get('type') || '',
       site: params.get('site') || '',
@@ -1605,6 +1674,15 @@
       sort: params.get('sort') || 'recent',
       onlyFavorites: params.get('fav') === '1',
     };
+    if (viewMode === 'brands') {
+      filters.iconType = '';
+      filters.styleType = '';
+      filters.collection = '';
+      filters.onlyFavorites = false;
+    } else if (viewMode === 'collections') {
+      filters.collection = '';
+      filters.onlyFavorites = false;
+    }
     searchInput.value = filters.q;
     sortSelect.value = filters.sort;
     initAlphabetBar();
@@ -1718,10 +1796,25 @@
     loadCatalogData(true);
   }
 
-  function setCatalogViewMode(nextMode) {
+  function setCatalogViewMode(nextMode, resetFiltersForMode = false) {
     if (nextMode !== 'icons' && nextMode !== 'collections' && nextMode !== 'brands') return;
-    if ((nextMode === 'collections' || nextMode === 'brands') && filters.onlyFavorites) {
+    if (resetFiltersForMode) {
+      filters.category = '';
+      filters.styleType = '';
+      filters.iconType = '';
+      filters.collection = '';
+      filters.letter = '';
       filters.onlyFavorites = false;
+      initAlphabetBar();
+    } else {
+      if (nextMode === 'collections' || nextMode === 'brands') {
+        filters.onlyFavorites = false;
+        filters.collection = '';
+      }
+      if (nextMode === 'brands') {
+        filters.iconType = '';
+        filters.styleType = '';
+      }
     }
     viewMode = nextMode;
     updateNavActiveStates();
@@ -1733,7 +1826,7 @@
     viewModeSwitcher.addEventListener('click', (e) => {
       const btn = e.target.closest('[data-view-mode]');
       if (!btn) return;
-      setCatalogViewMode(btn.dataset.viewMode);
+      setCatalogViewMode(btn.dataset.viewMode, false);
     });
   }
 
@@ -4403,18 +4496,22 @@
 
   if (navCollectionsDirectory) {
     navCollectionsDirectory.addEventListener('click', () => {
-      setCatalogViewMode('collections');
+      setCatalogViewMode('collections', true);
     });
   }
 
   if (navBrandsDirectory) {
     navBrandsDirectory.addEventListener('click', () => {
-      setCatalogViewMode('brands');
+      setCatalogViewMode('brands', true);
     });
   }
 
   navFavorites.addEventListener('click', () => {
     viewMode = 'icons';
+    filters.category = '';
+    filters.styleType = '';
+    filters.iconType = '';
+    filters.collection = '';
     filters.onlyFavorites = !filters.onlyFavorites;
     updateNavActiveStates();
     showCatalogView(true);
@@ -4432,6 +4529,12 @@
     const btn = e.target.closest('[data-filter-cat]');
     if (!btn) return;
     const val = btn.dataset.filterCat;
+    if (viewMode === 'brands') {
+      viewMode = 'icons';
+    }
+    if (String(filters.collection).startsWith('lordicon-cat-')) {
+      filters.collection = '';
+    }
     filters.category = filters.category === val ? '' : val;
     updateNavActiveStates();
     showCatalogView(true);

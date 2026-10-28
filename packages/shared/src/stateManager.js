@@ -55,10 +55,10 @@ function cleanCollectionDisplayName(rawName, slug = '') {
   return raw
     .replace(/\s+PAGE\s*\d+\b/gi, '')
     .replace(/\btheSVG\b/gi, 'Brand')
-    .replace(/\bLordicon\b\s*[—-]?\s*/gi, 'Animated ')
+    .replace(/^(?:Lordicon|Animated)\s+(?=(?:System|Doodle|Wired)\b)/i, '')
+    .replace(/\bLordicon\b\s*[—-]?\s*/gi, '')
     .replace(/\bAll\s*SVG\s*Icons\b\s*[—-]?\s*/gi, '')
     .replace(/\bSVG\s*Repo\b\s*[—-]?\s*/gi, '')
-    .replace(/^Animated\s+Animated\b/i, 'Animated')
     .replace(/\s{2,}/g, ' ')
     .trim();
 }
@@ -77,6 +77,26 @@ function cleanLicenseName(rawLicense) {
     return 'MIT / CC0';
   }
   return l;
+}
+
+const LEGACY_CATEGORY_MAP = {
+  animation: 'popular',
+  architecture: 'architecture-and-places',
+  finance: 'business-and-finance',
+  design: 'design-and-editing',
+  security: 'security-and-military',
+  social: 'communication',
+  productivity: 'work-and-education',
+  hardware: 'tech-and-devices',
+  food: 'food-and-drink',
+  health: 'health-and-medical',
+  dev: 'devtools',
+};
+
+function normalizeCategoryId(cat) {
+  if (!cat) return '';
+  const clean = String(cat).trim().toLowerCase().replace(/^lordicon:/, '');
+  return LEGACY_CATEGORY_MAP[clean] || clean;
 }
 
 const BRAND_ECOSYSTEM_DEFINITIONS = [
@@ -122,7 +142,7 @@ const BRAND_ECOSYSTEM_DEFINITIONS = [
   {
     slug: 'family-adobe',
     name: 'Adobe (Photoshop, Illustrator, Premiere, Lightroom)',
-    primaryCategory: 'design',
+    primaryCategory: 'design-and-editing',
     tier: 1,
     regex:
       /\b(adobe|photoshop|illustrator|indesign|premiere|after-effects|lightroom|xd|acrobat|creative-cloud|behance|dreamweaver|audition|animate|magento|frame-io)\b/i,
@@ -151,14 +171,14 @@ const BRAND_ECOSYSTEM_DEFINITIONS = [
   {
     slug: 'family-vercel',
     name: 'Vercel, Next.js & Turborepo',
-    primaryCategory: 'dev',
+    primaryCategory: 'devtools',
     tier: 1,
     regex: /\b(vercel|nextjs|next-js|turborepo|turbo|v0|swr|zeit)\b/i,
   },
   {
     slug: 'family-jetbrains',
     name: 'JetBrains (IntelliJ, WebStorm, PyCharm, Kotlin)',
-    primaryCategory: 'dev',
+    primaryCategory: 'devtools',
     tier: 1,
     regex:
       /\b(jetbrains|intellij|pycharm|webstorm|phpstorm|goland|rider|clion|rubymine|datagrip|kotlin|resharper|youtrack|teamcity|fleet)\b/i,
@@ -174,7 +194,7 @@ const BRAND_ECOSYSTEM_DEFINITIONS = [
   {
     slug: 'family-atlassian',
     name: 'Atlassian (Jira, Confluence, Trello, Bitbucket)',
-    primaryCategory: 'dev',
+    primaryCategory: 'devtools',
     tier: 1,
     regex: /\b(atlassian|jira|confluence|trello|bitbucket|sourcetree|bamboo|opsgenie|statuspage|loom)\b/i,
   },
@@ -195,7 +215,7 @@ const BRAND_ECOSYSTEM_DEFINITIONS = [
   {
     slug: 'family-cisco',
     name: 'Cisco (Webex, Splunk, Meraki, AppDynamics)',
-    primaryCategory: 'security',
+    primaryCategory: 'security-and-military',
     tier: 1,
     regex: /\b(cisco|webex|splunk|meraki|appdynamics)\b/i,
   },
@@ -223,7 +243,7 @@ const BRAND_ECOSYSTEM_DEFINITIONS = [
   {
     slug: 'family-alibaba',
     name: 'Alibaba (AliExpress, Alipay, Taobao, DingTalk)',
-    primaryCategory: 'finance',
+    primaryCategory: 'business-and-finance',
     tier: 1,
     regex: /\b(alibaba|aliexpress|alipay|taobao|tmall|dingtalk|ant-design)\b/i,
   },
@@ -252,7 +272,7 @@ const BRAND_ECOSYSTEM_DEFINITIONS = [
   {
     slug: 'brand-github',
     name: 'GitHub, GitLab & Git Ecosystem',
-    primaryCategory: 'dev',
+    primaryCategory: 'devtools',
     tier: 2,
     regex: /\b(github|gitlab|git|bitbucket|octocat|dependabot|codespaces|gitea|sourcetree)\b/i,
   },
@@ -280,7 +300,7 @@ const BRAND_ECOSYSTEM_DEFINITIONS = [
   {
     slug: 'brand-linux',
     name: 'Linux (Ubuntu, Debian, Arch, Kali, RedHat)',
-    primaryCategory: 'dev',
+    primaryCategory: 'devtools',
     tier: 2,
     regex:
       /\b(linux|ubuntu|debian|fedora|arch-linux|centos|redhat|kali|alpine|nixos|suse|manjaro|raspbian|freebsd|tux|gnome|kde)\b/i,
@@ -288,7 +308,7 @@ const BRAND_ECOSYSTEM_DEFINITIONS = [
   {
     slug: 'brand-react',
     name: 'React, Next.js, Tailwind & Modern Web',
-    primaryCategory: 'dev',
+    primaryCategory: 'devtools',
     tier: 2,
     regex:
       /\b(react|nextjs|next-js|redux|remix|gatsby|preact|react-router|tailwind|tailwindcss|vite|astro|solidjs)\b/i,
@@ -296,14 +316,14 @@ const BRAND_ECOSYSTEM_DEFINITIONS = [
   {
     slug: 'brand-vue',
     name: 'Vue.js, Nuxt, Angular & Svelte',
-    primaryCategory: 'dev',
+    primaryCategory: 'devtools',
     tier: 2,
     regex: /\b(vue|vuejs|nuxt|nuxtjs|pinia|vuetify|vitepress|angular|svelte)\b/i,
   },
   {
     slug: 'brand-js-ts',
     name: 'JavaScript, TypeScript, Node.js, Bun & Deno',
-    primaryCategory: 'dev',
+    primaryCategory: 'devtools',
     tier: 2,
     regex: /\b(javascript|typescript|nodejs|node-js|npm|pnpm|yarn|bun|deno|webpack|babel|eslint|prettier)\b/i,
   },
@@ -318,7 +338,7 @@ const BRAND_ECOSYSTEM_DEFINITIONS = [
   {
     slug: 'brand-backend-langs',
     name: 'Go, Rust, PHP, Laravel & Ruby',
-    primaryCategory: 'dev',
+    primaryCategory: 'devtools',
     tier: 2,
     regex: /\b(golang|rust|cargo|php|laravel|symfony|wordpress|ruby|rails|elixir|phoenix|scala|clojure|haskell|erlang)\b/i,
   },
@@ -333,21 +353,21 @@ const BRAND_ECOSYSTEM_DEFINITIONS = [
   {
     slug: 'brand-figma',
     name: 'Figma, Canva, Sketch, Framer & Dribbble',
-    primaryCategory: 'design',
+    primaryCategory: 'design-and-editing',
     tier: 2,
     regex: /\b(figma|sketch|canva|framer|invision|zeplin|dribbble|behance)\b/i,
   },
   {
     slug: 'brand-3d-engines',
     name: 'Blender, Unity, Unreal Engine & Autodesk',
-    primaryCategory: 'design',
+    primaryCategory: 'design-and-editing',
     tier: 2,
     regex: /\b(blender|unity|unreal|godot|autodesk|maya|3ds-max|cinema4d|houdini|zbrush)\b/i,
   },
   {
     slug: 'brand-payments',
     name: 'Stripe, PayPal, Visa, Mastercard & FinTech',
-    primaryCategory: 'finance',
+    primaryCategory: 'business-and-finance',
     tier: 2,
     regex:
       /\b(stripe|paypal|visa|mastercard|amex|american-express|apple-pay|google-pay|alipay|wechat-pay|wise|revolut|klarna|adyen|braintree)\b/i,
@@ -355,14 +375,14 @@ const BRAND_ECOSYSTEM_DEFINITIONS = [
   {
     slug: 'brand-ecommerce',
     name: 'Shopify, WooCommerce, Magento & E-Commerce',
-    primaryCategory: 'finance',
+    primaryCategory: 'shopping',
     tier: 2,
     regex: /\b(shopify|woocommerce|magento|prestashop|bigcommerce|opencart|squarespace|wix|webflow|etsy|ebay)\b/i,
   },
   {
     slug: 'brand-crypto',
     name: 'Bitcoin, Ethereum, Solana, Binance & Web3',
-    primaryCategory: 'finance',
+    primaryCategory: 'business-and-finance',
     tier: 2,
     regex:
       /\b(bitcoin|btc|ethereum|eth|solana|binance|polygon|tether|usdt|cardano|ripple|xrp|dogecoin|polkadot|litecoin|avalanche|chainlink|uniswap|metamask|coinbase)\b/i,
@@ -378,14 +398,14 @@ const BRAND_ECOSYSTEM_DEFINITIONS = [
   {
     slug: 'brand-music',
     name: 'Spotify, SoundCloud, Apple Music & Audio',
-    primaryCategory: 'communication',
+    primaryCategory: 'music-and-audio',
     tier: 2,
     regex: /\b(spotify|soundcloud|shazam|deezer|tidal|pandora|audible|lastfm|bandcamp|audacity)\b/i,
   },
   {
     slug: 'brand-gaming',
     name: 'Steam, Xbox, Nintendo, PlayStation & Gaming',
-    primaryCategory: 'brand',
+    primaryCategory: 'games-and-toys',
     tier: 2,
     regex:
       /\b(steam|playstation|xbox|nintendo|epic-games|riot|blizzard|ubisoft|activision|itch-io|roblox|minecraft|valorant|origin|gog)\b/i,
@@ -393,7 +413,7 @@ const BRAND_ECOSYSTEM_DEFINITIONS = [
   {
     slug: 'brand-hardware',
     name: 'NVIDIA, Intel, AMD, Samsung & Hardware',
-    primaryCategory: 'brand',
+    primaryCategory: 'tech-and-devices',
     tier: 2,
     regex:
       /\b(nvidia|intel|amd|arm|qualcomm|samsung|lg|dell|hp|lenovo|asus|acer|msi|raspberry-pi|arduino|logitech|razer|corsair)\b/i,
@@ -401,7 +421,7 @@ const BRAND_ECOSYSTEM_DEFINITIONS = [
   {
     slug: 'brand-productivity',
     name: 'Notion, Slack, Linear, Zoom & Workspace',
-    primaryCategory: 'interface',
+    primaryCategory: 'work-and-education',
     tier: 2,
     regex:
       /\b(notion|slack|linear|asana|trello|monday|clickup|airtable|obsidian|evernote|zoom|miro|loom|calendly|intercom|zendesk|hubspot)\b/i,
@@ -416,7 +436,7 @@ const BRAND_ECOSYSTEM_DEFINITIONS = [
   {
     slug: 'brand-automotive',
     name: 'Tesla, BMW, Mercedes, Porsche & Automotive',
-    primaryCategory: 'brand',
+    primaryCategory: 'transport',
     tier: 2,
     regex:
       /\b(tesla|bmw|mercedes|audi|porsche|ferrari|lamborghini|toyota|honda|ford|chevrolet|volkswagen|volvo|hyundai|kia|nissan|mazda|subaru|jaguar|bentley|bugatti|rolls-royce|maserati|aston-martin|mclaren|lexus|jeep|peugeot|renault|fiat)\b/i,
@@ -804,33 +824,28 @@ class StateManager {
    * Ensure metadata records are enriched with accurate taxonomy fields on read
    */
   enrichIconRecord(icon, siteId, collection) {
-    let category = icon.category;
-    let styleType = icon.styleType;
-    let iconType = icon.iconType;
-
     const colSlug = collection?.slug || '';
     const colName = collection?.name || colSlug;
     const rawCat = icon.rawCategory || collection?.category || '';
 
-    if (!category || !styleType || !iconType || siteId === 'allsvgicons' || siteId === 'lordicon') {
-      const classification = classifyIcon({
-        siteId,
-        collectionSlug: colSlug,
-        collectionName: colName,
-        rawCategory: rawCat,
-        title: icon.title || icon.slug || '',
-        slug: icon.slug || '',
-        detectedStyle: icon.styleType || 'filled',
-        hasAnimation:
-          siteId === 'allsvgicons' ||
-          siteId === 'lordicon' ||
-          icon.category === 'animation' ||
-          icon.iconType === 'animated',
-      });
-      category = siteId === 'lordicon' ? classification.category : category || classification.category;
-      styleType = styleType || classification.styleType;
-      iconType = siteId === 'lordicon' ? 'animated' : iconType || classification.iconType;
-    }
+    const classification = classifyIcon({
+      siteId,
+      collectionSlug: colSlug,
+      collectionName: colName,
+      rawCategory: rawCat,
+      title: icon.title || icon.slug || '',
+      slug: icon.slug || '',
+      detectedStyle: icon.styleType || 'filled',
+      hasAnimation:
+        siteId === 'allsvgicons' ||
+        siteId === 'lordicon' ||
+        icon.category === 'animation' ||
+        icon.iconType === 'animated',
+    });
+
+    const category = classification.category;
+    const styleType = icon.styleType || classification.styleType;
+    const iconType = siteId === 'lordicon' ? 'animated' : icon.iconType || classification.iconType;
 
     const lordiconMeta =
       siteId === 'lordicon' ? resolveLordiconCategory(rawCat, icon.slug, icon.title) : null;
@@ -839,7 +854,6 @@ class StateManager {
       ? icon.tags.filter((t) => !/^(lordicon|thesvg|svgrepo|allsvgicons)$/i.test(t))
       : [];
     const tags =
-      category === 'animation' ||
       iconType === 'animated' ||
       siteId === 'allsvgicons' ||
       siteId === 'lordicon'
@@ -862,7 +876,7 @@ class StateManager {
       relativePath: icon.relativePath,
       variants: icon.variants || { default: icon.relativePath },
       gridSize: icon.gridSize,
-      category,
+      category: normalizeCategoryId(category),
       rawCategory: rawCat,
       lordiconCategory: lordiconMeta ? lordiconMeta.lordiconCategory : icon.lordiconCategory || '',
       styleType,
@@ -1084,13 +1098,14 @@ class StateManager {
       const lordiconMeta =
         siteId === 'lordicon' ? resolveLordiconCategory(rawCategory, slug, title) : null;
 
-      const resolvedCategory =
-        category ||
-        (lordiconMeta ? lordiconMeta.appCategory : siteId === 'allsvgicons' ? 'animation' : 'interface');
+      const resolvedCategory = normalizeCategoryId(
+        lordiconMeta
+          ? lordiconMeta.appCategory
+          : category || (siteId === 'allsvgicons' ? 'popular' : 'interface')
+      );
       const resolvedIconType =
-        iconType || (resolvedCategory === 'animation' || siteId === 'lordicon' ? 'animated' : 'ui-icon');
+        iconType || (siteId === 'allsvgicons' || siteId === 'lordicon' ? 'animated' : 'ui-icon');
       const isAnim =
-        resolvedCategory === 'animation' ||
         resolvedIconType === 'animated' ||
         siteId === 'allsvgicons' ||
         siteId === 'lordicon';
@@ -1105,7 +1120,7 @@ class StateManager {
         gridSize: gridSize || '24x24',
         category: resolvedCategory,
         rawCategory,
-        lordiconCategory: lordiconMeta ? lordiconMeta.lordiconCategory : '',
+        lordiconCategory: lordiconMeta ? lordiconMeta.lordiconCategory : isAnim ? resolvedCategory : '',
         styleType: styleType || 'filled',
         iconType: resolvedIconType,
         author: colObj?.author || 'Open Source',
@@ -1259,15 +1274,11 @@ class StateManager {
 
     for (const ic of allIcons) {
       categoryCounts[ic.category] = (categoryCounts[ic.category] || 0) + 1;
-      if (
-        ic.category !== 'animation' &&
-        (ic.iconType === 'animated' || ic.site === 'allsvgicons' || ic.site === 'lordicon')
-      ) {
-        categoryCounts.animation = (categoryCounts.animation || 0) + 1;
-      }
-      if (ic.site === 'lordicon' && ic.lordiconCategory) {
-        lordiconCategoryCounts[ic.lordiconCategory] =
-          (lordiconCategoryCounts[ic.lordiconCategory] || 0) + 1;
+      if (ic.iconType === 'animated' || ic.site === 'allsvgicons' || ic.site === 'lordicon') {
+        const animCat = ic.lordiconCategory || ic.category;
+        if (animCat) {
+          lordiconCategoryCounts[animCat] = (lordiconCategoryCounts[animCat] || 0) + 1;
+        }
       }
       styleCounts[ic.styleType] = (styleCounts[ic.styleType] || 0) + 1;
       typeCounts[ic.iconType] = (typeCounts[ic.iconType] || 0) + 1;
@@ -1282,6 +1293,13 @@ class StateManager {
         ? this._catalogSnapshot.brandsDirectory.length
         : BRAND_ECOSYSTEM_DEFINITIONS.length;
 
+    const brandCatCounts = {};
+    for (const bDef of BRAND_ECOSYSTEM_DEFINITIONS) {
+      if (bDef.primaryCategory) {
+        brandCatCounts[bDef.primaryCategory] = (brandCatCounts[bDef.primaryCategory] || 0) + 1;
+      }
+    }
+
     const summary = {
       totalIcons: allIcons.length,
       totalCollections: collections.length,
@@ -1291,6 +1309,8 @@ class StateManager {
         label: c.label,
         icon: c.icon,
         count: categoryCounts[c.id] || 0,
+        animatedCount: lordiconCategoryCounts[c.id] || 0,
+        brandCount: brandCatCounts[c.id] || 0,
       })),
       lordiconCategories: LORDICON_CATEGORIES.map((lc) => ({
         id: lc.id,
@@ -1376,7 +1396,7 @@ class StateManager {
     }
 
     const isLordiconCatPrefix = category.startsWith('lordicon:');
-    const targetLordiconCat = isLordiconCatPrefix ? category.slice(9) : '';
+    const normalizedCat = normalizeCategoryId(category);
     const isLordiconVirtualCol = collection.startsWith('lordicon-cat-');
     const virtualLordiconCatId = isLordiconVirtualCol ? collection.replace(/^lordicon-cat-/, '') : '';
 
@@ -1385,17 +1405,21 @@ class StateManager {
       if (category) {
         if (category === 'animation') {
           const isAnimIcon =
-            ic.category === 'animation' ||
             ic.iconType === 'animated' ||
             ic.site === 'allsvgicons' ||
             ic.site === 'lordicon';
           if (!isAnimIcon) return false;
         } else if (isLordiconCatPrefix) {
-          if (ic.site !== 'lordicon' || ic.lordiconCategory !== targetLordiconCat) return false;
+          if (
+            (ic.site !== 'lordicon' && ic.site !== 'allsvgicons' && ic.iconType !== 'animated') ||
+            (ic.lordiconCategory !== normalizedCat && ic.category !== normalizedCat)
+          ) {
+            return false;
+          }
         } else if (
-          ic.category !== category &&
-          ic.lordiconCategory !== category &&
-          ic.rawCategory !== category
+          ic.category !== normalizedCat &&
+          ic.lordiconCategory !== normalizedCat &&
+          ic.rawCategory !== normalizedCat
         ) {
           return false;
         }
@@ -1625,8 +1649,6 @@ class StateManager {
       });
     }
 
-    const lordiconCatDefMap = new Map(LORDICON_CATEGORIES.map((lc) => [lc.id, lc]));
-
     for (const ic of allIcons) {
       const key = `${ic.site}:${ic.collectionSlug}`;
       let agg = colAggMap.get(key);
@@ -1662,61 +1684,10 @@ class StateManager {
           category: ic.category,
         });
       }
-      if (agg.keywordSet.size < 35) {
+      if (agg.keywordSet.size < 45) {
         if (ic.title) agg.keywordSet.add(String(ic.title).toLowerCase());
         if (ic.category) agg.keywordSet.add(String(ic.category).toLowerCase());
-      }
-
-      // Also populate virtual Thematic Animated Category Collections (28 categories)
-      if (ic.site === 'lordicon' && ic.lordiconCategory) {
-        const lCatDef = lordiconCatDefMap.get(ic.lordiconCategory);
-        if (lCatDef) {
-          const vSlug = `lordicon-cat-${lCatDef.id}`;
-          const vKey = `lordicon:${vSlug}`;
-          let vAgg = colAggMap.get(vKey);
-          if (!vAgg) {
-            const vName = `Animated — ${lCatDef.label}`;
-            vAgg = {
-              slug: vSlug,
-              name: vName,
-              license: 'MIT / CC0',
-              author: 'Open Source',
-              count: 0,
-              categoryCounts: {},
-              styleCounts: {},
-              typeCounts: {},
-              sampleIcons: [],
-              keywordSet: new Set([
-                vName.toLowerCase(),
-                lCatDef.id,
-                lCatDef.label.toLowerCase(),
-                (lCatDef.labelVi || '').toLowerCase(),
-                'animated',
-                'motion',
-              ]),
-            };
-            colAggMap.set(vKey, vAgg);
-          }
-
-          vAgg.count += 1;
-          if (ic.category) vAgg.categoryCounts[ic.category] = (vAgg.categoryCounts[ic.category] || 0) + 1;
-          if (ic.styleType) vAgg.styleCounts[ic.styleType] = (vAgg.styleCounts[ic.styleType] || 0) + 1;
-          if (ic.iconType) vAgg.typeCounts[ic.iconType] = (vAgg.typeCounts[ic.iconType] || 0) + 1;
-
-          if (vAgg.sampleIcons.length < 8) {
-            vAgg.sampleIcons.push({
-              id: ic.id,
-              slug: ic.slug,
-              title: ic.title,
-              assetUrl: ic.assetUrl,
-              styleType: ic.styleType,
-              category: ic.category,
-            });
-          }
-          if (vAgg.keywordSet.size < 45 && ic.title) {
-            vAgg.keywordSet.add(String(ic.title).toLowerCase());
-          }
-        }
+        if (ic.lordiconCategory) agg.keywordSet.add(String(ic.lordiconCategory).toLowerCase());
       }
     }
 
@@ -1872,10 +1843,21 @@ class StateManager {
     const directory = isBrandsMode ? this.getBrandsDirectory() : this.getCollectionsDirectory();
     const query = String(q || '').trim().toLowerCase();
 
+    let effectiveCat = normalizeCategoryId(category);
+    if (
+      isBrandsMode &&
+      effectiveCat &&
+      !directory.some((col) => col.primaryCategory === effectiveCat || col.categoryCounts[effectiveCat])
+    ) {
+      effectiveCat = '';
+    }
+    const effectiveType = isBrandsMode ? '' : iconType;
+    const effectiveStyle = isBrandsMode ? '' : styleType;
+
     const filtered = directory.filter((col) => {
-      if (category && col.primaryCategory !== category && !col.categoryCounts[category]) return false;
-      if (styleType && col.primaryStyle !== styleType && !col.styleCounts[styleType]) return false;
-      if (iconType && !col.typeCounts[iconType]) return false;
+      if (effectiveCat && col.primaryCategory !== effectiveCat && !col.categoryCounts[effectiveCat]) return false;
+      if (effectiveStyle && col.primaryStyle !== effectiveStyle && !col.styleCounts[effectiveStyle]) return false;
+      if (effectiveType && !col.typeCounts[effectiveType]) return false;
       if (letter) {
         const firstChar = (col.name || col.slug || '').charAt(0).toUpperCase();
         if (letter === '#') {
@@ -1892,12 +1874,12 @@ class StateManager {
       filtered.sort((a, b) => (a.name || a.slug).localeCompare(b.name || b.slug));
     } else if (sort === 'za') {
       filtered.sort((a, b) => (b.name || b.slug).localeCompare(a.name || a.slug));
-    } else if (category) {
+    } else if (effectiveCat) {
       filtered.sort((a, b) => {
-        const aPrimary = a.primaryCategory === category ? 1 : 0;
-        const bPrimary = b.primaryCategory === category ? 1 : 0;
+        const aPrimary = a.primaryCategory === effectiveCat ? 1 : 0;
+        const bPrimary = b.primaryCategory === effectiveCat ? 1 : 0;
         if (aPrimary !== bPrimary) return bPrimary - aPrimary;
-        return (b.categoryCounts[category] || 0) - (a.categoryCounts[category] || 0);
+        return (b.categoryCounts[effectiveCat] || 0) - (a.categoryCounts[effectiveCat] || 0);
       });
     } else if (isBrandsMode) {
       filtered.sort((a, b) => {

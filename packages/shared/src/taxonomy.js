@@ -9,8 +9,420 @@
 
 const CATEGORY_DEFINITIONS = [
   {
+    id: 'popular',
+    label: 'Popular',
+    labelVi: 'Phổ biến',
+    icon: 'sparkles',
+    keywords: ['popular', 'trending', 'featured', 'star', 'favorite', 'bookmark', 'essential'],
+  },
+  {
+    id: 'interface',
+    label: 'Interface',
+    labelVi: 'Giao diện (UI)',
+    icon: 'sliders',
+    keywords: [
+      'interface', 'ui', 'arrow', 'arrows', 'angle', 'align', 'menu', 'hamburger',
+      'search', 'settings', 'gear', 'cog', 'sliders', 'check', 'checkmark', 'close',
+      'cancel', 'plus', 'minus', 'chevron', 'caret', 'cursor', 'pointer', 'button',
+      'toggle', 'switch', 'layout', 'grid', 'filter', 'funnel', 'sort', 'trash',
+      'delete', 'remove', 'download', 'upload', 'export', 'import', 'link', 'unlink',
+      'external', 'eye', 'visibility', 'bell', 'notification', 'accessibility',
+      'loader', 'spinner', 'refresh', 'sync', 'zoom', 'maximize', 'minimize', 'fullscreen', 'sidebar', 'alert', 'alerts'
+    ],
+  },
+  {
+    id: 'animals',
+    label: 'Animals',
+    labelVi: 'Động vật',
+    icon: 'sun',
+    keywords: [
+      'animal', 'animals', 'dog', 'cat', 'bird', 'birds', 'fish', 'insect', 'insects',
+      'wildlife', 'pet', 'pets', 'paw', 'mammal', 'mammals', 'reptile', 'amphibian',
+      'aquatic', 'sea-life', 'farm-animal', 'lion', 'tiger', 'bear', 'elephant', 'horse',
+      'rabbit', 'monkey', 'fox', 'wolf', 'deer', 'owl', 'eagle', 'penguin', 'dolphin',
+      'whale', 'shark', 'octopus', 'crab', 'turtle', 'snake', 'frog', 'butterfly', 'bee', 'spider'
+    ],
+  },
+  {
+    id: 'architecture-and-places',
+    label: 'Architecture & Places',
+    labelVi: 'Kiến trúc & Địa điểm',
+    icon: 'home',
+    keywords: [
+      'architecture', 'building', 'buildings', 'apartment', 'office-building', 'skyscraper',
+      'city', 'urban', 'landmark', 'landmarks', 'castle', 'church', 'mosque', 'temple',
+      'bridge', 'tower', 'monument', 'museum', 'stadium', 'park', 'public-space', 'warehouse',
+      'factory-building', 'real-estate', 'property', 'pillar', 'arch', 'dome'
+    ],
+  },
+  {
+    id: 'business-and-finance',
+    label: 'Business & Finance',
+    labelVi: 'Kinh doanh & Tài chính',
+    icon: 'wallet',
+    keywords: [
+      'business', 'finance', 'financial', 'payment', 'stripe', 'paypal', 'visa', 'mastercard',
+      'amex', 'apple-pay', 'google-pay', 'alipay', 'klarna', 'wise', 'revolut', 'bank',
+      'banking', 'wallet', 'crypto', 'cryptocurrency', 'blockchain', 'bitcoin', 'btc',
+      'ethereum', 'eth', 'solana', 'binance', 'coinbase', 'metamask', 'coin', 'coins',
+      'dollar', 'euro', 'yen', 'pound', 'currency', 'money', 'cash', 'credit-card',
+      'debit-card', 'invoice', 'receipt', 'tax', 'accounting', 'loan', 'mortgage',
+      'investment', 'stock', 'dividend', 'profit', 'handshake', 'b2b', 'corporate'
+    ],
+  },
+  {
+    id: 'celebrations',
+    label: 'Celebrations',
+    labelVi: 'Lễ kỷ niệm & Sự kiện',
+    icon: 'sparkles',
+    keywords: [
+      'celebration', 'celebrations', 'party', 'holiday', 'holidays', 'gift', 'present',
+      'birthday', 'wedding', 'anniversary', 'christmas', 'halloween', 'easter', 'new-year',
+      'valentine', 'fireworks', 'confetti', 'balloon', 'balloons', 'champagne', 'cheers',
+      'festival', 'carnival', 'award', 'awards', 'ribbon'
+    ],
+  },
+  {
+    id: 'characters-and-symbols',
+    label: 'Characters & Symbols',
+    labelVi: 'Ký tự & Biểu tượng',
+    icon: 'code',
+    keywords: [
+      'character', 'characters', 'symbol', 'symbols', 'letter', 'letters', 'number',
+      'numbers', 'alphabet', 'numeric', 'digit', 'digits', 'typography', 'font',
+      'hashtag', 'asterisk', 'ampersand', 'at-sign', 'percent', 'infinity', 'peace',
+      'recycle', 'trademark', 'copyright', 'registered', 'zodiac-sign'
+    ],
+  },
+  {
+    id: 'communication',
+    label: 'Communication',
+    labelVi: 'Giao tiếp & Liên lạc',
+    icon: 'message-square',
+    keywords: [
+      'communication', 'chat', 'message', 'messages', 'messaging', 'comment', 'comments',
+      'forum', 'mail', 'email', 'webmail', 'inbox', 'envelope', 'send', 'voip',
+      'phone', 'call', 'telephone', 'video-call', 'podcast', 'broadcast', 'megaphone',
+      'discord', 'slack', 'telegram', 'whatsapp', 'signal', 'wechat', 'messenger'
+    ],
+  },
+  {
+    id: 'culture',
+    label: 'Culture',
+    labelVi: 'Văn hóa & Tôn giáo',
+    icon: 'hexagon',
+    keywords: [
+      'culture', 'cultural', 'religion', 'religious', 'spiritual', 'astrology', 'horoscope',
+      'mythology', 'fantasy', 'dragon', 'unicorn', 'magic', 'wizard', 'tradition',
+      'heritage', 'history', 'ancient', 'tribal', 'zen', 'meditation', 'pray', 'prayer',
+      'cross', 'crescent', 'om', 'yin-yang', 'torii', 'menorah', 'buddha'
+    ],
+  },
+  {
+    id: 'design-and-editing',
+    label: 'Design & Editing',
+    labelVi: 'Thiết kế & Chỉnh sửa',
+    icon: 'pen-tool',
+    keywords: [
+      'design', 'editing', 'figma', 'adobe', 'photoshop', 'illustrator', 'indesign',
+      'sketch', 'canva', 'framer', 'webflow', 'blender', 'dribbble', 'behance',
+      'color', 'palette', 'swatch', 'gradient', 'brush', 'paintbrush', 'pen-tool',
+      'pencil', 'vector', 'bezier', 'crop', 'canvas', 'artboard', 'ruler', 'eraser',
+      'scissors', 'eyedropper', 'magic-wand', 'layer-mask', 'art', 'drawing', 'painting'
+    ],
+  },
+  {
+    id: 'fashion-and-beauty',
+    label: 'Fashion & Beauty',
+    labelVi: 'Thời trang & Làm đẹp',
+    icon: 'sparkles',
+    keywords: [
+      'fashion', 'beauty', 'clothing', 'clothes', 'apparel', 'shirt', 't-shirt', 'dress',
+      'skirt', 'pants', 'jeans', 'jacket', 'coat', 'suit', 'tie', 'hat', 'cap', 'headwear',
+      'shoe', 'shoes', 'sneaker', 'boot', 'heels', 'socks', 'glove', 'scarf', 'glasses',
+      'sunglasses', 'jewelry', 'ring', 'necklace', 'earring', 'diamond', 'crown', 'cosmetics',
+      'makeup', 'lipstick', 'perfume', 'skincare', 'salon', 'barber', 'haircut', 'comb', 'mirror'
+    ],
+  },
+  {
+    id: 'files-and-folders',
+    label: 'Files & Folders',
+    labelVi: 'Tệp tin & Thư mục',
+    icon: 'layers',
+    keywords: [
+      'file', 'files', 'folder', 'folders', 'directory', 'archive', 'zip', 'rar',
+      'pdf', 'doc', 'docx', 'xls', 'xlsx', 'csv', 'txt', 'json-file', 'xml-file',
+      'binder', 'clipboard', 'attachment', 'paperclip', 'copy-file', 'save-file'
+    ],
+  },
+  {
+    id: 'finance-and-stats',
+    label: 'Finance & Stats',
+    labelVi: 'Tài chính & Thống kê',
+    icon: 'activity',
+    keywords: [
+      'stats', 'statistics', 'analytics', 'chart', 'charts', 'bar-chart', 'pie-chart',
+      'line-chart', 'area-chart', 'donut-chart', 'graph', 'diagram', 'infographic',
+      'metric', 'kpi', 'report', 'reporting', 'dashboard', 'trend', 'growth', 'forecast'
+    ],
+  },
+  {
+    id: 'food-and-drink',
+    label: 'Food & Drink',
+    labelVi: 'Ẩm thực & Đồ uống',
+    icon: 'coffee',
+    keywords: [
+      'food', 'drink', 'drinks', 'beverage', 'coffee', 'tea', 'wine', 'beer', 'cocktail',
+      'juice', 'milk', 'water-bottle', 'restaurant', 'dining', 'cooking', 'chef',
+      'utensil', 'fork', 'knife', 'spoon', 'plate', 'bowl', 'cup', 'mug', 'glass',
+      'pizza', 'burger', 'sandwich', 'hotdog', 'taco', 'sushi', 'noodle', 'pasta',
+      'steak', 'meat', 'chicken', 'seafood', 'salad', 'soup', 'bread', 'croissant',
+      'bakery', 'cake', 'pie', 'cookie', 'donut', 'ice-cream', 'dessert', 'candy',
+      'chocolate', 'fruit', 'banana', 'strawberry', 'orange', 'lemon', 'grape',
+      'watermelon', 'cherry', 'avocado', 'vegetable', 'carrot', 'tomato', 'broccoli',
+      'corn', 'mushroom', 'egg', 'cheese', 'grocery'
+    ],
+  },
+  {
+    id: 'games-and-toys',
+    label: 'Games & Toys',
+    labelVi: 'Trò chơi & Giải trí',
+    icon: 'cpu',
+    keywords: [
+      'game', 'games', 'gaming', 'video-game', 'gamepad', 'joystick', 'controller',
+      'arcade', 'console', 'board-game', 'chess', 'dice', 'domino', 'puzzle', 'jigsaw',
+      'card-game', 'poker', 'casino', 'slot-machine', 'roulette', 'toy', 'toys',
+      'teddy-bear', 'doll', 'kite', 'lego', 'rubik', 'pinball', 'esports'
+    ],
+  },
+  {
+    id: 'health-and-medical',
+    label: 'Health & Medical',
+    labelVi: 'Y tế & Sức khỏe',
+    icon: 'activity',
+    keywords: [
+      'health', 'healthcare', 'medical', 'medicine', 'hospital', 'doctor', 'nurse',
+      'clinic', 'pharmacy', 'pill', 'pills', 'capsule', 'tablet-medicine', 'syringe',
+      'vaccine', 'injection', 'stethoscope', 'heart-rate', 'pulse', 'ecg', 'ambulance',
+      'first-aid', 'bandage', 'plaster', 'wheelchair', 'crutch', 'dental', 'dentist',
+      'tooth', 'teeth', 'ophthalmology', 'eye-care', 'anatomy', 'organ', 'brain',
+      'lungs', 'heart-organ', 'stomach', 'kidney', 'liver', 'bone', 'skull', 'skeleton',
+      'dna', 'gene', 'virus', 'bacteria', 'microscope-medical', 'wellness', 'therapy'
+    ],
+  },
+  {
+    id: 'household',
+    label: 'Household',
+    labelVi: 'Gia dụng & Nội thất',
+    icon: 'home',
+    keywords: [
+      'household', 'house', 'home', 'furniture', 'sofa', 'couch', 'armchair', 'chair',
+      'table-furniture', 'desk', 'bed', 'mattress', 'pillow', 'wardrobe', 'closet',
+      'cabinet', 'shelf', 'bookcase', 'lamp', 'chandelier', 'lightbulb', 'curtain',
+      'carpet', 'rug', 'interior', 'decor', 'vase', 'plant-pot', 'bathroom', 'bathtub',
+      'shower', 'toilet', 'sink', 'faucet', 'towel', 'soap', 'toothbrush', 'hygiene',
+      'cleaning', 'broom', 'mop', 'vacuum', 'bucket', 'sponge', 'detergent', 'laundry',
+      'washing-machine', 'iron', 'hanger', 'appliance', 'refrigerator', 'fridge',
+      'microwave', 'oven', 'stove', 'toaster', 'blender-kitchen', 'kettle', 'air-conditioner', 'fan'
+    ],
+  },
+  {
+    id: 'music-and-audio',
+    label: 'Music & Audio',
+    labelVi: 'Âm nhạc & Âm thanh',
+    icon: 'activity',
+    keywords: [
+      'music', 'musical', 'audio', 'sound', 'song', 'melody', 'note', 'clef', 'chord',
+      'instrument', 'instruments', 'guitar', 'piano', 'keyboard-music', 'violin', 'cello',
+      'drum', 'drums', 'trumpet', 'saxophone', 'flute', 'harp', 'accordion', 'ukulele',
+      'microphone', 'mic', 'speaker', 'subwoofer', 'amplifier', 'headphone', 'headphones',
+      'earbuds', 'earphones', 'equalizer', 'mixer', 'dj', 'turntable', 'vinyl', 'cassette',
+      'cd', 'radio', 'playlist', 'waveform', 'volume', 'mute'
+    ],
+  },
+  {
+    id: 'nature-and-weather',
+    label: 'Nature & Weather',
+    labelVi: 'Thiên nhiên & Thời tiết',
+    icon: 'sun',
+    keywords: [
+      'nature', 'natural', 'plant', 'plants', 'tree', 'trees', 'pine', 'palm', 'flower',
+      'flowers', 'rose', 'tulip', 'sunflower', 'lotus', 'leaf', 'leaves', 'clover',
+      'cactus', 'seed', 'sprout', 'garden', 'gardening', 'agriculture', 'farming',
+      'forest', 'jungle', 'mountain', 'mountains', 'volcano', 'island', 'beach', 'ocean',
+      'wave', 'river', 'waterfall', 'desert', 'camping', 'tent', 'campfire', 'bonfire',
+      'weather', 'sun', 'sunny', 'sunrise', 'sunset', 'moon', 'star-sky', 'cloud-weather',
+      'rain', 'rainy', 'raindrop', 'snow', 'snowflake', 'snowy', 'storm', 'thunder',
+      'lightning', 'wind', 'windy', 'tornado', 'hurricane', 'rainbow', 'umbrella',
+      'thermometer', 'temperature', 'ecology', 'environment', 'earth-nature', 'fire', 'water-drop'
+    ],
+  },
+  {
+    id: 'people',
+    label: 'People',
+    labelVi: 'Con người & Cảm xúc',
+    icon: 'sliders',
+    keywords: [
+      'people', 'person', 'human', 'user', 'users', 'profile', 'avatar', 'avatars',
+      'man', 'woman', 'boy', 'girl', 'child', 'children', 'kid', 'kids', 'baby',
+      'infant', 'family', 'parents', 'couple', 'team', 'group', 'crowd', 'community',
+      'emoji', 'emoticon', 'smile', 'smiley', 'happy', 'sad', 'angry', 'laugh', 'wink',
+      'gesture', 'gestures', 'hand', 'hands', 'thumbs-up', 'thumbs-down', 'clap',
+      'wave-hand', 'point', 'fist', 'profession', 'worker', 'engineer', 'teacher',
+      'student', 'scientist', 'artist', 'astronaut', 'pilot', 'firefighter', 'police'
+    ],
+  },
+  {
+    id: 'photo-and-video',
+    label: 'Photo & Video',
+    labelVi: 'Nhiếp ảnh & Video',
+    icon: 'pen-tool',
+    keywords: [
+      'photo', 'photograph', 'photography', 'camera', 'dslr', 'lens', 'aperture',
+      'shutter', 'flash', 'tripod', 'polaroid', 'image', 'picture', 'gallery', 'portrait',
+      'panorama', 'selfie', 'filter-photo', 'video', 'film', 'movie', 'cinema', 'clapperboard',
+      'camcorder', 'projector', 'reel', 'frame', 'streaming', 'record-video', 'premiere', 'after-effects'
+    ],
+  },
+  {
+    id: 'science-and-industry',
+    label: 'Science & Industry',
+    labelVi: 'Khoa học & Công nghiệp',
+    icon: 'cpu',
+    keywords: [
+      'science', 'scientific', 'laboratory', 'lab', 'chemistry', 'flask', 'beaker',
+      'test-tube', 'molecule', 'atom', 'atomic', 'nuclear', 'radiation', 'physics',
+      'magnet', 'gravity', 'prism', 'telescope', 'astronomy', 'space', 'planet',
+      'saturn', 'mars', 'galaxy', 'meteor', 'comet', 'satellite', 'ufo', 'alien',
+      'mathematics', 'math', 'calculator', 'formula', 'geometry', 'compass-math',
+      'abacus', 'industry', 'industrial', 'factory', 'manufacturing', 'construction',
+      'crane', 'excavator', 'bulldozer', 'forklift', 'hammer', 'wrench', 'screwdriver',
+      'drill', 'saw', 'pliers', 'toolbox', 'hard-hat', 'helmet-safety', 'brick',
+      'trowel', 'paint-roller', 'welding', 'oil', 'gas', 'mining', 'energy', 'solar-panel',
+      'wind-turbine', 'electricity', 'power-plant', 'high-voltage', 'plug', 'socket'
+    ],
+  },
+  {
+    id: 'security-and-military',
+    label: 'Security & Military',
+    labelVi: 'Bảo mật & An ninh',
+    icon: 'shield',
+    keywords: [
+      'security', 'cybersecurity', 'cyber-security', 'auth', 'authentication',
+      'authorization', 'lock', 'padlock', 'unlock', 'key', 'keys', 'keyhole', 'shield',
+      'privacy', 'vpn', 'firewall', 'antivirus', 'malware', 'spyware', 'phishing',
+      'encryption', 'password', 'passcode', 'pin-code', 'oauth', 'passkey', '2fa',
+      'mfa', 'otp', 'fingerprint', 'biometric', 'face-id', 'vault', 'safe', 'cctv',
+      'surveillance', 'alarm-security', 'siren', 'law', 'justice', 'court', 'gavel',
+      'scale-justice', 'handcuffs', 'prison', 'detective', 'crime', 'military', 'army',
+      'soldier', 'tank', 'missile', 'bomb', 'grenade', 'weapon', 'sword', 'bow', 'target-aim',
+      '1password', 'bitwarden', 'lastpass', 'okta', 'auth0'
+    ],
+  },
+  {
+    id: 'shopping',
+    label: 'Shopping',
+    labelVi: 'Mua sắm & Thương mại',
+    icon: 'wallet',
+    keywords: [
+      'shopping', 'shop', 'store', 'storefront', 'market', 'supermarket', 'mall',
+      'boutique', 'ecommerce', 'e-commerce', 'cart', 'shopping-cart', 'trolley',
+      'bag', 'shopping-bag', 'basket', 'checkout', 'cashier', 'pos', 'barcode',
+      'qrcode', 'price', 'price-tag', 'label-tag', 'discount', 'sale', 'coupon',
+      'voucher', 'promo', 'offer', 'loyalty', 'shipping', 'delivery', 'package',
+      'parcel', 'box', 'unboxing', 'shopify', 'woocommerce', 'magento'
+    ],
+  },
+  {
+    id: 'sports-and-fitness',
+    label: 'Sports & Fitness',
+    labelVi: 'Thể thao & Thể hình',
+    icon: 'activity',
+    keywords: [
+      'sport', 'sports', 'fitness', 'gym', 'workout', 'exercise', 'training',
+      'dumbbell', 'barbell', 'kettlebell', 'treadmill', 'yoga', 'pilates', 'stretching',
+      'running', 'jogging', 'marathon', 'sprint', 'athletics', 'swimming', 'diving',
+      'surfing', 'kayak', 'rowing', 'football', 'soccer', 'basketball', 'baseball',
+      'volleyball', 'tennis', 'badminton', 'table-tennis', 'ping-pong', 'golf',
+      'rugby', 'cricket', 'hockey', 'ice-skating', 'skiing', 'snowboard', 'boxing',
+      'martial-arts', 'karate', 'fencing', 'archery', 'bowling', 'billiards', 'pool-ball',
+      'skateboarding', 'climbing', 'olympics', 'trophy', 'medal', 'championship',
+      'podium', 'whistle', 'stopwatch-sport', 'scoreboard', 'stadium-sport'
+    ],
+  },
+  {
+    id: 'tech-and-devices',
+    label: 'Tech & Devices',
+    labelVi: 'Công nghệ & Thiết bị',
+    icon: 'cpu',
+    keywords: [
+      'tech', 'technology', 'hardware', 'device', 'devices', 'computer', 'pc',
+      'desktop', 'imac', 'laptop', 'macbook', 'notebook-pc', 'monitor', 'display',
+      'screen', 'tv', 'television', 'smart-tv', 'mobile', 'smartphone', 'iphone',
+      'android-phone', 'tablet', 'ipad', 'watch-smart', 'smartwatch', 'wearable',
+      'vr', 'headset-vr', 'cpu', 'processor', 'microchip', 'chip', 'semiconductor',
+      'gpu', 'motherboard', 'circuit', 'ram', 'memory-card', 'sd-card', 'ssd',
+      'hard-drive', 'hdd', 'usb', 'flash-drive', 'pendrive', 'cable', 'adapter',
+      'charger', 'battery', 'power-bank', 'keyboard', 'mouse', 'trackpad', 'webcam',
+      'printer', 'scanner', '3d-printer', 'router', 'modem', 'wifi', 'bluetooth',
+      'antenna', 'signal-network', 'iot', 'sensor', 'drone', 'robot', 'robotics'
+    ],
+  },
+  {
+    id: 'time-and-date',
+    label: 'Time & Date',
+    labelVi: 'Thời gian & Lịch',
+    icon: 'layers',
+    keywords: [
+      'time', 'date', 'clock', 'watch-time', 'wrist-watch', 'wall-clock', 'alarm',
+      'alarm-clock', 'timer', 'stopwatch', 'hourglass', 'sandglass', 'calendar',
+      'schedule', 'agenda', 'appointment', 'deadline', 'reminder', 'history-time',
+      'past', 'future', 'day', 'night', 'week', 'month', 'year', 'calendly'
+    ],
+  },
+  {
+    id: 'transport',
+    label: 'Transport',
+    labelVi: 'Giao thông & Di chuyển',
+    icon: 'compass',
+    keywords: [
+      'transport', 'transportation', 'travel', 'transit', 'vehicle', 'vehicles',
+      'car', 'auto', 'automobile', 'sedan', 'suv', 'taxi', 'cab', 'police-car',
+      'bus', 'van', 'minibus', 'truck', 'lorry', 'pickup', 'trailer', 'tractor',
+      'train', 'locomotive', 'subway', 'metro', 'tram', 'trolleybus', 'monorail',
+      'bicycle', 'bike', 'cycling', 'motorcycle', 'motorbike', 'scooter', 'vespa',
+      'skateboard', 'segway', 'airplane', 'plane', 'aircraft', 'jet', 'flight',
+      'airport', 'runway', 'helicopter', 'hot-air-balloon', 'airship', 'ship',
+      'boat', 'yacht', 'sailboat', 'ferry', 'cruise', 'submarine', 'anchor', 'harbor',
+      'rocket', 'spaceship', 'shuttle', 'map', 'location', 'pin', 'marker', 'compass',
+      'gps', 'navigation', 'route', 'direction', 'road', 'highway', 'street',
+      'intersection', 'roundabout', 'traffic', 'traffic-light', 'road-sign', 'stop-sign',
+      'parking', 'garage', 'gas-station', 'fuel', 'ev-charging', 'tire', 'wheel',
+      'steering-wheel', 'speedometer', 'luggage', 'suitcase', 'backpack-travel', 'passport', 'ticket-travel'
+    ],
+  },
+  {
+    id: 'work-and-education',
+    label: 'Work & Education',
+    labelVi: 'Công việc & Giáo dục',
+    icon: 'layers',
+    keywords: [
+      'work', 'office', 'workspace', 'productivity', 'job', 'career', 'resume', 'cv',
+      'briefcase', 'id-card', 'badge-office', 'meeting', 'conference', 'presentation',
+      'whiteboard', 'blackboard', 'project', 'task', 'todo', 'checklist', 'kanban',
+      'notes', 'sticky-note', 'notepad', 'notebook', 'stationery', 'pen', 'ballpoint',
+      'highlighter', 'marker-pen', 'stapler', 'tape', 'glue', 'calculator-office',
+      'education', 'school', 'university', 'college', 'academy', 'learning', 'study',
+      'e-learning', 'graduation', 'mortarboard', 'diploma', 'certificate', 'degree',
+      'book', 'books', 'library', 'bookmark-book', 'dictionary', 'encyclopedia',
+      'globe-school', 'backpack', 'exam', 'test', 'quiz', 'grade', 'lecture',
+      'notion', 'obsidian', 'linear', 'jira', 'confluence', 'trello', 'asana', 'clickup', 'airtable', 'miro'
+    ],
+  },
+  {
     id: 'ai',
     label: 'AI & Machine Learning',
+    labelVi: 'AI & Trí tuệ nhân tạo',
     icon: 'sparkles',
     keywords: [
       'ai', 'openai', 'anthropic', 'claude', 'gemini', 'gpt', 'chatgpt', 'llm',
@@ -23,6 +435,7 @@ const CATEGORY_DEFINITIONS = [
   {
     id: 'cloud',
     label: 'Cloud & Infrastructure',
+    labelVi: 'Cloud & Hạ tầng mạng',
     icon: 'cloud',
     keywords: [
       'aws', 'amazon-web-services', 'azure', 'gcp', 'google-cloud', 'kubernetes', 'k8s',
@@ -34,6 +447,7 @@ const CATEGORY_DEFINITIONS = [
   {
     id: 'devtools',
     label: 'Developer Tools & Code',
+    labelVi: 'Công cụ Lập trình & Code',
     icon: 'code',
     keywords: [
       'devtool', 'devtools', 'developer', 'github', 'gitlab', 'git', 'vscode', 'visual-studio',
@@ -46,158 +460,9 @@ const CATEGORY_DEFINITIONS = [
     ],
   },
   {
-    id: 'interface',
-    label: 'UI & Interface Controls',
-    icon: 'sliders',
-    keywords: [
-      'interface', 'ui', 'arrow', 'arrows', 'angle', 'align', 'menu', 'hamburger', 'home',
-      'search', 'user', 'profile', 'avatar', 'settings', 'gear', 'cog', 'sliders', 'check',
-      'checkmark', 'close', 'cancel', 'plus', 'minus', 'chevron', 'caret', 'cursor', 'pointer',
-      'button', 'toggle', 'switch', 'layout', 'grid', 'filter', 'funnel', 'sort', 'edit',
-      'trash', 'delete', 'remove', 'download', 'upload', 'export', 'import', 'link', 'unlink',
-      'external', 'eye', 'visibility', 'bell', 'notification', 'accessibility', 'loader',
-      'spinner', 'refresh', 'sync', 'zoom', 'maximize', 'minimize', 'fullscreen', 'sidebar'
-    ],
-  },
-  {
-    id: 'design',
-    label: 'Design & Creative',
-    icon: 'pen-tool',
-    keywords: [
-      'design', 'figma', 'adobe', 'photoshop', 'illustrator', 'indesign', 'after-effects',
-      'premiere', 'sketch', 'canva', 'framer', 'webflow', 'blender', 'dribbble', 'behance',
-      'color', 'palette', 'swatch', 'gradient', 'brush', 'paintbrush', 'pen-tool', 'pencil',
-      'vector', 'bezier', 'crop', 'canvas', 'artboard', 'aperture', 'camera', 'photography'
-    ],
-  },
-  {
-    id: 'security',
-    label: 'Security, Auth & Privacy',
-    icon: 'shield',
-    keywords: [
-      'security', 'cybersecurity', 'cyber-security', 'auth', 'authentication', 'authorization',
-      'lock', 'padlock', 'unlock', 'shield', 'privacy', 'vpn', 'firewall', 'antivirus',
-      'malware', 'spyware', 'phishing', 'encryption', 'password', 'passcode', 'pin-code',
-      'oauth', 'passkey', '2fa', 'mfa', 'otp', 'fingerprint', 'biometric', 'face-id',
-      '1password', 'bitwarden', 'lastpass', 'okta', 'auth0', 'keyhole', 'vault'
-    ],
-  },
-  {
-    id: 'finance',
-    label: 'Finance, Payment & Shopping',
-    icon: 'wallet',
-    keywords: [
-      'finance', 'financial', 'payment', 'stripe', 'paypal', 'visa', 'mastercard', 'amex',
-      'apple-pay', 'google-pay', 'alipay', 'klarna', 'wise', 'revolut', 'bank', 'banking',
-      'wallet', 'crypto', 'cryptocurrency', 'blockchain', 'bitcoin', 'btc', 'ethereum', 'eth',
-      'solana', 'binance', 'coinbase', 'metamask', 'coin', 'dollar', 'euro', 'yen', 'pound',
-      'currency', 'money', 'cash', 'credit-card', 'debit-card', 'invoice', 'receipt', 'tax',
-      'cart', 'shopping-cart', 'shopping-bag', 'basket', 'shop', 'shopping', 'ecommerce',
-      'e-commerce', 'store', 'storefront', 'shopify', 'woocommerce', 'magento', 'price-tag',
-      'discount', 'coupon', 'barcode', 'qrcode'
-    ],
-  },
-  {
-    id: 'social',
-    label: 'Social & Communication',
-    icon: 'message-square',
-    keywords: [
-      'social', 'discord', 'slack', 'telegram', 'whatsapp', 'signal', 'wechat', 'line-app',
-      'twitter', 'x-twitter', 'bluesky', 'mastodon', 'threads', 'facebook', 'messenger',
-      'instagram', 'youtube', 'tiktok', 'linkedin', 'reddit', 'pinterest', 'snapchat',
-      'chat', 'message', 'messages', 'messaging', 'comment', 'forum', 'mail', 'email',
-      'webmail', 'inbox', 'envelope', 'send', 'voip', 'video-call', 'podcast', 'broadcast'
-    ],
-  },
-  {
-    id: 'productivity',
-    label: 'Productivity & Workspace',
-    icon: 'layers',
-    keywords: [
-      'productivity', 'workspace', 'notion', 'obsidian', 'linear', 'jira', 'confluence',
-      'atlassian', 'trello', 'asana', 'monday', 'clickup', 'airtable', 'miro', 'calendly',
-      'calendar', 'schedule', 'clock', 'timer', 'stopwatch', 'alarm', 'document', 'docs',
-      'file', 'files', 'folder', 'directory', 'archive', 'binder', 'notebook', 'notes',
-      'todo', 'checklist', 'task', 'kanban', 'clipboard', 'chart', 'bar-chart', 'pie-chart',
-      'line-chart', 'analytics', 'dashboard', 'presentation', 'spreadsheet', 'table'
-    ],
-  },
-  {
-    id: 'hardware',
-    label: 'Hardware, OS & Devices',
-    icon: 'cpu',
-    keywords: [
-      'hardware', 'device', 'devices', 'apple', 'mac', 'macos', 'ios', 'iphone', 'ipad',
-      'airpods', 'android', 'windows', 'mobile', 'smartphone', 'tablet', 'laptop', 'macbook',
-      'desktop', 'imac', 'monitor', 'display', 'screen', 'tv', 'television', 'cpu', 'processor',
-      'microchip', 'chip', 'gpu', 'motherboard', 'ram', 'memory-card', 'sd-card', 'ssd',
-      'hard-drive', 'hdd', 'usb', 'flash-drive', 'nvidia', 'intel', 'amd', 'qualcomm', 'arm',
-      'raspberry-pi', 'arduino', 'sony', 'samsung', 'dell', 'lenovo', 'asus', 'logitech',
-      'bluetooth', 'wifi', 'router', 'modem', 'battery', 'charger', 'keyboard', 'mouse',
-      'gamepad', 'joystick', 'controller', 'headphone', 'headphones', 'earbuds', 'speaker',
-      'microphone', 'webcam', 'printer', 'scanner', 'iot', 'sensor', 'drone', 'watch', 'smartwatch'
-    ],
-  },
-  {
-    id: 'animals',
-    label: 'Animals, Nature & Weather',
-    icon: 'sun',
-    keywords: [
-      'animal', 'animals', 'dog', 'cat', 'bird', 'fish', 'insect', 'wildlife', 'pet', 'pets',
-      'paw', 'nature', 'plant', 'plants', 'tree', 'flower', 'leaf', 'garden', 'forest',
-      'mountain', 'landscape', 'weather', 'sun', 'moon', 'cloud-rain', 'rain', 'snow',
-      'storm', 'wind', 'tornado', 'umbrella', 'thermometer', 'ecology', 'environment'
-    ],
-  },
-  {
-    id: 'architecture',
-    label: 'Architecture, Places & Home',
-    icon: 'home',
-    keywords: [
-      'architecture', 'building', 'buildings', 'house', 'home', 'apartment', 'office-building',
-      'city', 'landmark', 'landmarks', 'castle', 'church', 'mosque', 'temple', 'bridge',
-      'tower', 'furniture', 'sofa', 'chair', 'bed', 'lamp', 'interior', 'kitchen-appliance',
-      'household', 'bathroom', 'cleaning', 'laundry', 'real-estate', 'property'
-    ],
-  },
-  {
-    id: 'food',
-    label: 'Food, Drink & Dining',
-    icon: 'coffee',
-    keywords: [
-      'food', 'drink', 'drinks', 'beverage', 'coffee', 'tea', 'wine', 'beer', 'cocktail',
-      'restaurant', 'dining', 'kitchen', 'cooking', 'chef', 'utensil', 'fork', 'knife',
-      'spoon', 'plate', 'pizza', 'burger', 'cake', 'dessert', 'candy', 'fruit', 'apple-fruit',
-      'banana', 'vegetable', 'meat', 'fish-food', 'bread', 'bakery', 'grocery'
-    ],
-  },
-  {
-    id: 'health',
-    label: 'Health, Sports & Games',
-    icon: 'activity',
-    keywords: [
-      'health', 'medical', 'medicine', 'hospital', 'doctor', 'nurse', 'clinic', 'pharmacy',
-      'pill', 'capsule', 'syringe', 'vaccine', 'stethoscope', 'heart-rate', 'ambulance',
-      'first-aid', 'dental', 'tooth', 'dna', 'virus', 'bacteria', 'fitness', 'sport',
-      'sports', 'gym', 'dumbbell', 'workout', 'running', 'swimming', 'football', 'soccer',
-      'basketball', 'tennis', 'golf', 'olympics', 'trophy', 'medal', 'chess', 'board-game', 'toy'
-    ],
-  },
-  {
-    id: 'transport',
-    label: 'Transport, Maps & Travel',
-    icon: 'compass',
-    keywords: [
-      'transport', 'transportation', 'travel', 'vehicle', 'vehicles', 'car', 'auto', 'bus',
-      'truck', 'train', 'subway', 'metro', 'tram', 'bicycle', 'bike', 'motorcycle', 'scooter',
-      'airplane', 'plane', 'flight', 'airport', 'helicopter', 'ship', 'boat', 'yacht',
-      'rocket', 'spaceship', 'map', 'location', 'pin', 'compass', 'gps', 'navigation',
-      'route', 'traffic', 'road', 'highway', 'luggage', 'suitcase', 'passport', 'ticket'
-    ],
-  },
-  {
     id: 'brand',
     label: 'Brand & Company Logos',
+    labelVi: 'Logo Thương hiệu',
     icon: 'hexagon',
     keywords: [
       'brand', 'brands', 'logo', 'logos', 'company', 'corporation', 'official',
@@ -206,27 +471,18 @@ const CATEGORY_DEFINITIONS = [
       'warner', 'hbo', 'paramount', 'universal', 'plex', 'imdb', 'rottentomatoes'
     ],
   },
-  {
-    id: 'animation',
-    label: 'Animated & Motion Icons',
-    icon: 'play-circle',
-    keywords: [
-      'animation', 'animated', 'motion', 'lordicon', 'lottie', 'meteocons', 'line-md', 'svg-spinners',
-      'spinners', 'spinner', 'loader', 'loading', 'loop', 'pulse', 'bounce',
-      'rotate', 'shuffle', 'wave', 'bars-scale', 'dots-scale', 'dots-rotate', 'ring-with-bg'
-    ],
-  },
 ];
 
 /**
- * Official 28 Lordicon Thematic Categories & their 108 Subcategories
+ * Official 28 Thematic Categories (+ Popular) & their 108 Subcategories
+ * Now 100% unified 1-to-1 with CATEGORY_DEFINITIONS (`appCategory: id`).
  */
 const LORDICON_CATEGORIES = [
   {
     id: 'popular',
     label: 'Popular',
     labelVi: 'Phổ biến',
-    appCategory: 'interface',
+    appCategory: 'popular',
     subcategories: ['popular', 'animation', 'loaders'],
   },
   {
@@ -243,91 +499,91 @@ const LORDICON_CATEGORIES = [
     id: 'architecture-and-places',
     label: 'Architecture & Places',
     labelVi: 'Kiến trúc & Địa điểm',
-    appCategory: 'architecture',
+    appCategory: 'architecture-and-places',
     subcategories: ['architecture-and-places', 'building-elements', 'buildings', 'homes-and-storage', 'landmarks', 'public-spaces', 'urban'],
   },
   {
     id: 'business-and-finance',
     label: 'Business & Finance',
     labelVi: 'Kinh doanh & Tài chính',
-    appCategory: 'finance',
+    appCategory: 'business-and-finance',
     subcategories: ['business-and-finance', 'banking', 'charts-and-analytics', 'crypto', 'money'],
   },
   {
     id: 'celebrations',
     label: 'Celebrations',
     labelVi: 'Lễ kỷ niệm & Sự kiện',
-    appCategory: 'social',
+    appCategory: 'celebrations',
     subcategories: ['celebrations', 'gift', 'holidays', 'party', 'wedding', 'awards'],
   },
   {
     id: 'characters-and-symbols',
     label: 'Characters & Symbols',
     labelVi: 'Ký tự & Biểu tượng',
-    appCategory: 'interface',
+    appCategory: 'characters-and-symbols',
     subcategories: ['characters-and-symbols', 'letters-and-numbers', 'symbols', 'logos'],
   },
   {
     id: 'communication',
     label: 'Communication',
     labelVi: 'Giao tiếp & Liên lạc',
-    appCategory: 'social',
+    appCategory: 'communication',
     subcategories: ['communication', 'mail', 'messages', 'phone-and-calls'],
   },
   {
     id: 'culture',
     label: 'Culture',
     labelVi: 'Văn hóa & Tôn giáo',
-    appCategory: 'social',
+    appCategory: 'culture',
     subcategories: ['culture', 'astrology', 'mythology-and-fantasy', 'religion'],
   },
   {
     id: 'design-and-editing',
     label: 'Design & Editing',
     labelVi: 'Thiết kế & Chỉnh sửa',
-    appCategory: 'design',
+    appCategory: 'design-and-editing',
     subcategories: ['design-and-editing', 'art-supplies', 'editing-tools', 'shapes', 'art', 'design'],
   },
   {
     id: 'fashion-and-beauty',
     label: 'Fashion & Beauty',
     labelVi: 'Thời trang & Làm đẹp',
-    appCategory: 'design',
+    appCategory: 'fashion-and-beauty',
     subcategories: ['fashion-and-beauty', 'beauty', 'clothing-and-accessories', 'hats-and-headwear', 'jewelry', 'shoes', 'looks'],
   },
   {
     id: 'files-and-folders',
     label: 'Files & Folders',
     labelVi: 'Tệp tin & Thư mục',
-    appCategory: 'productivity',
+    appCategory: 'files-and-folders',
     subcategories: ['files-and-folders', 'file-types', 'files', 'folders'],
   },
   {
     id: 'finance-and-stats',
     label: 'Finance & Stats',
     labelVi: 'Tài chính & Thống kê',
-    appCategory: 'finance',
+    appCategory: 'finance-and-stats',
     subcategories: ['finance-and-stats', 'charts'],
   },
   {
     id: 'food-and-drink',
     label: 'Food & Drink',
     labelVi: 'Ẩm thực & Đồ uống',
-    appCategory: 'food',
+    appCategory: 'food-and-drink',
     subcategories: ['food-and-drink', 'candies-and-desserts', 'desserts', 'drinks', 'fruits-and-vegetables', 'kitchen', 'meals', 'meat-and-fish'],
   },
   {
     id: 'games-and-toys',
     label: 'Games & Toys',
     labelVi: 'Trò chơi & Giải trí',
-    appCategory: 'health',
+    appCategory: 'games-and-toys',
     subcategories: ['games-and-toys', 'board-games', 'casino-and-gambling', 'chess', 'toys', 'video-games'],
   },
   {
     id: 'health-and-medical',
     label: 'Health & Medical',
     labelVi: 'Y tế & Sức khỏe',
-    appCategory: 'health',
+    appCategory: 'health-and-medical',
     subcategories: [
       'health-and-medical', 'ambulance', 'anatomy', 'dentistry', 'first-aid', 'hospital',
       'medical-equipment', 'medical-supplies', 'medicine', 'ophthalmology', 'wellness', 'body',
@@ -337,7 +593,7 @@ const LORDICON_CATEGORIES = [
     id: 'household',
     label: 'Household',
     labelVi: 'Gia dụng & Nội thất',
-    appCategory: 'architecture',
+    appCategory: 'household',
     subcategories: [
       'household', 'bathroom', 'bedroom', 'cleaning', 'decor', 'furniture', 'furniture-and-decor',
       'home-appliances', 'kitchen-and-appliances', 'hygiene', 'interior', 'lighting', 'tools',
@@ -354,14 +610,14 @@ const LORDICON_CATEGORIES = [
     id: 'music-and-audio',
     label: 'Music & Audio',
     labelVi: 'Âm nhạc & Âm thanh',
-    appCategory: 'hardware',
+    appCategory: 'music-and-audio',
     subcategories: ['music-and-audio', 'audio-equipment', 'instruments', 'music-symbols'],
   },
   {
     id: 'nature-and-weather',
     label: 'Nature & Weather',
     labelVi: 'Thiên nhiên & Thời tiết',
-    appCategory: 'animals',
+    appCategory: 'nature-and-weather',
     subcategories: [
       'nature-and-weather', 'agriculture', 'camping', 'disasters', 'ecology',
       'gardening', 'landscapes', 'natural-forces', 'plants', 'weather',
@@ -371,7 +627,7 @@ const LORDICON_CATEGORIES = [
     id: 'people',
     label: 'People',
     labelVi: 'Con người & Cảm xúc',
-    appCategory: 'social',
+    appCategory: 'people',
     subcategories: [
       'people', 'actions', 'avatars', 'childhood', 'emoji', 'family',
       'family-and-kids', 'gestures', 'professions',
@@ -381,35 +637,35 @@ const LORDICON_CATEGORIES = [
     id: 'photo-and-video',
     label: 'Photo & Video',
     labelVi: 'Nhiếp ảnh & Video',
-    appCategory: 'design',
+    appCategory: 'photo-and-video',
     subcategories: ['photo-and-video', 'photography', 'video-and-film'],
   },
   {
     id: 'science-and-industry',
     label: 'Science & Industry',
     labelVi: 'Khoa học & Công nghiệp',
-    appCategory: 'hardware',
+    appCategory: 'science-and-industry',
     subcategories: ['science-and-industry', 'astronomy-and-space', 'chemistry', 'construction', 'electricity', 'industry', 'mathematics', 'physics', 'science'],
   },
   {
     id: 'security-and-military',
     label: 'Security & Military',
     labelVi: 'Bảo mật & An ninh',
-    appCategory: 'security',
+    appCategory: 'security-and-military',
     subcategories: ['security-and-military', 'law-and-crime', 'locks-and-shields', 'military', 'security', 'weapons'],
   },
   {
     id: 'shopping',
     label: 'Shopping',
     labelVi: 'Mua sắm & Thương mại',
-    appCategory: 'finance',
+    appCategory: 'shopping',
     subcategories: ['shopping', 'cart-and-bags', 'payments', 'sales-and-discounts', 'shipping'],
   },
   {
     id: 'sports-and-fitness',
     label: 'Sports & Fitness',
     labelVi: 'Thể thao & Thể hình',
-    appCategory: 'health',
+    appCategory: 'sports-and-fitness',
     subcategories: [
       'sports-and-fitness', 'fitness', 'fitness-and-gym', 'olympics', 'outdoor-sports',
       'sports', 'sports-equipment', 'swimming-and-diving', 'team-sports',
@@ -419,7 +675,7 @@ const LORDICON_CATEGORIES = [
     id: 'tech-and-devices',
     label: 'Tech & Devices',
     labelVi: 'Công nghệ & Thiết bị',
-    appCategory: 'hardware',
+    appCategory: 'tech-and-devices',
     subcategories: [
       'tech-and-devices', 'cloud', 'computers-and-peripherals', 'mobile',
       'network', 'networking', 'programming-and-ai', 'television',
@@ -429,7 +685,7 @@ const LORDICON_CATEGORIES = [
     id: 'time-and-date',
     label: 'Time & Date',
     labelVi: 'Thời gian & Lịch',
-    appCategory: 'productivity',
+    appCategory: 'time-and-date',
     subcategories: ['time-and-date', 'calendar', 'clocks'],
   },
   {
@@ -446,7 +702,7 @@ const LORDICON_CATEGORIES = [
     id: 'work-and-education',
     label: 'Work & Education',
     labelVi: 'Công việc & Giáo dục',
-    appCategory: 'productivity',
+    appCategory: 'work-and-education',
     subcategories: ['work-and-education', 'books', 'education', 'stationery', 'work'],
   },
 ];
@@ -466,7 +722,7 @@ function resolveLordiconCategory(rawCategory = '', slug = '', title = '') {
     return {
       lordiconCategory: lCat.id,
       lordiconCategoryLabel: lCat.label,
-      appCategory: norm === 'programming-and-ai' ? 'ai' : lCat.appCategory,
+      appCategory: lCat.id,
     };
   }
   return {
@@ -476,20 +732,21 @@ function resolveLordiconCategory(rawCategory = '', slug = '', title = '') {
   };
 }
 
-// Explicit mapping for rawCategory values from theSVG.org, SVGRepo, AllSVGIcons, and Lordicon
+// Explicit mapping for rawCategory values from all sources into unified un-merged categories
 const RAW_CATEGORY_MAP = {
-  animation: 'animation',
-  animated: 'animation',
-  motion: 'animation',
-  lordicon: 'animation',
-  'animated icons': 'animation',
-  spinners: 'animation',
-  loaders: 'animation',
-  meteocons: 'animation',
-  'line-md': 'animation',
-  'svg-spinners': 'animation',
+  popular: 'popular',
+  animation: 'popular',
+  animated: 'popular',
+  motion: 'popular',
+  lordicon: 'popular',
+  'animated icons': 'popular',
+  spinners: 'interface',
+  loaders: 'interface',
+  meteocons: 'nature-and-weather',
+  'line-md': 'interface',
+  'svg-spinners': 'interface',
 
-  // Animals, Nature & Weather
+  // Animals
   animals: 'animals',
   'birds-and-insects': 'animals',
   'fish-and-aquatic': 'animals',
@@ -500,81 +757,94 @@ const RAW_CATEGORY_MAP = {
   'sea-life': 'animals',
   'farm-animals': 'animals',
   wildlife: 'animals',
-  'nature-and-weather': 'animals',
-  agriculture: 'animals',
-  camping: 'animals',
-  disasters: 'animals',
-  ecology: 'animals',
-  gardening: 'animals',
-  landscapes: 'animals',
-  'natural-forces': 'animals',
-  plants: 'animals',
-  weather: 'animals',
 
-  // Architecture, Places & Household
-  'architecture-and-places': 'architecture',
-  'building-elements': 'architecture',
-  buildings: 'architecture',
-  'homes-and-storage': 'architecture',
-  landmarks: 'architecture',
-  'public-spaces': 'architecture',
-  urban: 'architecture',
-  household: 'architecture',
-  bathroom: 'architecture',
-  bedroom: 'architecture',
-  cleaning: 'architecture',
-  decor: 'architecture',
-  furniture: 'architecture',
-  'furniture-and-decor': 'architecture',
-  'home-appliances': 'architecture',
-  'kitchen-and-appliances': 'architecture',
-  hygiene: 'architecture',
-  interior: 'architecture',
-  lighting: 'architecture',
-  tools: 'architecture',
+  // Nature & Weather (separated from Animals!)
+  'nature-and-weather': 'nature-and-weather',
+  agriculture: 'nature-and-weather',
+  camping: 'nature-and-weather',
+  disasters: 'nature-and-weather',
+  ecology: 'nature-and-weather',
+  gardening: 'nature-and-weather',
+  landscapes: 'nature-and-weather',
+  'natural-forces': 'nature-and-weather',
+  plants: 'nature-and-weather',
+  weather: 'nature-and-weather',
+  nature: 'nature-and-weather',
+
+  // Architecture & Places (separated from Household!)
+  architecture: 'architecture-and-places',
+  'architecture-and-places': 'architecture-and-places',
+  'building-elements': 'architecture-and-places',
+  buildings: 'architecture-and-places',
+  'homes-and-storage': 'architecture-and-places',
+  landmarks: 'architecture-and-places',
+  'public-spaces': 'architecture-and-places',
+  urban: 'architecture-and-places',
+
+  // Household (separated from Architecture!)
+  household: 'household',
+  bathroom: 'household',
+  bedroom: 'household',
+  cleaning: 'household',
+  decor: 'household',
+  furniture: 'household',
+  'furniture-and-decor': 'household',
+  'home-appliances': 'household',
+  'kitchen-and-appliances': 'household',
+  hygiene: 'household',
+  interior: 'household',
+  lighting: 'household',
+  tools: 'household',
 
   // Food & Drink
-  food: 'food',
-  'food-and-drink': 'food',
-  'food platform': 'food',
-  'candies-and-desserts': 'food',
-  desserts: 'food',
-  drinks: 'food',
-  'fruits-and-vegetables': 'food',
-  kitchen: 'food',
-  meals: 'food',
-  'meat-and-fish': 'food',
+  food: 'food-and-drink',
+  'food-and-drink': 'food-and-drink',
+  'food platform': 'food-and-drink',
+  'candies-and-desserts': 'food-and-drink',
+  desserts: 'food-and-drink',
+  drinks: 'food-and-drink',
+  'fruits-and-vegetables': 'food-and-drink',
+  kitchen: 'food-and-drink',
+  meals: 'food-and-drink',
+  'meat-and-fish': 'food-and-drink',
 
-  // Health, Medical, Sports & Games
-  'health-and-medical': 'health',
-  ambulance: 'health',
-  anatomy: 'health',
-  dentistry: 'health',
-  'first-aid': 'health',
-  hospital: 'health',
-  'medical-equipment': 'health',
-  'medical-supplies': 'health',
-  medicine: 'health',
-  ophthalmology: 'health',
-  wellness: 'health',
-  body: 'health',
-  'sports-and-fitness': 'health',
-  fitness: 'health',
-  'fitness-and-gym': 'health',
-  olympics: 'health',
-  'outdoor-sports': 'health',
-  sports: 'health',
-  'sports-equipment': 'health',
-  'swimming-and-diving': 'health',
-  'team-sports': 'health',
-  'games-and-toys': 'health',
-  'board-games': 'health',
-  'casino-and-gambling': 'health',
-  chess: 'health',
-  toys: 'health',
-  'video-games': 'health',
+  // Health & Medical (separated from Sports & Games!)
+  health: 'health-and-medical',
+  'health-and-medical': 'health-and-medical',
+  ambulance: 'health-and-medical',
+  anatomy: 'health-and-medical',
+  dentistry: 'health-and-medical',
+  'first-aid': 'health-and-medical',
+  hospital: 'health-and-medical',
+  'medical-equipment': 'health-and-medical',
+  'medical-supplies': 'health-and-medical',
+  medicine: 'health-and-medical',
+  ophthalmology: 'health-and-medical',
+  wellness: 'health-and-medical',
+  body: 'health-and-medical',
 
-  // Transport, Maps & Travel
+  // Sports & Fitness (separated from Health & Games!)
+  'sports-and-fitness': 'sports-and-fitness',
+  fitness: 'sports-and-fitness',
+  'fitness-and-gym': 'sports-and-fitness',
+  olympics: 'sports-and-fitness',
+  'outdoor-sports': 'sports-and-fitness',
+  sports: 'sports-and-fitness',
+  'sports-equipment': 'sports-and-fitness',
+  'swimming-and-diving': 'sports-and-fitness',
+  'team-sports': 'sports-and-fitness',
+
+  // Games & Toys (separated from Health & Sports!)
+  'games-and-toys': 'games-and-toys',
+  'board-games': 'games-and-toys',
+  'casino-and-gambling': 'games-and-toys',
+  chess: 'games-and-toys',
+  toys: 'games-and-toys',
+  'video-games': 'games-and-toys',
+  gaming: 'games-and-toys',
+  'gaming entertainment': 'games-and-toys',
+
+  // Transport
   transport: 'transport',
   'air-and-sea': 'transport',
   bicycles: 'transport',
@@ -589,6 +859,7 @@ const RAW_CATEGORY_MAP = {
   'automotive platform': 'transport',
   'aviation platform': 'transport',
 
+  // AI
   ai: 'ai',
   'ai software': 'ai',
   'google ai': 'ai',
@@ -596,6 +867,7 @@ const RAW_CATEGORY_MAP = {
   'artificial intelligence': 'ai',
   'programming-and-ai': 'ai',
 
+  // Cloud
   cloud: 'cloud',
   'software cloud': 'cloud',
   compute: 'cloud',
@@ -608,7 +880,9 @@ const RAW_CATEGORY_MAP = {
   network: 'cloud',
   migration: 'cloud',
 
+  // DevTools
   devtool: 'devtools',
+  devtools: 'devtools',
   'developer tools': 'devtools',
   'devtool community': 'devtools',
   'devtool software': 'devtools',
@@ -629,139 +903,166 @@ const RAW_CATEGORY_MAP = {
   'cms software': 'devtools',
   integration: 'devtools',
 
-  security: 'security',
-  identity: 'security',
-  'iot security': 'security',
-  cybersecurity: 'security',
-  privacy: 'security',
-  'security-and-military': 'security',
-  'locks-and-shields': 'security',
-  'law-and-crime': 'security',
-  military: 'security',
-  weapons: 'security',
+  // Security & Military
+  security: 'security-and-military',
+  identity: 'security-and-military',
+  'iot security': 'security-and-military',
+  cybersecurity: 'security-and-military',
+  privacy: 'security-and-military',
+  'security-and-military': 'security-and-military',
+  'locks-and-shields': 'security-and-military',
+  'law-and-crime': 'security-and-military',
+  military: 'security-and-military',
+  weapons: 'security-and-military',
 
-  finance: 'finance',
-  'crypto finance': 'finance',
-  'finance software': 'finance',
-  'payment finance': 'finance',
-  blockchain: 'finance',
-  crypto: 'finance',
-  'finance-and-stats': 'finance',
-  'business-and-finance': 'finance',
-  banking: 'finance',
-  money: 'finance',
-  'shopping platform': 'finance',
-  shopping: 'finance',
-  'cart-and-bags': 'finance',
-  payments: 'finance',
-  'sales-and-discounts': 'finance',
-  shipping: 'finance',
-  'e-commerce': 'finance',
-  ecommerce: 'finance',
+  // Business & Finance (separated from Shopping & Stats!)
+  finance: 'business-and-finance',
+  'crypto finance': 'business-and-finance',
+  'finance software': 'business-and-finance',
+  'payment finance': 'business-and-finance',
+  blockchain: 'business-and-finance',
+  crypto: 'business-and-finance',
+  'business-and-finance': 'business-and-finance',
+  business: 'business-and-finance',
+  banking: 'business-and-finance',
+  money: 'business-and-finance',
 
-  design: 'design',
-  'design software': 'design',
-  'design-and-editing': 'design',
-  'art-supplies': 'design',
-  'editing-tools': 'design',
-  shapes: 'design',
-  art: 'design',
-  'photo-and-video': 'design',
-  photography: 'design',
-  'video-and-film': 'design',
-  'fashion-and-beauty': 'design',
-  beauty: 'design',
-  'clothing-and-accessories': 'design',
-  'hats-and-headwear': 'design',
-  jewelry: 'design',
-  shoes: 'design',
-  looks: 'design',
+  // Finance & Stats
+  'finance-and-stats': 'finance-and-stats',
+  charts: 'finance-and-stats',
+  'charts-and-analytics': 'finance-and-stats',
+  analytics: 'finance-and-stats',
 
-  social: 'social',
-  'social platform': 'social',
-  email: 'social',
-  'web email': 'social',
-  communication: 'social',
-  mail: 'social',
-  messages: 'social',
-  'phone-and-calls': 'social',
-  people: 'social',
-  avatars: 'social',
-  childhood: 'social',
-  emoji: 'social',
-  family: 'social',
-  'family-and-kids': 'social',
-  gestures: 'social',
-  actions: 'social',
-  professions: 'social',
-  celebrations: 'social',
-  awards: 'social',
-  party: 'social',
-  gift: 'social',
-  holidays: 'social',
-  wedding: 'social',
-  culture: 'social',
-  astrology: 'social',
-  'mythology-and-fantasy': 'social',
-  religion: 'social',
+  // Shopping (separated from Finance!)
+  'shopping platform': 'shopping',
+  shopping: 'shopping',
+  'cart-and-bags': 'shopping',
+  payments: 'shopping',
+  'sales-and-discounts': 'shopping',
+  shipping: 'shopping',
+  'e-commerce': 'shopping',
+  ecommerce: 'shopping',
 
-  analytics: 'productivity',
-  management: 'productivity',
-  business: 'productivity',
-  education: 'productivity',
-  productivity: 'productivity',
-  services: 'productivity',
-  'files-and-folders': 'productivity',
-  files: 'productivity',
-  'file-types': 'productivity',
-  folders: 'productivity',
-  'time-and-date': 'productivity',
-  calendar: 'productivity',
-  clocks: 'productivity',
-  'work-and-education': 'productivity',
-  books: 'productivity',
-  stationery: 'productivity',
-  work: 'productivity',
-  charts: 'productivity',
-  'charts-and-analytics': 'productivity',
+  // Design & Editing (separated from Photo/Video & Fashion!)
+  design: 'design-and-editing',
+  'design software': 'design-and-editing',
+  'design-and-editing': 'design-and-editing',
+  'art-supplies': 'design-and-editing',
+  'editing-tools': 'design-and-editing',
+  shapes: 'design-and-editing',
+  art: 'design-and-editing',
 
-  hardware: 'hardware',
-  'hardware software': 'hardware',
-  iot: 'hardware',
-  'tech-and-devices': 'hardware',
-  'computers-and-peripherals': 'hardware',
-  mobile: 'hardware',
-  television: 'hardware',
-  'music-and-audio': 'hardware',
-  'audio-equipment': 'hardware',
-  instruments: 'hardware',
-  'music-symbols': 'hardware',
-  'science-and-industry': 'hardware',
-  'astronomy-and-space': 'hardware',
-  chemistry: 'hardware',
-  construction: 'hardware',
-  electricity: 'hardware',
-  industry: 'hardware',
-  mathematics: 'hardware',
-  physics: 'hardware',
-  science: 'hardware',
+  // Photo & Video (separated from Design!)
+  'photo-and-video': 'photo-and-video',
+  photography: 'photo-and-video',
+  'video-and-film': 'photo-and-video',
 
+  // Fashion & Beauty (separated from Design!)
+  'fashion-and-beauty': 'fashion-and-beauty',
+  beauty: 'fashion-and-beauty',
+  'clothing-and-accessories': 'fashion-and-beauty',
+  'hats-and-headwear': 'fashion-and-beauty',
+  jewelry: 'fashion-and-beauty',
+  shoes: 'fashion-and-beauty',
+  looks: 'fashion-and-beauty',
+
+  // Communication (separated from People, Celebrations, Culture!)
+  social: 'communication',
+  'social platform': 'communication',
+  email: 'communication',
+  'web email': 'communication',
+  communication: 'communication',
+  mail: 'communication',
+  messages: 'communication',
+  'phone-and-calls': 'communication',
+
+  // People
+  people: 'people',
+  avatars: 'people',
+  childhood: 'people',
+  emoji: 'people',
+  family: 'people',
+  'family-and-kids': 'people',
+  gestures: 'people',
+  actions: 'people',
+  professions: 'people',
+
+  // Celebrations
+  celebrations: 'celebrations',
+  awards: 'celebrations',
+  party: 'celebrations',
+  gift: 'celebrations',
+  holidays: 'celebrations',
+  wedding: 'celebrations',
+
+  // Culture
+  culture: 'culture',
+  astrology: 'culture',
+  'mythology-and-fantasy': 'culture',
+  religion: 'culture',
+
+  // Files & Folders (separated from Time & Work!)
+  'files-and-folders': 'files-and-folders',
+  files: 'files-and-folders',
+  'file-types': 'files-and-folders',
+  folders: 'files-and-folders',
+
+  // Time & Date
+  'time-and-date': 'time-and-date',
+  calendar: 'time-and-date',
+  clocks: 'time-and-date',
+
+  // Work & Education
+  productivity: 'work-and-education',
+  management: 'work-and-education',
+  education: 'work-and-education',
+  services: 'work-and-education',
+  'work-and-education': 'work-and-education',
+  books: 'work-and-education',
+  stationery: 'work-and-education',
+  work: 'work-and-education',
+
+  // Tech & Devices (separated from Music & Science!)
+  hardware: 'tech-and-devices',
+  'hardware software': 'tech-and-devices',
+  iot: 'tech-and-devices',
+  'tech-and-devices': 'tech-and-devices',
+  'computers-and-peripherals': 'tech-and-devices',
+  mobile: 'tech-and-devices',
+  television: 'tech-and-devices',
+
+  // Music & Audio
+  'music-and-audio': 'music-and-audio',
+  'audio-equipment': 'music-and-audio',
+  instruments: 'music-and-audio',
+  'music-symbols': 'music-and-audio',
+
+  // Science & Industry
+  'science-and-industry': 'science-and-industry',
+  'astronomy-and-space': 'science-and-industry',
+  chemistry: 'science-and-industry',
+  construction: 'science-and-industry',
+  electricity: 'science-and-industry',
+  industry: 'science-and-industry',
+  mathematics: 'science-and-industry',
+  physics: 'science-and-industry',
+  science: 'science-and-industry',
+
+  // Interface & Characters
   interface: 'interface',
-  popular: 'interface',
   alerts: 'interface',
   arrows: 'interface',
-  symbols: 'interface',
-  'characters-and-symbols': 'interface',
-  'letters-and-numbers': 'interface',
+  symbols: 'characters-and-symbols',
+  'characters-and-symbols': 'characters-and-symbols',
+  'letters-and-numbers': 'characters-and-symbols',
 
+  // Brand
   brand: 'brand',
   logos: 'brand',
   entertainment: 'brand',
   'entertainment platform': 'brand',
   media: 'brand',
   'media entertainment': 'brand',
-  gaming: 'brand',
-  'gaming entertainment': 'brand',
 };
 
 // Pre-compile word-boundary regexes per category for fast classification across 224k+ icons
@@ -925,17 +1226,20 @@ function classifyIcon({
   let matchedCategory = null;
   let bestScore = 0;
 
-  if (isPureAnimatedPack && !isLordicon) {
-    matchedCategory = 'animation';
+  if (isLordicon) {
+    matchedCategory = resolveLordiconCategory(normalizedRawCat, slug, title).appCategory;
   } else {
     for (const matcher of COMPILED_CATEGORY_MATCHERS) {
+      if (matcher.id === 'popular') {
+        continue;
+      }
       if (matcher.id === 'ai' && isNonAiContext && mappedFromRaw !== 'ai') {
         continue;
       }
 
       let score = 0;
       if (mappedFromRaw === matcher.id) {
-        score += isLordicon && normalizedRawCat !== 'popular' ? 24 : 12;
+        score += 12;
       }
 
       for (const regex of matcher.regexes) {
@@ -979,7 +1283,7 @@ function classifyIcon({
 
   // 3. Determine Icon Type
   let iconType = 'ui-icon';
-  if (isPureAnimatedPack || isLordicon || matchedCategory === 'animation') {
+  if (isPureAnimatedPack || isLordicon) {
     iconType = 'animated';
   } else if (/\b(aws|azure|gcp|google-cloud|kubernetes|k8s|architecture)\b/i.test(`${collectionSlug} ${normalizedRawCat}`)) {
     iconType = 'architecture';
