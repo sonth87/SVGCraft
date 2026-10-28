@@ -448,9 +448,39 @@ class StateManager {
   }
 
   resolveCollectionSite(collectionSlug) {
+    if (!this._collectionSiteCache) {
+      this._collectionSiteCache = new Map();
+    }
+    if (this._collectionSiteCache.has(collectionSlug)) {
+      return this._collectionSiteCache.get(collectionSlug);
+    }
+
+    // 1. Fast O(1) lookup if catalog snapshot is already in memory
+    if (this._catalogSnapshot && this._catalogSnapshot.colSiteMap) {
+      const site = this._catalogSnapshot.colSiteMap.get(collectionSlug) || null;
+      if (site) {
+        this._collectionSiteCache.set(collectionSlug, site);
+        return site;
+      }
+    }
+
+    // 2. Fast local directory check (3 stat/exists checks instead of loading 225k icons)
+    const safeSlug = String(collectionSlug).replace(/[^a-zA-Z0-9-_]/g, '_');
+    for (const siteId of ['allsvgicons', 'thesvg', 'svgrepo']) {
+      if (runtimeFs['existsSync'](path.join(OUTPUT_DIR, siteId, safeSlug))) {
+        this._collectionSiteCache.set(collectionSlug, siteId);
+        return siteId;
+      }
+    }
+
+    // 3. Fallback to compact index if loaded
     const { collections } = this.loadAllEnrichedIcons();
     const found = collections.find((c) => c.slug === collectionSlug);
-    return found ? found.site : null;
+    const resolved = found ? found.site : null;
+    if (resolved) {
+      this._collectionSiteCache.set(collectionSlug, resolved);
+    }
+    return resolved;
   }
 
   getDefaultState() {
@@ -466,6 +496,15 @@ class StateManager {
           lastUpdatedAt: null,
         },
         thesvg: {
+          currentCategory: 'all',
+          currentListPage: 1,
+          completedCollections: [],
+          collectionProgress: {},
+          totalCollectionsCrawled: 0,
+          totalIconsDownloaded: 0,
+          lastUpdatedAt: null,
+        },
+        allsvgicons: {
           currentCategory: 'all',
           currentListPage: 1,
           completedCollections: [],
@@ -645,13 +684,6 @@ class StateManager {
 
     this._activeCollectionMem = { key, meta };
 
-    const iconTags = Array.from(
-      new Set([
-        ...(iconData.tags || []),
-        ...extractTagsFromText(iconData.slug, iconData.title, iconData.rawCategory, collectionSlug),
-      ])
-    );
-
     const classification = classifyIcon({
       siteId,
       collectionSlug,
@@ -660,7 +692,22 @@ class StateManager {
       title: iconData.title || iconData.slug || '',
       slug: iconData.slug || '',
       detectedStyle: dimensions.detectedStyle,
+      hasAnimation: dimensions.hasAnimation,
     });
+
+    const isAnimated =
+      dimensions.hasAnimation ||
+      classification.category === 'animation' ||
+      classification.iconType === 'animated' ||
+      siteId === 'allsvgicons';
+
+    const iconTags = Array.from(
+      new Set([
+        ...(isAnimated ? ['animation', 'animated'] : []),
+        ...(iconData.tags || []),
+        ...extractTagsFromText(iconData.slug, iconData.title, iconData.rawCategory, collectionSlug),
+      ])
+    );
 
     const iconRecord = {
       id: String(iconData.id || iconData.slug || ''),
@@ -682,7 +729,10 @@ class StateManager {
       styleType: iconData.styleType || classification.styleType,
       iconType: iconData.iconType || classification.iconType,
       license: iconData.license || meta.collection?.license || 'MIT / CC0',
-      author: iconData.author || meta.collection?.author || (siteId === 'thesvg' ? 'theSVG' : 'SVG Repo'),
+      author:
+        iconData.author ||
+        meta.collection?.author ||
+        (siteId === 'thesvg' ? 'theSVG' : siteId === 'allsvgicons' ? 'All SVG Icons' : 'SVG Repo'),
       tags: iconTags,
       downloadedAt: new Date().toISOString(),
     };
@@ -717,23 +767,30 @@ class StateManager {
     let styleType = icon.styleType;
     let iconType = icon.iconType;
 
-    if (!category || !styleType || !iconType) {
+    const colSlug = collection?.slug || '';
+    const colName = collection?.name || colSlug;
+
+    if (!category || !styleType || !iconType || siteId === 'allsvgicons') {
       const classification = classifyIcon({
         siteId,
-        collectionSlug: collection?.slug || '',
-        collectionName: collection?.name || '',
+        collectionSlug: colSlug,
+        collectionName: colName,
         rawCategory: icon.rawCategory || collection?.category || '',
         title: icon.title || icon.slug || '',
         slug: icon.slug || '',
         detectedStyle: icon.styleType || 'filled',
+        hasAnimation: siteId === 'allsvgicons' || icon.category === 'animation' || icon.iconType === 'animated',
       });
       category = category || classification.category;
       styleType = styleType || classification.styleType;
       iconType = iconType || classification.iconType;
     }
 
-    const colSlug = collection?.slug || '';
-    const colName = collection?.name || colSlug;
+    const baseTags = Array.isArray(icon.tags) ? icon.tags : [];
+    const tags =
+      category === 'animation' || iconType === 'animated' || siteId === 'allsvgicons'
+        ? Array.from(new Set(['animation', 'animated', ...baseTags]))
+        : baseTags;
 
     return {
       id: icon.id,
@@ -749,7 +806,7 @@ class StateManager {
       iconType,
       author: icon.author,
       license: icon.license,
-      tags: icon.tags || [],
+      tags,
       downloadedAt: icon.downloadedAt,
       _ts: icon.downloadedAt ? Date.parse(icon.downloadedAt) || 0 : 0,
       site: siteId,
@@ -891,7 +948,7 @@ class StateManager {
   }
 
   /**
-   * Hydrate catalog from compressed data/catalog-index.json.gz (used on Vercel / cloud deployment where output/ is stored on R2)
+   * Hydrate catalog from compressed data/catalog-index.json.gz (used both on Vercel and locally for instant ~120ms cold start)
    */
   _loadFromCompactIndex() {
     if (!fs.existsSync(CATALOG_INDEX_GZ_FILE)) {
@@ -902,6 +959,7 @@ class StateManager {
     const r2Key = process.env.R2_PUBLIC_URL || '';
     const signature = `gz:${stat.mtimeMs}:${stat.size}:${r2Key}`;
     if (this._catalogSnapshot && this._catalogSnapshot.signature === signature) {
+      this._catalogSnapshot.lastCheckedAt = Date.now();
       return {
         allIcons: this._catalogSnapshot.allIcons,
         collections: this._catalogSnapshot.collections,
@@ -912,6 +970,7 @@ class StateManager {
     const parsed = JSON.parse(zlib.gunzipSync(rawGz).toString('utf8'));
 
     const colMap = new Map();
+    const colSiteMap = new Map();
     const collections = (parsed.collections || []).map((row) => {
       const [site, slug, name, author, license, count] = row;
       const colObj = {
@@ -924,12 +983,15 @@ class StateManager {
         totalIcons: count || 0,
       };
       colMap.set(`${site}:${slug}`, colObj);
+      if (!colSiteMap.has(slug)) {
+        colSiteMap.set(slug, site);
+      }
       return colObj;
     });
 
     const allIcons = (parsed.icons || []).map((row, idx) => {
       const [siteCode, colSlug, id, slug, title, category, styleType, iconType, gridSize, varKeys] = row;
-      const siteId = siteCode === 1 ? 'thesvg' : 'svgrepo';
+      const siteId = siteCode === 2 ? 'allsvgicons' : siteCode === 1 ? 'thesvg' : 'svgrepo';
       const colObj = colMap.get(`${siteId}:${colSlug}`);
       const safeIconSlug = String(slug || 'icon').replace(/[^a-zA-Z0-9-_]/g, '-');
       const fileName = id ? `${safeIconSlug}-${id}.svg` : `${safeIconSlug}.svg`;
@@ -944,6 +1006,11 @@ class StateManager {
         }
       }
 
+      const resolvedCategory = category || (siteId === 'allsvgicons' ? 'animation' : 'interface');
+      const resolvedIconType = iconType || (resolvedCategory === 'animation' ? 'animated' : 'ui-icon');
+      const isAnim =
+        resolvedCategory === 'animation' || resolvedIconType === 'animated' || siteId === 'allsvgicons';
+
       return {
         id: String(id || slug),
         title: title || slug,
@@ -952,13 +1019,13 @@ class StateManager {
         relativePath,
         variants,
         gridSize: gridSize || '24x24',
-        category: category || 'interface',
+        category: resolvedCategory,
         rawCategory: '',
         styleType: styleType || 'filled',
-        iconType: iconType || 'ui-icon',
+        iconType: resolvedIconType,
         author: colObj?.author || 'Open Source',
         license: colObj?.license || 'MIT / CC0',
-        tags: extractTagsFromText(slug, title, colSlug),
+        tags: isAnim ? ['animation', 'animated'] : [],
         _ts: 1700000000000 - idx,
         site: siteId,
         collectionSlug: colSlug,
@@ -969,8 +1036,10 @@ class StateManager {
 
     this._catalogSnapshot = {
       signature,
+      lastCheckedAt: Date.now(),
       allIcons,
       collections,
+      colSiteMap,
       summary: null,
     };
 
@@ -978,9 +1047,32 @@ class StateManager {
   }
 
   /**
-   * Load all icons across all collections with full taxonomy enrichment
+   * Load all icons across all collections with full taxonomy enrichment.
+   * Uses compressed catalog-index.json.gz whenever up-to-date (~120ms cold start instead of ~10s disk scan)
+   * and only merges newer collections from output/ if any were crawled after the index was built.
    */
   loadAllEnrichedIcons() {
+    const now = Date.now();
+    if (this._catalogSnapshot && now - (this._catalogSnapshot.lastCheckedAt || 0) < 5000) {
+      return {
+        allIcons: this._catalogSnapshot.allIcons,
+        collections: this._catalogSnapshot.collections,
+      };
+    }
+
+    // Fast path: Use pre-built compressed index if present and up-to-date with crawl-state.json
+    if (fs.existsSync(CATALOG_INDEX_GZ_FILE)) {
+      const gzStat = fs.statSync(CATALOG_INDEX_GZ_FILE);
+      const stateMtime = runtimeFs['existsSync'](STATE_FILE)
+        ? runtimeFs['statSync'](STATE_FILE).mtimeMs
+        : 0;
+
+      // If catalog-index.json.gz was built at or after the last crawl state update, use it directly!
+      if (gzStat.mtimeMs >= stateMtime - 1000) {
+        return this._loadFromCompactIndex();
+      }
+    }
+
     ensureDir(OUTPUT_DIR);
     const entries = [];
     let signatureSum = 0;
@@ -1015,6 +1107,7 @@ class StateManager {
     const r2Key = process.env.R2_PUBLIC_URL || '';
     const signature = `${entries.length}:${signatureSum}:${r2Key}`;
     if (this._catalogSnapshot && this._catalogSnapshot.signature === signature) {
+      this._catalogSnapshot.lastCheckedAt = now;
       return {
         allIcons: this._catalogSnapshot.allIcons,
         collections: this._catalogSnapshot.collections,
@@ -1023,8 +1116,12 @@ class StateManager {
 
     const allIcons = [];
     const collections = [];
+    const colSiteMap = new Map();
     for (const entry of entries) {
       collections.push(entry.colInfo);
+      if (entry.colInfo?.slug && !colSiteMap.has(entry.colInfo.slug)) {
+        colSiteMap.set(entry.colInfo.slug, entry.colInfo.site);
+      }
       for (const ic of entry.enrichedIcons) {
         allIcons.push(ic);
       }
@@ -1041,8 +1138,10 @@ class StateManager {
 
     this._catalogSnapshot = {
       signature,
+      lastCheckedAt: now,
       allIcons,
       collections,
+      colSiteMap,
       summary: null,
     };
 
@@ -1074,12 +1173,15 @@ class StateManager {
       }
     }
 
-    const brandsDir = this.getBrandsDirectory();
+    const totalBrands =
+      this._catalogSnapshot && this._catalogSnapshot.brandsDirectory
+        ? this._catalogSnapshot.brandsDirectory.length
+        : BRAND_ECOSYSTEM_DEFINITIONS.length;
 
     const summary = {
       totalIcons: allIcons.length,
       totalCollections: collections.length,
-      totalBrands: brandsDir.length,
+      totalBrands,
       categories: CATEGORY_DEFINITIONS.map((c) => ({
         id: c.id,
         label: c.label,
@@ -1099,6 +1201,7 @@ class StateManager {
       sites: [
         { id: 'svgrepo', label: 'SVG Repo', count: siteCounts.svgrepo || 0 },
         { id: 'thesvg', label: 'theSVG.org', count: siteCounts.thesvg || 0 },
+        { id: 'allsvgicons', label: 'All SVG Icons', count: siteCounts.allsvgicons || 0 },
       ],
       gridSizes: Object.entries(gridCounts).map(([size, count]) => ({ size, count })),
       collections: collections.map((c) => ({
@@ -1137,6 +1240,28 @@ class StateManager {
   } = {}) {
     const { allIcons } = this.loadAllEnrichedIcons();
     const query = String(q || '').trim().toLowerCase();
+    const safeOffset = Number(offset) || 0;
+    const safeLimit = Number(limit) || 120;
+
+    // Fast O(1) slice when no filter is active and sort is default 'recent'
+    if (
+      !site &&
+      !category &&
+      !styleType &&
+      !iconType &&
+      !collection &&
+      !gridSize &&
+      !letter &&
+      !query &&
+      sort === 'recent'
+    ) {
+      return {
+        total: allIcons.length,
+        offset: safeOffset,
+        limit: safeLimit,
+        items: allIcons.slice(safeOffset, safeOffset + safeLimit),
+      };
+    }
 
     let filtered = allIcons.filter((ic) => {
       if (site && ic.site !== site) return false;
@@ -1179,12 +1304,12 @@ class StateManager {
     // Note: for sort === 'recent', allIcons is already sorted by _ts descending!
 
     const total = filtered.length;
-    const items = filtered.slice(Number(offset) || 0, (Number(offset) || 0) + (Number(limit) || 120));
+    const items = filtered.slice(safeOffset, safeOffset + safeLimit);
 
     return {
       total,
-      offset: Number(offset) || 0,
-      limit: Number(limit) || 120,
+      offset: safeOffset,
+      limit: safeLimit,
       items,
     };
   }

@@ -9,7 +9,7 @@ function getCandidateFilesForSite(safeFile, siteId) {
   const [, baseSlug, variantSuffix = ''] = m;
   const doubled = `${baseSlug}-${baseSlug}${variantSuffix}.svg`;
 
-  if (siteId === 'thesvg') {
+  if (siteId === 'thesvg' || siteId === 'allsvgicons') {
     return doubled !== safeFile ? [doubled, safeFile] : [safeFile];
   }
   return doubled !== safeFile ? [safeFile, doubled] : [safeFile];
@@ -23,7 +23,7 @@ export async function GET(request, { params }) {
 
     const stateManager = getStateManager();
     const resolvedSite = stateManager.resolveCollectionSite(safeCol);
-    const sitesToTry = resolvedSite ? [resolvedSite] : ['thesvg', 'svgrepo'];
+    const sitesToTry = resolvedSite ? [resolvedSite] : ['allsvgicons', 'thesvg', 'svgrepo'];
 
     // 1. Serve from local disk if present (Local Dev Mode)
     const runtimeFs = eval('require')('fs');

@@ -37,7 +37,7 @@ console.log('   Web Portal (Next.js):  http://localhost:3000');
 console.log('   Crawler Studio:        http://localhost:3456');
 console.log('====================================================================\n');
 
-runProcess('web', [NEXT_BIN, 'dev', '-p', '3000'], WEB_DIR);
+runProcess('web', [NEXT_BIN, 'dev'], WEB_DIR);
 runProcess('crawler', [path.join(ROOT, 'apps/crawler/src/server.js')], ROOT);
 
 function shutdown() {

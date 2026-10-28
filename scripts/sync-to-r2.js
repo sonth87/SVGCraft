@@ -16,20 +16,23 @@ function parseArgs() {
   let concurrency = 25;
   let limit = Infinity;
   let dryRun = false;
+  let siteFilter = '';
 
   for (const arg of args) {
     if (arg.startsWith('--concurrency=')) {
       concurrency = Math.max(1, Math.min(100, Number(arg.split('=')[1]) || 25));
     } else if (arg.startsWith('--limit=')) {
       limit = Math.max(1, Number(arg.split('=')[1]) || Infinity);
+    } else if (arg.startsWith('--site=')) {
+      siteFilter = String(arg.split('=')[1] || '').trim();
     } else if (arg === '--dry-run') {
       dryRun = true;
     }
   }
-  return { concurrency, limit, dryRun };
+  return { concurrency, limit, dryRun, siteFilter };
 }
 
-function collectPendingSvgTasks(r2Client, maxLimit = Infinity) {
+function collectPendingSvgTasks(r2Client, maxLimit = Infinity, siteFilter = '') {
   const tasks = [];
   let skippedAlreadyUploaded = 0;
 
@@ -37,10 +40,16 @@ function collectPendingSvgTasks(r2Client, maxLimit = Infinity) {
     return { tasks, skippedAlreadyUploaded };
   }
 
-  const sites = fs.readdirSync(OUTPUT_DIR).filter((d) => {
+  // Prioritize allsvgicons & thesvg first when syncing all sites
+  const allSites = fs.readdirSync(OUTPUT_DIR).filter((d) => {
     const full = path.join(OUTPUT_DIR, d);
     return fs.existsSync(full) && fs.statSync(full).isDirectory();
   });
+
+  const priorityOrder = { allsvgicons: 0, thesvg: 1, svgrepo: 2 };
+  allSites.sort((a, b) => (priorityOrder[a] ?? 9) - (priorityOrder[b] ?? 9));
+
+  const sites = siteFilter ? allSites.filter((s) => s === siteFilter) : allSites;
 
   for (const siteId of sites) {
     const siteDir = path.join(OUTPUT_DIR, siteId);
@@ -75,7 +84,7 @@ function collectPendingSvgTasks(r2Client, maxLimit = Infinity) {
 }
 
 async function main() {
-  const { concurrency, limit, dryRun } = parseArgs();
+  const { concurrency, limit, dryRun, siteFilter } = parseArgs();
   const r2 = new R2Client();
 
   console.log('======================================================================');
@@ -86,6 +95,9 @@ async function main() {
   console.log(`- Dung lượng  : ${initialSummary.storage.usedMB} MB / ${(initialSummary.storage.limitGB * 1024).toFixed(0)} MB giới hạn an toàn (Free Tier: 10 GB)`);
   console.log(`- Class A Ops : ${initialSummary.classAOperations.used.toLocaleString()} / ${initialSummary.classAOperations.limit.toLocaleString()} lượt ghi tháng ${initialSummary.currentMonth} (Free Tier: 1,000,000)`);
   console.log(`- Đã đồng bộ  : ${initialSummary.totalFilesUploaded.toLocaleString()} files`);
+  if (siteFilter) {
+    console.log(`- Lọc theo nguồn: ${siteFilter}`);
+  }
 
   if (!dryRun && !r2.hasCredentials()) {
     console.error('\n[LỖI] Chưa tìm thấy R2_ACCESS_KEY_ID và R2_SECRET_ACCESS_KEY trong file .env!');
@@ -94,7 +106,7 @@ async function main() {
   }
 
   console.log('\nĐang quét danh sách file .svg cần đồng bộ trong output/...');
-  const { tasks, skippedAlreadyUploaded } = collectPendingSvgTasks(r2, limit);
+  const { tasks, skippedAlreadyUploaded } = collectPendingSvgTasks(r2, limit, siteFilter);
   console.log(`- Bỏ qua (đã có trên R2): ${skippedAlreadyUploaded.toLocaleString()} files`);
   console.log(`- Cần tải lên R2 đợt này : ${tasks.length.toLocaleString()} files (Concurrency: ${concurrency})`);
 

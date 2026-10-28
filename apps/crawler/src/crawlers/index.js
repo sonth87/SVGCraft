@@ -1,9 +1,11 @@
 const { SvgRepoCrawler } = require('./svgrepoCrawler');
 const { TheSvgCrawler } = require('./thesvgCrawler');
+const { AllSvgIconsCrawler } = require('./allsvgiconsCrawler');
 
 const CRAWLER_CLASSES = {
   svgrepo: SvgRepoCrawler,
   thesvg: TheSvgCrawler,
+  allsvgicons: AllSvgIconsCrawler,
 };
 
 function loadCrawlerClasses() {
@@ -12,6 +14,7 @@ function loadCrawlerClasses() {
     './baseCrawler',
     './svgrepoCrawler',
     './thesvgCrawler',
+    './allsvgiconsCrawler',
   ]) {
     try {
       delete require.cache[require.resolve(modPath)];
@@ -21,9 +24,11 @@ function loadCrawlerClasses() {
   }
   const { SvgRepoCrawler: FreshSvgRepo } = require('./svgrepoCrawler');
   const { TheSvgCrawler: FreshTheSvg } = require('./thesvgCrawler');
+  const { AllSvgIconsCrawler: FreshAllSvgIcons } = require('./allsvgiconsCrawler');
   return {
     svgrepo: FreshSvgRepo,
     thesvg: FreshTheSvg,
+    allsvgicons: FreshAllSvgIcons,
   };
 }
 

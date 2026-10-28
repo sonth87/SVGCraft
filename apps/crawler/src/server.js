@@ -1,7 +1,14 @@
 const express = require('express');
 const path = require('path');
 const { StateManager, OUTPUT_DIR } = require('@svg-hub/shared');
-const { getAvailableSites, createCrawler } = require('./crawlers');
+function getCrawlers() {
+  try {
+    delete require.cache[require.resolve('./crawlers')];
+  } catch {
+    // Ignore
+  }
+  return require('./crawlers');
+}
 
 const app = express();
 const PORT = process.env.CRAWLER_PORT || 3456;
@@ -44,7 +51,7 @@ app.get('/api/events', (req, res) => {
   const initialPayload = {
     status: activeCrawler ? activeCrawler.status : 'idle',
     progress: activeCrawler ? activeCrawler.currentProgress : null,
-    sites: getAvailableSites(stateManager),
+    sites: getCrawlers().getAvailableSites(stateManager),
   };
   res.write(`event: init\ndata: ${JSON.stringify(initialPayload)}\n\n`);
 
@@ -56,7 +63,7 @@ app.get('/api/events', (req, res) => {
 
 app.get('/api/sites', (req, res) => {
   res.json({
-    sites: getAvailableSites(stateManager),
+    sites: getCrawlers().getAvailableSites(stateManager),
   });
 });
 
@@ -65,7 +72,7 @@ app.get('/api/status', (req, res) => {
     status: activeCrawler ? activeCrawler.status : 'idle',
     progress: activeCrawler ? activeCrawler.currentProgress : null,
     logs: recentLogs,
-    sites: getAvailableSites(stateManager),
+    sites: getCrawlers().getAvailableSites(stateManager),
   });
 });
 
@@ -91,13 +98,13 @@ app.post('/api/crawl/start', async (req, res) => {
     }
 
     const { siteId = 'svgrepo', options = {} } = req.body || {};
-    activeCrawler = createCrawler(siteId, stateManager, options);
+    activeCrawler = getCrawlers().createCrawler(siteId, stateManager, options);
 
     activeCrawler.on('log', (entry) => pushLog(entry));
     activeCrawler.on('progress', (prog) => {
       broadcastEvent('progress', {
         progress: prog,
-        sites: getAvailableSites(stateManager),
+        sites: getCrawlers().getAvailableSites(stateManager),
       });
     });
     activeCrawler.on('collection_updated', (col) => {
@@ -159,10 +166,23 @@ app.post('/api/state/reset', (req, res) => {
     level: 'warn',
     message: `🔄 Đã đặt lại trạng thái checkpoint cho trang "${siteId}" về trang 1.`,
   });
-  broadcastEvent('sites_updated', getAvailableSites(stateManager));
+  broadcastEvent('sites_updated', getCrawlers().getAvailableSites(stateManager));
   res.json({ ok: true, state: reset });
 });
 
-app.listen(PORT, () => {
-  console.log(`🤖 [Crawler Studio] Đang chạy tại: http://localhost:${PORT}`);
-});
+function startServer(port) {
+  const srv = app.listen(port, () => {
+    console.log(`🤖 [Crawler Studio] Đang chạy tại: http://localhost:${port}`);
+  });
+  srv.on('error', (err) => {
+    if (err.code === 'EADDRINUSE') {
+      const nextPort = Number(port) + 1;
+      console.warn(`⚠️ Port ${port} đang được sử dụng, tự động chuyển sang port ${nextPort}...`);
+      startServer(nextPort);
+    } else {
+      throw err;
+    }
+  });
+}
+
+startServer(Number(PORT));

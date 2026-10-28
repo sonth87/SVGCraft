@@ -156,23 +156,78 @@ class BaseCrawler extends EventEmitter {
   }
 
   async fetchSvgInBrowser(svgUrl) {
-    return this.page.evaluate(async (url) => {
-      const res = await fetch(url, {
-        method: 'GET',
-        credentials: 'include',
-        headers: {
-          Accept: 'image/svg+xml,text/xml,application/xml,*/*;q=0.8',
-        },
-      });
-      if (!res.ok) {
-        throw new Error(`HTTP ${res.status} khi tải ${url}`);
+    // 1. Try Playwright's browser context APIRequestContext first for cross-origin CDN URLs (bypasses CORS while sharing browser network stack)
+    const pageUrl = this.page ? this.page.url() : '';
+    let isSameOrigin = false;
+    try {
+      isSameOrigin = Boolean(pageUrl) && new URL(svgUrl).origin === new URL(pageUrl).origin;
+    } catch {
+      isSameOrigin = false;
+    }
+
+    if (isSameOrigin && this.page) {
+      try {
+        return await this.page.evaluate(async (url) => {
+          const res = await fetch(url, {
+            method: 'GET',
+            credentials: 'include',
+            headers: {
+              Accept: 'image/svg+xml,text/xml,application/xml,*/*;q=0.8',
+            },
+          });
+          if (!res.ok) {
+            throw new Error(`HTTP ${res.status} khi tải ${url}`);
+          }
+          const text = await res.text();
+          if (!text.includes('<svg')) {
+            throw new Error('Nội dung tải về không phải là file SVG hợp lệ');
+          }
+          return text;
+        }, svgUrl);
+      } catch {
+        // Fall through to context.request / Node fetch below if in-page fetch fails
       }
-      const text = await res.text();
-      if (!text.includes('<svg')) {
-        throw new Error('Nội dung tải về không phải là file SVG hợp lệ');
+    }
+
+    // 2. Use Playwright BrowserContext request (immune to CORS restrictions on CDN subdomains like i.allsvgicons.com)
+    if (this.context && this.context.request) {
+      try {
+        const response = await this.context.request.get(svgUrl, {
+          headers: {
+            Accept: 'image/svg+xml,text/xml,application/xml,*/*;q=0.8',
+            Referer: pageUrl || undefined,
+          },
+          timeout: 30000,
+        });
+        if (response.ok()) {
+          const text = await response.text();
+          if (text && text.includes('<svg')) {
+            return text;
+          }
+        }
+      } catch {
+        // Fall through to Node fetch
       }
-      return text;
-    }, svgUrl);
+    }
+
+    // 3. Final fallback: Node native fetch
+    const res = await fetch(svgUrl, {
+      method: 'GET',
+      headers: {
+        'User-Agent':
+          'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/128.0.0.0 Safari/537.36',
+        Accept: 'image/svg+xml,text/xml,application/xml,*/*;q=0.8',
+        ...(pageUrl ? { Referer: pageUrl } : {}),
+      },
+    });
+    if (!res.ok) {
+      throw new Error(`HTTP ${res.status} khi tải ${svgUrl}`);
+    }
+    const text = await res.text();
+    if (!text.includes('<svg')) {
+      throw new Error('Nội dung tải về không phải là file SVG hợp lệ');
+    }
+    return text;
   }
 
   async start(runtimeOptions = {}) {

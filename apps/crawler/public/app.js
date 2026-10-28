@@ -107,10 +107,14 @@
 
   function updateSitesUI(sites, preserveInputs = false) {
     availableSites = sites || [];
-    if (!siteSelect.options.length) {
+    const prevSelected = siteSelect.value;
+    if (siteSelect.options.length !== availableSites.length) {
       siteSelect.innerHTML = availableSites
         .map((s) => `<option value="${escapeHtml(s.id)}">${escapeHtml(s.name)}</option>`)
         .join('');
+      if (prevSelected && availableSites.some((s) => s.id === prevSelected)) {
+        siteSelect.value = prevSelected;
+      }
     }
 
     const selectedSiteId = siteSelect.value || availableSites[0]?.id || 'svgrepo';

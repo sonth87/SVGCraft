@@ -33,7 +33,7 @@ function main() {
     icons: allIcons.map((i) => {
       const varKeys = Object.keys(i.variants || {});
       return [
-        i.site === 'thesvg' ? 1 : 0,
+        i.site === 'allsvgicons' ? 2 : i.site === 'thesvg' ? 1 : 0,
         i.collectionSlug,
         i.id,
         i.slug,

@@ -4,9 +4,9 @@
   "private": true,
   "description": "SVGCraft — Next.js App Router Vector Icon Library, Inspector, Code Studio & Cloudflare R2 Platform",
   "scripts": {
-    "dev": "next dev -p 3000",
+    "dev": "next dev",
     "build": "next build",
-    "start": "next start -p 3000"
+    "start": "next start"
   },
   "dependencies": {
     "@svg-hub/shared": "*",

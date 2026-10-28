@@ -149,10 +149,31 @@ const CATEGORY_DEFINITIONS = [
       'warner', 'hbo', 'paramount', 'universal', 'plex', 'imdb', 'rottentomatoes'
     ],
   },
+  {
+    id: 'animation',
+    label: 'Animated & Motion Icons',
+    icon: 'play-circle',
+    keywords: [
+      'animation', 'animated', 'motion', 'meteocons', 'line-md', 'svg-spinners',
+      'spinners', 'spinner', 'loader', 'loading', 'loop', 'pulse', 'bounce',
+      'rotate', 'shuffle', 'wave', 'bars-scale', 'dots-scale', 'dots-rotate', 'ring-with-bg'
+    ],
+  },
 ];
 
-// Explicit mapping for rawCategory values from theSVG.org and SVGRepo
+// Explicit mapping for rawCategory values from theSVG.org, SVGRepo, and AllSVGIcons
 const RAW_CATEGORY_MAP = {
+  animation: 'animation',
+  animated: 'animation',
+  motion: 'animation',
+  'animated icons': 'animation',
+  spinners: 'animation',
+  loaders: 'animation',
+  weather: 'animation',
+  meteocons: 'animation',
+  'line-md': 'animation',
+  'svg-spinners': 'animation',
+
   ai: 'ai',
   'ai software': 'ai',
   'google ai': 'ai',
@@ -262,13 +283,16 @@ const STYLE_TYPES = [
 
 const ICON_TYPES = [
   { id: 'ui-icon', label: 'UI / System Icon' },
+  { id: 'animated', label: 'Animated / Motion SVG' },
   { id: 'brand-logo', label: 'Brand / Tech Logo' },
   { id: 'architecture', label: 'Cloud Architecture' },
   { id: 'badge', label: 'Badge / Auth Button' },
 ];
 
+const ANIMATED_COLLECTIONS = new Set(['meteocons', 'line-md', 'svg-spinners']);
+
 /**
- * Parse raw SVG XML content to extract dimensions, colors, and structural style
+ * Parse raw SVG XML content to extract dimensions, colors, animation status, and structural style
  */
 function parseSvgMetadata(svgContent = '') {
   const svgTagMatch = svgContent.match(/<svg\b[^>]*>/i);
@@ -306,6 +330,7 @@ function parseSvgMetadata(svgContent = '') {
   const hasStroke = /\bstroke=["'](?!none)[^"']+["']/i.test(svgContent) || /\bstroke-width=/i.test(svgContent);
   const hasRootFillNone = /\bfill=["']none["']/i.test(svgTag);
   const hasOpacityLayer = /\b(fill-opacity|opacity)=["']0\.[1-8]/i.test(svgContent);
+  const hasAnimation = /<(animate|animateTransform|animateMotion|set)\b|@keyframes\b/i.test(svgContent);
 
   let detectedStyle = 'monocolor';
   if (hasGradient || normalizedColors.length >= 2) {
@@ -318,14 +343,20 @@ function parseSvgMetadata(svgContent = '') {
     detectedStyle = 'filled';
   }
 
+  const defaultW = gridSize ? gridSize.split('x')[0] : '24';
+  const defaultH = gridSize ? gridSize.split('x')[1] : '24';
+  const normalizedWidth = width && !/(em|rem|%)$/i.test(width) ? width : defaultW;
+  const normalizedHeight = height && !/(em|rem|%)$/i.test(height) ? height : defaultH;
+
   return {
-    width: width || (gridSize ? gridSize.split('x')[0] : '24'),
-    height: height || (gridSize ? gridSize.split('x')[1] : '24'),
+    width: normalizedWidth,
+    height: normalizedHeight,
     viewBox: viewBox || null,
     gridSize: gridSize || '24x24',
     fileSizeBytes: Buffer.byteLength(svgContent, 'utf8'),
     colorPalette: normalizedColors,
     detectedStyle,
+    hasAnimation,
   };
 }
 
@@ -372,11 +403,17 @@ function classifyIcon({
   title = '',
   slug = '',
   detectedStyle = 'filled',
+  hasAnimation = false,
 }) {
   const normalizedRawCat = String(rawCategory || '').trim().toLowerCase();
   const iconText = `${title} ${slug}`.toLowerCase();
   const collectionText = `${collectionSlug} ${collectionName}`.toLowerCase();
   const combinedTokens = `${normalizedRawCat} ${collectionText} ${iconText}`;
+
+  const isAnimatedPack =
+    Boolean(hasAnimation) ||
+    siteId === 'allsvgicons' ||
+    ANIMATED_COLLECTIONS.has(String(collectionSlug).toLowerCase());
 
   const mappedFromRaw = RAW_CATEGORY_MAP[normalizedRawCat] || null;
   const isNonAiContext = NON_AI_CONTEXT_RE.test(combinedTokens);
@@ -384,37 +421,41 @@ function classifyIcon({
   let matchedCategory = null;
   let bestScore = 0;
 
-  for (const matcher of COMPILED_CATEGORY_MATCHERS) {
-    if (matcher.id === 'ai' && isNonAiContext && mappedFromRaw !== 'ai') {
-      continue;
-    }
+  if (isAnimatedPack) {
+    matchedCategory = 'animation';
+  } else {
+    for (const matcher of COMPILED_CATEGORY_MATCHERS) {
+      if (matcher.id === 'ai' && isNonAiContext && mappedFromRaw !== 'ai') {
+        continue;
+      }
 
-    let score = 0;
-    if (mappedFromRaw === matcher.id) {
-      score += 12;
-    }
+      let score = 0;
+      if (mappedFromRaw === matcher.id) {
+        score += 12;
+      }
 
-    for (const regex of matcher.regexes) {
-      if (regex.test(iconText)) {
-        score += 6;
-      } else if (regex.test(collectionText)) {
-        score += 3;
+      for (const regex of matcher.regexes) {
+        if (regex.test(iconText)) {
+          score += 6;
+        } else if (regex.test(collectionText)) {
+          score += 3;
+        }
+      }
+
+      if (score > bestScore) {
+        bestScore = score;
+        matchedCategory = matcher.id;
       }
     }
 
-    if (score > bestScore) {
-      bestScore = score;
-      matchedCategory = matcher.id;
-    }
-  }
-
-  if (!matchedCategory) {
-    if (mappedFromRaw) {
-      matchedCategory = mappedFromRaw;
-    } else if (siteId === 'thesvg' || /\b(brand|brands|logo|logos|company)\b/i.test(collectionText)) {
-      matchedCategory = 'brand';
-    } else {
-      matchedCategory = 'interface';
+    if (!matchedCategory) {
+      if (mappedFromRaw) {
+        matchedCategory = mappedFromRaw;
+      } else if (siteId === 'thesvg' || /\b(brand|brands|logo|logos|company)\b/i.test(collectionText)) {
+        matchedCategory = 'brand';
+      } else {
+        matchedCategory = 'interface';
+      }
     }
   }
 
@@ -422,7 +463,7 @@ function classifyIcon({
   let styleType = detectedStyle || 'filled';
   if (/\b(outlined|outline|line|stroke|thin|light-line)\b/i.test(combinedTokens)) {
     styleType = 'outlined';
-  } else if (/\b(duotone|two-tone)\b/i.test(combinedTokens)) {
+  } else if (/\b(duotone|two-tone|twotone)\b/i.test(combinedTokens)) {
     styleType = 'duotone';
   } else if (/\b(multicolor|color|colored|flat)\b/i.test(combinedTokens) && detectedStyle === 'multicolor') {
     styleType = 'multicolor';
@@ -432,7 +473,9 @@ function classifyIcon({
 
   // 3. Determine Icon Type
   let iconType = 'ui-icon';
-  if (/\b(aws|azure|gcp|google-cloud|kubernetes|k8s|architecture)\b/i.test(`${collectionSlug} ${normalizedRawCat}`)) {
+  if (isAnimatedPack || matchedCategory === 'animation') {
+    iconType = 'animated';
+  } else if (/\b(aws|azure|gcp|google-cloud|kubernetes|k8s|architecture)\b/i.test(`${collectionSlug} ${normalizedRawCat}`)) {
     iconType = 'architecture';
   } else if (/\b(auth|badge|badges)\b/i.test(`${collectionSlug} ${normalizedRawCat}`)) {
     iconType = 'badge';
