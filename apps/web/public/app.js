@@ -2185,12 +2185,20 @@
       found.push({ hex, label: label || `Color ${found.length + 1}` });
     };
 
+    // Strip <mask> blocks and non-gradient <defs> blocks so invisible mask silhouettes (like fill="#FFF" on mask paths) don't pollute color wells
+    const svgVisibleOnly = svgText
+      .replace(/<mask\b[^>]*>[\s\S]*?<\/mask>/gi, '')
+      .replace(/<defs\b[^>]*>([\s\S]*?)<\/defs>/gi, (_, inner) => {
+        const grads = inner.match(/<(?:linearGradient|radialGradient)\b[\s\S]*?<\/(?:linearGradient|radialGradient)>/gi);
+        return grads ? grads.join('') : '';
+      });
+
     // 1. Prioritize Lordicon semantic classes (.primary, .secondary, .tertiary, .quaternary, etc.)
     const semanticOrder = ['primary', 'secondary', 'tertiary', 'quaternary', 'quinary', 'senary', 'septenary'];
     for (const cls of semanticOrder) {
       const clsRegex = new RegExp(`class=["'][^"']*\\b${cls}\\b[^"']*["'][^>]*>`, 'gi');
       let m;
-      while ((m = clsRegex.exec(svgText)) !== null) {
+      while ((m = clsRegex.exec(svgVisibleOnly)) !== null) {
         const tagStr = m[0];
         const hexMatches = tagStr.match(/#(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{6})\b/g) || [];
         for (const h of hexMatches) {
@@ -2199,8 +2207,8 @@
       }
     }
 
-    // 2. Scan all remaining hex colors in the SVG
-    const allHexes = svgText.match(/#(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{6})\b/g) || [];
+    // 2. Scan all remaining hex colors in the visible SVG body
+    const allHexes = svgVisibleOnly.match(/#(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{6})\b/g) || [];
     for (const h of allHexes) {
       if (found.length >= 6) break;
       addHex(h);
@@ -2218,12 +2226,27 @@
     return 1.0;
   }
 
+  function normalizeSvgForInlineAndExport(svg = '') {
+    if (!svg || !svg.includes('<svg')) return svg;
+    let out = svg
+      .replace(/\s+xmlns:ns\d+=["']http:\/\/www\.w3\.org\/1999\/xlink["']/gi, '')
+      .replace(/\bns\d+:href=(["'][^"']+["'])/gi, 'href=$1 xlink:href=$1')
+      .replace(/<mask\b([^>]*\bmask-type=["']alpha["'][^>]*)>/gi, (full, attrs) => {
+        if (/\bstyle=/i.test(attrs)) return full;
+        return `<mask${attrs} style="mask-type:alpha">`;
+      });
+    if (out.includes('xlink:href=') && !/\bxmlns:xlink=/i.test(out)) {
+      out = out.replace(/<svg\b/i, '<svg xmlns:xlink="http://www.w3.org/1999/xlink"');
+    }
+    return out;
+  }
+
   function applyCustomizationsToSvgXml(
     baseSvg = '',
     { colorMap = {}, strokeMode = 'regular', bgTransparent = true, bgColor = '#ffffff' } = {}
   ) {
     if (!baseSvg || !baseSvg.includes('<svg')) return baseSvg;
-    let out = baseSvg;
+    let out = normalizeSvgForInlineAndExport(baseSvg);
 
     // 1. Replace mapped hex colors using temporary tokens so swaps don't collide
     const entries = Object.entries(colorMap).filter(

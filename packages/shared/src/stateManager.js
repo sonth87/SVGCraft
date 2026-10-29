@@ -1942,7 +1942,20 @@ class StateManager {
       const fullPath = path.join(colDir, relPath);
       variantAssetUrls[varName] = this.buildAssetUrl(resolvedSite, collectionSlug, relPath);
       if (runtimeFs['existsSync'](fullPath)) {
-        svgVariantsContent[varName] = runtimeFs['readFileSync'](fullPath, 'utf8');
+        let rawContent = runtimeFs['readFileSync'](fullPath, 'utf8');
+        if (rawContent && rawContent.includes('<svg')) {
+          rawContent = rawContent
+            .replace(/\s+xmlns:ns\d+=["']http:\/\/www\.w3\.org\/1999\/xlink["']/gi, '')
+            .replace(/\bns\d+:href=(["'][^"']+["'])/gi, 'href=$1 xlink:href=$1')
+            .replace(/<mask\b([^>]*\bmask-type=["']alpha["'][^>]*)>/gi, (full, attrs) => {
+              if (/\bstyle=/i.test(attrs)) return full;
+              return `<mask${attrs} style="mask-type:alpha">`;
+            });
+          if (rawContent.includes('xlink:href=') && !/\bxmlns:xlink=/i.test(rawContent)) {
+            rawContent = rawContent.replace(/<svg\b/i, '<svg xmlns:xlink="http://www.w3.org/1999/xlink"');
+          }
+        }
+        svgVariantsContent[varName] = rawContent;
       }
     }
 

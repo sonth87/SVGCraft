@@ -25,9 +25,19 @@ function decodeLordiconLiBuffer(b64Text = '') {
 
 function cleanLordiconSvg(svgContent = '') {
   if (!svgContent || !svgContent.includes('<svg')) return svgContent;
-  return svgContent
+  let out = svgContent
     .replace(/<path\b(?![^>]*\bid=)[^>]*\bstyle=["']display:\s*none;?["'][^>]*\/>/gi, '')
-    .replace(/<g\b(?![^>]*\bid=)[^>]*\bstyle=["']display:\s*none;?["'][^>]*>\s*<\/g>/gi, '');
+    .replace(/<g\b(?![^>]*\bid=)[^>]*\bstyle=["']display:\s*none;?["'][^>]*>\s*<\/g>/gi, '')
+    .replace(/\s+xmlns:ns\d+=["']http:\/\/www\.w3\.org\/1999\/xlink["']/gi, '')
+    .replace(/\bns\d+:href=(["'][^"']+["'])/gi, 'href=$1 xlink:href=$1')
+    .replace(/<mask\b([^>]*\bmask-type=["']alpha["'][^>]*)>/gi, (full, attrs) => {
+      if (/\bstyle=/i.test(attrs)) return full;
+      return `<mask${attrs} style="mask-type:alpha">`;
+    });
+  if (out.includes('xlink:href=') && !/\bxmlns:xlink=/i.test(out)) {
+    out = out.replace(/<svg\b/i, '<svg xmlns:xlink="http://www.w3.org/1999/xlink"');
+  }
+  return out;
 }
 
 function extractMotionStates(lottie = {}) {

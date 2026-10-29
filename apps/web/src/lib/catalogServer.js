@@ -1,7 +1,7 @@
 const path = require('path');
 const { StateManager, R2Client, OUTPUT_DIR, parseSvgMetadata } = require('@svg-hub/shared');
 
-const CATALOG_SCHEMA_VERSION = 'v5-lordicon-variants-20261028';
+const CATALOG_SCHEMA_VERSION = 'v6-svg-ns-href-fix-20261029';
 
 // Global singletons to preserve in-memory catalog cache across Next.js hot reloads & serverless warm invocations
 const globalForCatalog = globalThis;
