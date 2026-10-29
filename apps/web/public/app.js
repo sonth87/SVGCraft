@@ -3236,7 +3236,7 @@
     let lordiconMotionStates = [];
     let activeMotionStateId = '';
     let isStageLiveLooping = true;
-    let svgExportMode = 'static'; // 'static' | 'hover' | 'loop'
+    let svgExportMode = isLordicon ? 'loop' : 'static'; // 'static' | 'hover' | 'loop'
     let compiledAnimatedSvgCache = null;
 
     const primaryHex = editableColorSlots[0]?.hex || (icon.colorPalette && icon.colorPalette[0]) || '#f97316';
@@ -3269,10 +3269,10 @@
       return getCustomizedStaticSvg();
     }
 
-    async function getOrCompileExportSvg() {
+    async function getOrCompileExportSvg(silent = false) {
       if (isLordicon && (svgExportMode === 'hover' || svgExportMode === 'loop') && lordiconLottieData) {
         if (compiledAnimatedSvgCache) return compiledAnimatedSvgCache;
-        showToast(t('toastCompilingAnimSvg'));
+        if (!silent) showToast(t('toastCompilingAnimSvg'));
         const stObj =
           lordiconMotionStates.find((s) => s.id === activeMotionStateId) || lordiconMotionStates[0];
         compiledAnimatedSvgCache = await compileStandaloneAnimatedSvg(lordiconLottieData, stObj, {
@@ -3526,10 +3526,16 @@
                       .map((stItem) => {
                         const isCurrent =
                           stItem.family === activeLordiconFamily && stItem.style === activeLordiconStyle;
+                        const colSlugVal =
+                          stItem.collectionSlug || stItem.colSlug || `lordicon-${stItem.family}-${stItem.style}`;
+                        const isLocalVal = stItem.isLocal || stItem.isCrawled ? '1' : '0';
+                        const targetIconId = stItem.iconId || stItem.iconSlug || icon.id || icon.slug;
+                        const thumbUrl =
+                          stItem.assetUrl || stItem.localAssetUrl || stItem.svgUrl || stItem.cdnSvgUrl || '';
                         return `
-                          <button type="button" class="variant-mini-btn ${isCurrent ? 'active' : ''}" data-lordicon-var="${escapeHtml(stItem.family)}:${escapeHtml(stItem.style)}:${escapeHtml(stItem.collectionSlug)}:${stItem.isLocal ? '1' : '0'}">
+                          <button type="button" class="variant-mini-btn ${isCurrent ? 'active' : ''}" data-lordicon-var="${escapeHtml(stItem.family)}:${escapeHtml(stItem.style)}:${escapeHtml(colSlugVal)}:${isLocalVal}:${escapeHtml(targetIconId)}">
                             <span class="variant-mini-thumb">
-                              <img src="${escapeHtml(stItem.localAssetUrl || stItem.svgUrl)}" alt="${escapeHtml(stItem.label)}" loading="lazy" />
+                              <img src="${escapeHtml(thumbUrl)}" alt="${escapeHtml(stItem.label)}" loading="lazy" />
                             </span>
                             <span class="variant-mini-name" title="${escapeHtml(stItem.label)}">${escapeHtml(stItem.label)}</span>
                           </button>
@@ -3611,15 +3617,15 @@
                 <span>⚡ ${escapeHtml(t('exportModeTitle'))}</span>
               </div>
               <div class="export-mode-pills">
-                <button type="button" class="export-mode-btn active" data-svg-export-mode="static">
+                <button type="button" class="export-mode-btn ${svgExportMode === 'static' ? 'active' : ''}" data-svg-export-mode="static">
                   <span class="export-mode-btn-title">${escapeHtml(t('exportModeStatic'))}</span>
                   <span class="export-mode-btn-sub">${escapeHtml(t('exportModeStaticSub'))}</span>
                 </button>
-                <button type="button" class="export-mode-btn" data-svg-export-mode="hover">
+                <button type="button" class="export-mode-btn ${svgExportMode === 'hover' ? 'active' : ''}" data-svg-export-mode="hover">
                   <span class="export-mode-btn-title">${escapeHtml(t('exportModeHover'))}</span>
                   <span class="export-mode-btn-sub">${escapeHtml(t('exportModeHoverSub'))}</span>
                 </button>
-                <button type="button" class="export-mode-btn" data-svg-export-mode="loop">
+                <button type="button" class="export-mode-btn ${svgExportMode === 'loop' ? 'active' : ''}" data-svg-export-mode="loop">
                   <span class="export-mode-btn-title">${escapeHtml(t('exportModeLoop'))}</span>
                   <span class="export-mode-btn-sub">${escapeHtml(t('exportModeLoopSub'))}</span>
                 </button>
@@ -3917,7 +3923,7 @@
       compiledAnimatedSvgCache = null;
       mountStageVisual(playOnceInHoverMode);
       if (recompileIfAnimated && isLordicon && (svgExportMode === 'hover' || svgExportMode === 'loop')) {
-        await getOrCompileExportSvg();
+        await getOrCompileExportSvg(true);
       }
       const currentCodeSvg = getActiveRawSvg();
       const byteLen = new Blob([currentCodeSvg]).size;
@@ -4075,7 +4081,7 @@
               const picked = lordiconMotionStates.find((s) => s.id === activeMotionStateId);
               if (stateLabel && picked) stateLabel.textContent = picked.label;
               if (svgExportMode === 'static') {
-                svgExportMode = 'hover';
+                svgExportMode = 'loop';
                 syncExportModeButtonsUI();
               }
               refreshStageAndCode(true, svgExportMode === 'hover');
@@ -4302,12 +4308,12 @@
       });
     });
 
-    // Lordicon 10-Style Cross-Variant Switching
+    // Lordicon Cross-Variant Switching
     detailView.querySelectorAll('[data-lordicon-var]').forEach((btn) => {
       btn.addEventListener('click', async () => {
-        const [fam, st, colSlug, isLocalFlag] = btn.dataset.lordiconVar.split(':');
+        const [fam, st, colSlug, isLocalFlag, targetIconId] = btn.dataset.lordiconVar.split(':');
         if (isLocalFlag === '1' && colSlug && colSlug !== icon.collectionSlug) {
-          openDetailPage('lordicon', colSlug, icon.slug, true);
+          openDetailPage('lordicon', colSlug, targetIconId || icon.id || icon.slug, true);
           return;
         }
         activeLordiconFamily = fam;

@@ -392,7 +392,7 @@ export default function SvgCraftShell() {
 
       <div className="toast-container" id="toastContainer" role="status" aria-live="polite" />
 
-      <Script src="/app.js?v=4" strategy="afterInteractive" />
+      <Script src="/app.js?v=5" strategy="afterInteractive" />
     </>
   );
 }

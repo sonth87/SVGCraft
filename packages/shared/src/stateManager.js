@@ -1977,22 +1977,51 @@ class StateManager {
         { colSlug: 'lordicon-wired-gradient', family: 'wired', style: 'gradient', label: 'Wired Gradient' },
       ];
       const iconSlug = mergedTarget.slug;
-      lordiconStyles = styleDefs.map((sd) => {
-        const crawledSibling = allIcons.find(
-          (ic) => ic.collectionSlug === sd.colSlug && ic.slug === iconSlug
-        );
-        return {
-          ...sd,
-          iconSlug,
-          isCurrent: sd.colSlug === collectionSlug,
-          isCrawled: Boolean(crawledSibling),
-          assetUrl: crawledSibling
+      const baseSlug = String(iconSlug || '').replace(/^\d+-/, '');
+      const targetFamily = /^lordicon-/i.test(collectionSlug)
+        ? collectionSlug.split('-')[1]
+        : mergedTarget.family || '';
+
+      lordiconStyles = styleDefs
+        .map((sd) => {
+          const crawledSibling =
+            allIcons.find((ic) => ic.collectionSlug === sd.colSlug && ic.slug === iconSlug) ||
+            (baseSlug
+              ? allIcons.find(
+                  (ic) =>
+                    ic.collectionSlug === sd.colSlug &&
+                    String(ic.slug || '').replace(/^\d+-/, '') === baseSlug
+                )
+              : null);
+
+          if (!crawledSibling && sd.family !== targetFamily) {
+            return null;
+          }
+
+          const resolvedSlug = crawledSibling ? crawledSibling.slug : iconSlug;
+          const resolvedId = crawledSibling
+            ? crawledSibling.id || crawledSibling.slug
+            : mergedTarget.id || iconSlug;
+          const resolvedAssetUrl = crawledSibling
             ? crawledSibling.assetUrl
-            : `https://media.lordicon.com/icons/${sd.family}/${sd.style}/${iconSlug}.svg`,
-          cdnSvgUrl: `https://media.lordicon.com/icons/${sd.family}/${sd.style}/${iconSlug}.svg`,
-          cdnLiUrl: `https://media.lordicon.com/icons/${sd.family}/${sd.style}/${iconSlug}.li`,
-        };
-      });
+            : `https://media.lordicon.com/icons/${sd.family}/${sd.style}/${resolvedSlug}.svg`;
+
+          return {
+            ...sd,
+            collectionSlug: sd.colSlug,
+            iconSlug: resolvedSlug,
+            iconId: resolvedId,
+            isCurrent: sd.colSlug === collectionSlug,
+            isCrawled: Boolean(crawledSibling),
+            isLocal: Boolean(crawledSibling),
+            assetUrl: resolvedAssetUrl,
+            localAssetUrl: resolvedAssetUrl,
+            svgUrl: resolvedAssetUrl,
+            cdnSvgUrl: `https://media.lordicon.com/icons/${sd.family}/${sd.style}/${resolvedSlug}.svg`,
+            cdnLiUrl: `https://media.lordicon.com/icons/${sd.family}/${sd.style}/${resolvedSlug}.li`,
+          };
+        })
+        .filter(Boolean);
     }
 
     return {

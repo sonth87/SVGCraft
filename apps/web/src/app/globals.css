@@ -2498,6 +2498,8 @@ body[data-preview-tone="light"] .col-dir-thumb-cell {
   display: flex;
   flex-direction: column;
   gap: 11px;
+  min-width: 0;
+  overflow: hidden;
 }
 
 .studio-ctrl-row {
@@ -2505,13 +2507,15 @@ body[data-preview-tone="light"] .col-dir-thumb-cell {
   align-items: center;
   justify-content: space-between;
   gap: 10px;
+  min-width: 0;
 }
 
 .studio-ctrl-label {
   font-size: 0.78rem;
   font-weight: 600;
   color: var(--text-main);
-  min-width: 82px;
+  min-width: 72px;
+  flex-shrink: 0;
 }
 
 .studio-ctrl-right {
@@ -2519,21 +2523,22 @@ body[data-preview-tone="light"] .col-dir-thumb-cell {
   align-items: center;
   gap: 7px;
   flex: 1;
+  min-width: 0;
   justify-content: flex-end;
   flex-wrap: wrap;
 }
 
 .color-wells-list {
-  display: flex;
-  align-items: center;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(62px, 1fr));
   gap: 6px;
   flex: 1;
+  min-width: 0;
 }
 
 .color-well-item {
   position: relative;
-  flex: 1;
-  min-width: 44px;
+  min-width: 0;
   height: 30px;
   border-radius: 7px;
   border: 1px solid var(--border-hover);
@@ -2564,14 +2569,18 @@ body[data-preview-tone="light"] .col-dir-thumb-cell {
 
 .color-well-tag {
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
-  font-size: 0.64rem;
+  font-size: 0.62rem;
   font-weight: 700;
-  padding: 1px 5px;
+  padding: 1px 4px;
   border-radius: 4px;
   background: rgba(0, 0, 0, 0.48);
   color: #fff;
   pointer-events: none;
   text-transform: uppercase;
+  white-space: nowrap;
+  max-width: calc(100% - 4px);
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .bg-transparent-toggle {
