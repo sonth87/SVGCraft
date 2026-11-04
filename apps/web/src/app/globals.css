@@ -1453,6 +1453,8 @@ html[data-theme="light"] .stage-card {
   display: flex;
   align-items: center;
   justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 6px 12px;
   padding: 9px 12px;
   border-top: 1px solid var(--border-subtle);
   background: var(--bg-surface);
@@ -1460,10 +1462,85 @@ html[data-theme="light"] .stage-card {
   color: var(--text-muted);
 }
 
+.top-progress-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  z-index: 10000;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.3s ease 0.05s;
+}
+
+.top-progress-bar.is-active {
+  opacity: 1;
+  transition: none;
+}
+
+.top-progress-bar.is-done {
+  opacity: 0;
+  transition: opacity 0.3s ease 0.15s;
+}
+
+.top-progress-fill {
+  height: 100%;
+  width: 100%;
+  transform: scaleX(0);
+  transform-origin: left center;
+  background: var(--brand-orange);
+  box-shadow: 0 0 8px var(--brand-orange);
+  transition: transform 0.2s ease;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .top-progress-fill {
+    transition: none;
+  }
+}
+
+.hover-repeat-toggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  flex-shrink: 0;
+}
+
+.hover-repeat-label {
+  font-size: 0.7rem;
+  color: var(--text-dim);
+  margin-right: 2px;
+}
+
+.hover-repeat-btn {
+  padding: 3px 9px;
+  border: 1px solid var(--border-subtle);
+  border-radius: 999px;
+  background: transparent;
+  color: var(--text-muted);
+  font-size: 0.7rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+
+.hover-repeat-btn:hover {
+  border-color: var(--border-hover);
+  color: var(--text-main, inherit);
+}
+
+.hover-repeat-btn.active {
+  background: var(--brand-orange);
+  border-color: var(--brand-orange);
+  color: #fff;
+}
+
 .stage-meta-mono {
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
   font-size: 0.71rem;
   color: var(--text-dim);
+  white-space: nowrap;
 }
 
 .color-picker-wrap {

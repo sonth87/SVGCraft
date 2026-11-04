@@ -18,9 +18,15 @@ export async function GET(request, { params }) {
     if (!data.rawSvg && data.icon) {
       const resolvedSite = data.icon.site || site;
       const variants = data.icon.variants || { default: data.icon.relativePath };
-      for (const [varName, relPath] of Object.entries(variants)) {
-        const key = `${resolvedSite}/${collection}/${relPath}`;
-        const fetched = await r2Client.getSvgObject(key).catch(() => null);
+      // Fetch all variants from R2 in parallel (was sequential → latency added up per variant)
+      const fetchedVariants = await Promise.all(
+        Object.entries(variants).map(async ([varName, relPath]) => {
+          const key = `${resolvedSite}/${collection}/${relPath}`;
+          const fetched = await r2Client.getSvgObject(key).catch(() => null);
+          return [varName, fetched];
+        })
+      );
+      for (const [varName, fetched] of fetchedVariants) {
         if (fetched && fetched.includes('<svg')) {
           data.svgVariantsContent[varName] = fetched;
         }

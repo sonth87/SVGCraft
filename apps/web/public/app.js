@@ -255,6 +255,9 @@
       exportModeHoverSub: 'Plays animation when hovered (:hover)',
       exportModeLoop: 'Animated SVG (Auto Loop)',
       exportModeLoopSub: 'Loops continuously by itself (infinite)',
+      hoverRepeatLabel: 'On hover:',
+      hoverRepeatOnce: 'Play once',
+      hoverRepeatLoop: 'Repeat',
       exportModeLottie: 'Download Lottie .JSON',
       exportModeLottieSub: 'Raw vector animation JSON',
       toastCompilingAnimSvg: 'Compiling standalone animated SVG with your colors & stroke...',
@@ -462,6 +465,9 @@
       exportModeHoverSub: 'Tự chuyển động khi rê chuột (:hover)',
       exportModeLoop: 'SVG Động tự chạy (Auto Loop)',
       exportModeLoopSub: 'Tự chạy lặp liên tục (infinite)',
+      hoverRepeatLabel: 'Khi hover:',
+      hoverRepeatOnce: 'Chạy 1 lần',
+      hoverRepeatLoop: 'Lặp lại',
       exportModeLottie: 'Tải Lottie .JSON',
       exportModeLottieSub: 'File dữ liệu gốc Lottie JSON',
       toastCompilingAnimSvg: 'Đang đóng gói Animation + Màu + Stroke vào file SVG...',
@@ -652,6 +658,109 @@
     setCacheEntry(apiJsonCache, url, data);
     return data;
   }
+
+  // ============================================================================
+  // TOP NAVIGATION PROGRESS BAR (YouTube-style) + detail prefetch on hover
+  // ============================================================================
+  const topProgress = (() => {
+    let el = null;
+    let pending = 0;
+    let value = 0;
+    let trickleTimer = null;
+    let hideTimer = null;
+
+    function ensureEl() {
+      if (el) return el;
+      el = document.createElement('div');
+      el.id = 'topProgressBar';
+      el.className = 'top-progress-bar';
+      el.setAttribute('aria-hidden', 'true');
+      el.innerHTML = '<div class="top-progress-fill"></div>';
+      document.body.appendChild(el);
+      return el;
+    }
+
+    function render() {
+      const fill = ensureEl().firstElementChild;
+      fill.style.transform = `scaleX(${value})`;
+    }
+
+    function start() {
+      pending += 1;
+      if (pending > 1) return;
+      clearTimeout(hideTimer);
+      clearInterval(trickleTimer);
+      const bar = ensureEl();
+      bar.classList.remove('is-done');
+      bar.classList.add('is-active');
+      value = 0.08;
+      render();
+      // Ease towards 90% while waiting, never completing on its own
+      trickleTimer = setInterval(() => {
+        value += (0.9 - value) * 0.08;
+        render();
+      }, 200);
+    }
+
+    function done() {
+      if (pending === 0) return;
+      pending -= 1;
+      if (pending > 0) return;
+      clearInterval(trickleTimer);
+      value = 1;
+      render();
+      const bar = ensureEl();
+      bar.classList.add('is-done');
+      hideTimer = setTimeout(() => {
+        bar.classList.remove('is-active', 'is-done');
+        value = 0;
+        render();
+      }, 350);
+    }
+
+    return { start, done };
+  })();
+
+  async function withTopProgress(fn) {
+    topProgress.start();
+    try {
+      return await fn();
+    } finally {
+      topProgress.done();
+    }
+  }
+
+  function buildIconDetailApiUrl(collectionSlug, idOrSlug) {
+    return `/api/catalog/icon/any/${encodeURIComponent(collectionSlug)}/${encodeURIComponent(idOrSlug)}`;
+  }
+
+  function parseOpenDetailKey(key = '') {
+    const parts = String(key).split(':');
+    if (parts.length >= 3) return { site: parts[0], collectionSlug: parts[1], idOrSlug: parts[2] };
+    return { site: 'any', collectionSlug: parts[0], idOrSlug: parts[1] };
+  }
+
+  // Warm the detail API cache when the pointer rests on a card, so the click feels instant
+  let detailPrefetchTimer = null;
+  let detailPrefetchTarget = null;
+  document.addEventListener('pointerover', (e) => {
+    const trigger = e.target.closest && e.target.closest('[data-open-detail]');
+    if (!trigger || trigger === detailPrefetchTarget) return;
+    detailPrefetchTarget = trigger;
+    clearTimeout(detailPrefetchTimer);
+    detailPrefetchTimer = setTimeout(() => {
+      const { collectionSlug, idOrSlug } = parseOpenDetailKey(trigger.dataset.openDetail);
+      if (!collectionSlug || !idOrSlug) return;
+      apiFetchJson(buildIconDetailApiUrl(collectionSlug, idOrSlug)).catch(() => {});
+    }, 120);
+  });
+  document.addEventListener('pointerout', (e) => {
+    const trigger = e.target.closest && e.target.closest('[data-open-detail]');
+    if (trigger && trigger === detailPrefetchTarget && !trigger.contains(e.relatedTarget)) {
+      clearTimeout(detailPrefetchTimer);
+      detailPrefetchTarget = null;
+    }
+  });
 
   async function fetchSvgTextCached(url) {
     if (!url) return '';
@@ -2389,6 +2498,33 @@
         }
       }
 
+      // Lordicon drives fill/stroke colors through expressions that read "ADBE Color Control"
+      // effects on a `control` layer (effect value ty === 2, color stored in node.v.k), so the
+      // static `c.k` values above get overridden at runtime. Recolor those effect values too.
+      if (node.ty === 2 && node.v && node.v.k !== undefined && !node.ks && !node.layers) {
+        const vk = node.v.k;
+        const recolor = (arr) => {
+          if (!Array.isArray(arr) || typeof arr[0] !== 'number' || arr.length < 3) return;
+          const curHex = rgbArrayToHex(arr);
+          if (curHex && normalizedMap[curHex]) {
+            const [r, g, b] = normalizedMap[curHex];
+            arr[0] = r;
+            arr[1] = g;
+            arr[2] = b;
+          }
+        };
+        if (Array.isArray(vk) && typeof vk[0] === 'number') {
+          recolor(vk);
+        } else if (Array.isArray(vk)) {
+          vk.forEach((kf) => {
+            if (kf) {
+              recolor(kf.s);
+              recolor(kf.e);
+            }
+          });
+        }
+      }
+
       // Scale stroke width in Lottie stroke ('st') items
       if (node.ty === 'st' && node.w && Math.abs(mult - 1.0) > 0.01) {
         if (typeof node.w.k === 'number') {
@@ -2425,6 +2561,7 @@
     stateObj,
     {
       exportMode = 'loop', // 'loop' | 'hover'
+      hoverPlayOnce = false, // hover mode only: play a single run per hover instead of repeating
       colorMap = {},
       strokeMode = 'regular',
       bgTransparent = true,
@@ -2588,7 +2725,7 @@
 
         const triggerRule =
           exportMode === 'hover'
-            ? `svg:hover .li-f-${idx}{opacity:0;animation:li-k-${idx} ${durationSec}s steps(1,end) infinite}`
+            ? `svg:hover .li-f-${idx}{opacity:0;animation:li-k-${idx} ${durationSec}s steps(1,end) ${hoverPlayOnce ? '1 forwards' : 'infinite'}}`
             : `.li-f-${idx}{animation:li-k-${idx} ${durationSec}s steps(1,end) infinite}`;
 
         keyframesCss.push(`${kfRule}${triggerRule}`);
@@ -2704,7 +2841,9 @@
         const imgReady = img && img.complete && img.naturalWidth > 0;
         if (!imgReady && previewArea.__lottieAnim) {
           try {
-            previewArea.__lottieAnim.goToAndStop(0, true);
+            // Reset segments first: goToAndStop() is segment-relative after playSegments()
+            previewArea.__lottieAnim.resetSegments(true);
+            previewArea.__lottieAnim.goToAndStop(previewArea.__lottieStartFrame || 0, true);
           } catch {
             // Ignore
           }
@@ -2725,7 +2864,9 @@
 
       if (previewArea.__lottieAnim) {
         try {
-          previewArea.__lottieAnim.play();
+          const seg = previewArea.__lottieSegment;
+          if (seg) previewArea.__lottieAnim.playSegments(seg, true);
+          else previewArea.__lottieAnim.play();
           return;
         } catch {
           cleanupLottieLayer();
@@ -2763,6 +2904,8 @@
           animationData: JSON.parse(JSON.stringify(liData.lottie)),
         });
         previewArea.__lottieAnim = anim;
+        previewArea.__lottieStartFrame = defState ? defState.startFrame : 0;
+        previewArea.__lottieSegment = defState ? [defState.startFrame, defState.endFrame] : null;
         if (defState) {
           anim.playSegments([defState.startFrame, defState.endFrame], true);
         } else {
@@ -2862,7 +3005,11 @@
   // ============================================================================
   // DEDICATED COLLECTION VIEW SCREEN RENDERER
   // ============================================================================
-  async function openCollectionPage(site, collectionSlug, pushHistory = true, initialParams = {}) {
+  function openCollectionPage(site, collectionSlug, pushHistory = true, initialParams = {}) {
+    return withTopProgress(() => openCollectionPageImpl(site, collectionSlug, pushHistory, initialParams));
+  }
+
+  async function openCollectionPageImpl(site, collectionSlug, pushHistory = true, initialParams = {}) {
     const safeSite = 'any';
     const initQ = initialParams.q || '';
     const initStyle = initialParams.styleType || '';
@@ -3166,17 +3313,24 @@
     }
   }
 
-  async function openDetailPage(site, collectionSlug, idOrSlug, pushHistory = true) {
-    destroyActiveStageLottie();
+  let detailNavToken = 0;
+  function openDetailPage(site, collectionSlug, idOrSlug, pushHistory = true) {
+    detailNavToken += 1;
+    const navToken = detailNavToken;
+    return withTopProgress(() => openDetailPageImpl(site, collectionSlug, idOrSlug, pushHistory, navToken));
+  }
+
+  async function openDetailPageImpl(site, collectionSlug, idOrSlug, pushHistory, navToken) {
     let data;
     try {
-      data = await apiFetchJson(
-        `/api/catalog/icon/any/${encodeURIComponent(collectionSlug)}/${encodeURIComponent(idOrSlug)}`
-      );
+      data = await apiFetchJson(buildIconDetailApiUrl(collectionSlug, idOrSlug));
     } catch {
-      showToast(t('toastIconNotFound'));
+      if (navToken === detailNavToken) showToast(t('toastIconNotFound'));
       return;
     }
+    // A newer navigation started while we were waiting: drop this stale response
+    if (navToken !== detailNavToken) return;
+    destroyActiveStageLottie();
 
     const {
       icon,
@@ -3227,6 +3381,7 @@
       } catch {
         // Ignore network error
       }
+      if (navToken !== detailNavToken) return;
     }
 
     let activeCodeTab = 'svg';
@@ -3260,6 +3415,7 @@
     let activeMotionStateId = '';
     let isStageLiveLooping = true;
     let svgExportMode = isLordicon ? 'loop' : 'static'; // 'static' | 'hover' | 'loop'
+    let hoverPlayOnce = false; // hover mode: false = repeat while hovered, true = play once per hover
     let compiledAnimatedSvgCache = null;
 
     const primaryHex = editableColorSlots[0]?.hex || (icon.colorPalette && icon.colorPalette[0]) || '#f97316';
@@ -3300,6 +3456,7 @@
           lordiconMotionStates.find((s) => s.id === activeMotionStateId) || lordiconMotionStates[0];
         compiledAnimatedSvgCache = await compileStandaloneAnimatedSvg(lordiconLottieData, stObj, {
           exportMode: svgExportMode,
+          hoverPlayOnce,
           colorMap,
           strokeMode,
           bgTransparent,
@@ -3463,6 +3620,17 @@
                 <span> · </span>
                 <span id="stageBytesLabel">${formatBytes(icon.fileSizeBytes)}</span>
               </div>
+              ${
+                isLordicon
+                  ? `
+              <div class="hover-repeat-toggle" id="hoverRepeatToggle" role="group" aria-label="${escapeHtml(t('hoverRepeatLabel'))}" style="${svgExportMode === 'hover' ? '' : 'display:none'}">
+                <span class="hover-repeat-label">${escapeHtml(t('hoverRepeatLabel'))}</span>
+                <button type="button" class="hover-repeat-btn ${hoverPlayOnce ? 'active' : ''}" data-hover-repeat="once">${escapeHtml(t('hoverRepeatOnce'))}</button>
+                <button type="button" class="hover-repeat-btn ${hoverPlayOnce ? '' : 'active'}" data-hover-repeat="loop">${escapeHtml(t('hoverRepeatLoop'))}</button>
+              </div>
+            `
+                  : ''
+              }
             </div>
           </div>
 
@@ -3854,6 +4022,13 @@
       detailView.querySelectorAll('[data-svg-export-mode]').forEach((b) => {
         b.classList.toggle('active', b.dataset.svgExportMode === svgExportMode);
       });
+      const hoverRepeatToggle = document.getElementById('hoverRepeatToggle');
+      if (hoverRepeatToggle) {
+        hoverRepeatToggle.style.display = svgExportMode === 'hover' ? '' : 'none';
+        hoverRepeatToggle.querySelectorAll('[data-hover-repeat]').forEach((b) => {
+          b.classList.toggle('active', (b.dataset.hoverRepeat === 'once') === hoverPlayOnce);
+        });
+      }
     }
 
     function mountStageVisual(playOnceInHoverMode = false) {
@@ -3883,6 +4058,12 @@
           loop: svgExportMode === 'loop' || !playOnceInHoverMode,
           autoplay: false,
           animationData: customizedLottie,
+        });
+        const mountedAnim = activeStageLottieAnim;
+        mountedAnim.addEventListener('complete', () => {
+          if (svgExportMode !== 'hover' || activeStageLottieAnim !== mountedAnim) return;
+          mountedAnim.__playingOnce = false;
+          restStageAnimAtStart(mountedAnim);
         });
         if (svgExportMode === 'loop') {
           if (stObj) {
@@ -3920,25 +4101,44 @@
       }
     }
 
+    // Rest the stage animation on the first frame of the active motion state.
+    // NOTE: after playSegments(), lottie-web treats goToAndStop() frames as RELATIVE to the active
+    // segment, so we must reset segments first or we'd jump to (startFrame * 2) → blank frame.
+    function restStageAnimAtStart(anim) {
+      if (!anim) return;
+      const stObj =
+        lordiconMotionStates.find((s) => s.id === activeMotionStateId) || lordiconMotionStates[0];
+      try {
+        anim.resetSegments(true);
+        anim.goToAndStop(stObj ? stObj.startFrame : 0, true);
+      } catch {
+        // Ignore
+      }
+    }
+
     // Stage hover listener for 'hover' mode
     if (isLordicon && stageCanvas) {
       stageCanvas.addEventListener('pointerenter', () => {
         if (svgExportMode !== 'hover' || !activeStageLottieAnim) return;
+        const anim = activeStageLottieAnim;
+        // "Play once": don't restart while a run is still in progress
+        if (hoverPlayOnce && anim.__playingOnce) return;
         const stObj =
           lordiconMotionStates.find((s) => s.id === activeMotionStateId) || lordiconMotionStates[0];
-        activeStageLottieAnim.loop = true;
+        anim.loop = !hoverPlayOnce;
+        anim.__playingOnce = hoverPlayOnce;
         if (stObj) {
-          activeStageLottieAnim.playSegments([stObj.startFrame, stObj.endFrame], true);
+          anim.playSegments([stObj.startFrame, stObj.endFrame], true);
         } else {
-          activeStageLottieAnim.play();
+          anim.goToAndPlay(0, true);
         }
       });
 
       stageCanvas.addEventListener('pointerleave', () => {
         if (svgExportMode !== 'hover' || !activeStageLottieAnim) return;
-        const stObj =
-          lordiconMotionStates.find((s) => s.id === activeMotionStateId) || lordiconMotionStates[0];
-        activeStageLottieAnim.goToAndStop(stObj ? stObj.startFrame : 0, true);
+        // "Play once": let the current run finish by itself (handled by the 'complete' listener)
+        if (hoverPlayOnce && activeStageLottieAnim.__playingOnce) return;
+        restStageAnimAtStart(activeStageLottieAnim);
       });
     }
 
@@ -4125,6 +4325,17 @@
       detailView.querySelectorAll('[data-svg-export-mode]').forEach((btn) => {
         btn.addEventListener('click', async () => {
           svgExportMode = btn.dataset.svgExportMode;
+          syncExportModeButtonsUI();
+          await refreshStageAndCode(true, false);
+        });
+      });
+
+      // Hover repeat toggle (Play once | Repeat) — only visible in 'hover' export mode
+      detailView.querySelectorAll('[data-hover-repeat]').forEach((btn) => {
+        btn.addEventListener('click', async () => {
+          const nextOnce = btn.dataset.hoverRepeat === 'once';
+          if (nextOnce === hoverPlayOnce) return;
+          hoverPlayOnce = nextOnce;
           syncExportModeButtonsUI();
           await refreshStageAndCode(true, false);
         });
