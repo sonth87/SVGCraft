@@ -257,6 +257,8 @@
       exportModeLoopSub: 'Loops continuously by itself (infinite)',
       exportPanelTitle: 'Export',
       exportOptAnimation: 'Animation',
+      exportOptMotion: 'Motion',
+      exportMotionLoading: 'Loading motion states…',
       exportOptSize: 'Size',
       exportModeStaticShort: 'Static',
       exportModeHoverShort: 'On hover',
@@ -266,6 +268,9 @@
       exportLottieLoading: 'Lottie data is still loading…',
       exportLottieNote: 'Preview truncated — Copy / Download gives the full JSON with your colors & stroke.',
       exportFailed: 'Export failed, please try again.',
+      exportModeNotePng: 'PNG is always a still image',
+      exportModeNoteHtml: 'HTML <img> links the original file',
+      exportModeNoteLottie: 'Lottie JSON already contains every motion',
       hoverRepeatLabel: 'On hover:',
       hoverRepeatOnce: 'Play once',
       hoverRepeatLoop: 'Repeat',
@@ -477,7 +482,9 @@
       exportModeLoop: 'SVG Động tự chạy (Auto Loop)',
       exportModeLoopSub: 'Tự chạy lặp liên tục (infinite)',
       exportPanelTitle: 'Xuất file',
-      exportOptAnimation: 'Chuyển động',
+      exportOptAnimation: 'Kiểu chạy',
+      exportOptMotion: 'Chuyển động',
+      exportMotionLoading: 'Đang tải các chuyển động…',
       exportOptSize: 'Kích thước',
       exportModeStaticShort: 'Tĩnh',
       exportModeHoverShort: 'Khi hover',
@@ -487,6 +494,9 @@
       exportLottieLoading: 'Dữ liệu Lottie đang tải…',
       exportLottieNote: 'Bản xem trước đã rút gọn — Copy / Tải sẽ lấy đủ JSON kèm màu & nét đã chỉnh.',
       exportFailed: 'Xuất file lỗi, vui lòng thử lại.',
+      exportModeNotePng: 'PNG luôn là ảnh tĩnh',
+      exportModeNoteHtml: 'HTML <img> dùng link file gốc',
+      exportModeNoteLottie: 'Lottie JSON đã chứa toàn bộ chuyển động',
       hoverRepeatLabel: 'Khi hover:',
       hoverRepeatOnce: 'Chạy 1 lần',
       hoverRepeatLoop: 'Lặp lại',
@@ -3758,23 +3768,6 @@
             </div>
           </div>
 
-          ${
-            isLordicon
-              ? `
-            <!-- Lordicon Motion States Box -->
-            <div class="detail-panel-box" id="lordiconMotionBox">
-              <div class="panel-box-label">
-                <span>${escapeHtml(t('motionPanelTitle'))}</span>
-                <span id="activeMotionStateLabel" style="text-transform:none;font-weight:600;color:var(--brand-orange)">Loading...</span>
-              </div>
-              <div class="motion-states-wrap" id="lordiconMotionStatesWrap">
-                <span style="font-size:0.75rem;color:var(--text-dim)">Loading Lottie motion states...</span>
-              </div>
-            </div>
-          `
-              : ''
-          }
-
           <!-- Variant Selector Box (Supports both standard variants & all 10 Lordicon Cross-Style Variants) -->
           <div class="detail-panel-box">
             <div class="panel-box-label">
@@ -3882,6 +3875,38 @@
 
           <!-- Unified Export Panel: pick a format → tweak its options → Copy or Download -->
           <div class="code-studio-card export-panel" id="exportPanel">
+            ${
+              isLordicon
+                ? `
+            <!-- Shared animation mode: drives the stage preview and every SVG-based format below -->
+            <div class="export-mode-row" id="exportModeRow">
+              <div class="export-option-group export-motion-group">
+                <span class="export-option-label">${escapeHtml(t('exportOptMotion'))}</span>
+                <div class="code-tabs-group" id="lordiconMotionStatesWrap">
+                  <span class="export-mode-note" style="padding:0 8px">${escapeHtml(t('exportMotionLoading'))}</span>
+                </div>
+              </div>
+              <div class="export-mode-break" aria-hidden="true"></div>
+              <div class="export-option-group" data-export-option="svgMode">
+                <span class="export-option-label">${escapeHtml(t('exportOptAnimation'))}</span>
+                <div class="code-tabs-group">
+                  ${[
+                    ['static', 'exportModeStaticShort', 'exportModeStaticSub'],
+                    ['hover', 'exportModeHoverShort', 'exportModeHoverSub'],
+                    ['loop', 'exportModeLoopShort', 'exportModeLoopSub'],
+                  ]
+                    .map(
+                      ([mode, labelKey, subKey]) => `
+                  <button type="button" class="code-tab-btn ${svgExportMode === mode ? 'active' : ''}" data-svg-export-mode="${mode}" title="${escapeHtml(t(subKey))}">${escapeHtml(t(labelKey))}</button>`
+                    )
+                    .join('')}
+                </div>
+              </div>
+              <span class="export-mode-note" id="exportModeNote"></span>
+            </div>
+          `
+                : ''
+            }
             <div class="code-studio-header">
               <div class="code-tabs-group" role="tablist" aria-label="${escapeHtml(t('exportPanelTitle'))}">
                 ${getExportFormats()
@@ -3898,27 +3923,6 @@
             </div>
 
             <div class="export-options-row" id="exportOptionsRow">
-              ${
-                isLordicon
-                  ? `
-              <div class="export-option-group" data-export-option="svgMode">
-                <span class="export-option-label">${escapeHtml(t('exportOptAnimation'))}</span>
-                <div class="code-tabs-group">
-                  ${[
-                    ['static', 'exportModeStaticShort', 'exportModeStaticSub'],
-                    ['hover', 'exportModeHoverShort', 'exportModeHoverSub'],
-                    ['loop', 'exportModeLoopShort', 'exportModeLoopSub'],
-                  ]
-                    .map(
-                      ([mode, labelKey, subKey]) => `
-                  <button type="button" class="code-tab-btn ${svgExportMode === mode ? 'active' : ''}" data-svg-export-mode="${mode}" title="${escapeHtml(t(subKey))}">${escapeHtml(t(labelKey))}</button>`
-                    )
-                    .join('')}
-                </div>
-              </div>
-            `
-                  : ''
-              }
               <div class="export-option-group" data-export-option="pngSize">
                 <span class="export-option-label">${escapeHtml(t('exportOptSize'))}</span>
                 <div class="code-tabs-group">
@@ -4327,7 +4331,7 @@
           statesWrap.innerHTML = lordiconMotionStates
             .map(
               (st) => `
-              <button type="button" class="motion-state-pill ${st.id === activeMotionStateId ? 'active' : ''}" data-motion-state="${escapeHtml(st.id)}">
+              <button type="button" class="code-tab-btn ${st.id === activeMotionStateId ? 'active' : ''}" data-motion-state="${escapeHtml(st.id)}" title="${escapeHtml(`${st.rawName} · ${st.durationFrames} frames`)}">
                 ${ICONS['play-circle']}
                 <span>${escapeHtml(st.label)}</span>
               </button>
@@ -4638,19 +4642,21 @@
       detailView.querySelectorAll('[data-png-size]').forEach((b) => {
         b.classList.toggle('active', Number(b.dataset.pngSize) === exportPngSize);
       });
-      // Show only the options that apply to the selected format
-      detailView.querySelectorAll('[data-export-option]').forEach((g) => {
-        const opt = g.dataset.exportOption;
-        const visible = (opt === 'svgMode' && SVG_MODE_FORMATS.has(fmt)) || (opt === 'pngSize' && fmt === 'png');
-        g.style.display = visible ? '' : 'none';
-      });
-      const optionsRow = document.getElementById('exportOptionsRow');
-      if (optionsRow) {
-        const anyVisible = Array.from(optionsRow.querySelectorAll('[data-export-option]')).some(
-          (g) => g.style.display !== 'none'
-        );
-        optionsRow.style.display = anyVisible ? '' : 'none';
+      // Shared animation mode row (top): always visible since it also drives the stage preview,
+      // but dimmed with a short note for formats that don't use it (PNG / HTML / Lottie)
+      const modeRow = document.getElementById('exportModeRow');
+      if (modeRow) {
+        const applies = SVG_MODE_FORMATS.has(fmt);
+        modeRow.classList.toggle('is-not-applied', !applies);
+        const note = document.getElementById('exportModeNote');
+        if (note) {
+          const noteKey = { png: 'exportModeNotePng', html: 'exportModeNoteHtml', lottie: 'exportModeNoteLottie' }[fmt];
+          note.textContent = applies || !noteKey ? '' : t(noteKey);
+        }
       }
+      // Format-specific options row (currently only PNG size)
+      const optionsRow = document.getElementById('exportOptionsRow');
+      if (optionsRow) optionsRow.style.display = fmt === 'png' ? '' : 'none';
       if (codeLangBadge) codeLangBadge.textContent = getLangBadgeForTab(fmt);
       const dlLabel = document.getElementById('btnExportDownloadLabel');
       const ext = { svg: '.svg', jsx: '.jsx', vue: '.vue', html: '.html', datauri: '.txt', png: '.png', lottie: '.json' }[fmt];
