@@ -1,0 +1,6 @@
+{"site":"thesvg","slug":"family-anthropic","name":"Anthropic AI Family","author":"theSVG Community / Brand Owners","license":"MIT / Brand Guidelines","count":4,"description":"Claude and the tools around it","sourceUrl":"https://thesvg.org/family/anthropic","updatedAt":"2026-10-23T10:37:03.878Z","icons":[
+{"id":"anthropic","slug":"anthropic","title":"anthropic","cat":"ai","style":"filled","type":"brand-logo","grid":"24x24","at":"2026-10-23T02:10:23.807Z","files":{"default":"anthropic-anthropic.svg","dark":"anthropic-anthropic.dark.svg"},"tags":["anthropic","ai","family"]},
+{"id":"claude","slug":"claude","title":"claude","cat":"ai","style":"filled","type":"brand-logo","grid":"24x24","at":"2026-10-23T02:10:24.042Z","tags":["claude","ai","family","anthropic"]},
+{"id":"claude-ai","slug":"claude-ai","title":"Claude AI\nAI · 4 variants","cat":"ai","style":"filled","type":"brand-logo","grid":"256x257","at":"2026-10-23T02:10:24.615Z","raw":"Claude AI\nAI · 4 variants","tags":["claude","ai","variants","family","anthropic"]},
+{"id":"claude-code","slug":"claude-code","title":"claude-code","cat":"ai","style":"filled","type":"brand-logo","grid":"24x24","at":"2026-10-23T02:10:24.373Z","tags":["claude","code","ai","family","anthropic"]}
+]}
