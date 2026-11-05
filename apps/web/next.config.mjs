@@ -1,6 +1,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
+  // Workspace packages shipped as TypeScript source (no separate build step)
+  transpilePackages: ['@svg-hub/svg-tools'],
   experimental: {
     serverComponentsExternalPackages: ['@svg-hub/shared'],
     outputFileTracingExcludes: {

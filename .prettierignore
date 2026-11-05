@@ -1,0 +1,8 @@
+node_modules
+.next
+output
+data
+apps/web/data
+apps/web/public/app.js
+apps/crawler/public
+package-lock.json
