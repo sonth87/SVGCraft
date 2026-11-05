@@ -51,8 +51,18 @@ Open `http://localhost:3000`.
 - `npm run build` — Build the Next.js production bundle
 - `npm run start` — Run the production server
 - `npm run start:crawler` — Start the local crawler dashboard (`localhost:3456`)
-- `npm run build:index` — Generate compressed catalog index (`data/catalog-index.json.gz`) from local `output/`
-- `npm run r2:sync` — Upload local SVG files in `output/` to Cloudflare R2
+- `npm run publish` — After a crawl: upload new/changed SVGs from `output/` to R2 as `svg/{hash}.svg` and write the catalog JSON to `data/catalog/` (commit it). `-- --no-upload` writes the JSON only
+- `npm run build:index` — Build the search index (`apps/web/data/index.bin`, `details.bin`) from `data/catalog/`. Runs automatically before `dev` and `build`
+- `npm run check` — Format check, lint, typecheck and tests (same as CI)
+
+## Data flow
+
+```
+crawl → output/ (local only) → npm run publish ─┬─ SVG → Cloudflare R2 (svg/{hash}.svg, immutable)
+                                               └─ data/catalog/*.json → git → Vercel build → index.bin
+```
+
+Set `R2_PUBLIC_URL` to the bucket's public custom domain so browsers load SVGs straight from the CDN; without it they go through the same-origin `/svg/*` proxy. See `docs/web-refactor-plan.md`.
 
 ## License
 

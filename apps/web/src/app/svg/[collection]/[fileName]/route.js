@@ -1,6 +1,6 @@
 import path from 'path';
 import { NextResponse } from 'next/server';
-import { getStateManager, getR2Client, OUTPUT_DIR } from '@/lib/catalogServer';
+import { getR2Client, OUTPUT_DIR } from '@/lib/storage';
 
 function getCandidateFilesForSite(safeFile, siteId) {
   const m = safeFile.match(/^([a-zA-Z0-9-_]+?)(\.[a-zA-Z0-9-_]+)?\.svg$/);

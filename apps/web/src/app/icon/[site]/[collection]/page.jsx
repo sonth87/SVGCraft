@@ -1,5 +1,5 @@
 import SvgCraftShell from '@/components/SvgCraftShell';
-import { getStateManager } from '@/lib/catalogServer';
+import { getCatalog } from '@/lib/catalog';
 
 export async function generateMetadata({ params }) {
   try {
@@ -7,8 +7,9 @@ export async function generateMetadata({ params }) {
     // Mapped to [site]/[collection] to share Next.js dynamic segment naming with /icon/[site]/[collection]/[idOrSlug]
     const collectionSlug = decodeURIComponent(params.site);
     const idOrSlug = decodeURIComponent(params.collection);
-    const stateManager = getStateManager();
-    const data = stateManager.getIconWithRecommendations('any', collectionSlug, idOrSlug);
+    const index = getCatalog();
+    const ord = index.findIcon('any', collectionSlug, idOrSlug);
+    const data = ord >= 0 ? { icon: index.item(ord) } : null;
 
     if (data && data.icon) {
       const title = `${data.icon.title || data.icon.slug} SVG Icon (${data.icon.collectionName})`;

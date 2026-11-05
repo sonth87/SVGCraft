@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { getR2Client } from '@/lib/catalogServer';
+import { getR2Client } from '@/lib/storage';
 
 export const dynamic = 'force-dynamic';
 

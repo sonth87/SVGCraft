@@ -2,7 +2,7 @@
   "name": "svgcraft",
   "version": "2.0.0",
   "private": true,
-  "description": "SVGCraft \u2014 Next.js App Router Vector Icon Library, Inspector, Code Studio & Cloudflare R2 Platform",
+  "description": "SVGCraft — Next.js App Router Vector Icon Library, Inspector, Code Studio & Cloudflare R2 Platform",
   "workspaces": [
     "packages/*",
     "apps/*"
@@ -14,16 +14,13 @@
     "start:web": "npm --workspace=@svg-hub/web run dev",
     "start:all": "node scripts/dev.js",
     "start:crawler": "node --max-old-space-size=8192 apps/crawler/src/server.js",
-    "build:index": "node --max-old-space-size=8192 scripts/build-catalog-index.js",
-    "r2:sync": "node --max-old-space-size=8192 scripts/sync-to-r2.js",
-    "r2:sync:allsvgicons": "node --max-old-space-size=8192 scripts/sync-to-r2.js --site=allsvgicons",
-    "r2:sync:lordicon": "node --max-old-space-size=8192 scripts/sync-to-r2.js --site=lordicon",
-    "r2:dry-run": "node --max-old-space-size=8192 scripts/sync-to-r2.js --dry-run",
+    "build:index": "tsx scripts/build-catalog-index.ts",
+    "publish": "node --max-old-space-size=8192 --import tsx scripts/publish.ts",
     "lint": "npm --workspace=@svg-hub/web run lint",
-    "typecheck": "npm --workspace=@svg-hub/web run typecheck && npm --workspace=@svg-hub/svg-tools run typecheck",
+    "typecheck": "npm --workspace=@svg-hub/web run typecheck && npm --workspace=@svg-hub/svg-tools run typecheck && npm --workspace=@svg-hub/catalog run typecheck && tsc --noEmit -p scripts",
     "test": "vitest run",
-    "format": "prettier --no-error-on-unmatched-pattern --write \"packages/svg-tools/**/*.ts\" \"apps/web/src/**/*.{ts,tsx}\" \"docs/**/*.md\"",
-    "format:check": "prettier --no-error-on-unmatched-pattern --check \"packages/svg-tools/**/*.ts\" \"apps/web/src/**/*.{ts,tsx}\" \"docs/**/*.md\"",
+    "format": "prettier --no-error-on-unmatched-pattern --write \"packages/svg-tools/**/*.ts\" \"packages/catalog/**/*.ts\" \"scripts/**/*.ts\" \"apps/web/src/**/*.{ts,tsx}\" \"docs/**/*.md\"",
+    "format:check": "prettier --no-error-on-unmatched-pattern --check \"packages/svg-tools/**/*.ts\" \"packages/catalog/**/*.ts\" \"scripts/**/*.ts\" \"apps/web/src/**/*.{ts,tsx}\" \"docs/**/*.md\"",
     "check": "npm run format:check && npm run lint && npm run typecheck && npm run test"
   },
   "dependencies": {
@@ -36,6 +33,7 @@
   "devDependencies": {
     "eslint-config-prettier": "^9.1.0",
     "prettier": "^3.3.3",
+    "tsx": "^4.19.2",
     "typescript": "^5.6.3",
     "vitest": "^2.1.4"
   }

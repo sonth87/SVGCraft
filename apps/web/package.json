@@ -2,20 +2,23 @@
   "name": "@svg-hub/web",
   "version": "2.0.0",
   "private": true,
-  "description": "SVGCraft \u2014 Next.js App Router Vector Icon Library, Inspector, Code Studio & Cloudflare R2 Platform",
+  "description": "SVGCraft — Next.js App Router Vector Icon Library, Inspector, Code Studio & Cloudflare R2 Platform",
   "scripts": {
+    "predev": "tsx ../../scripts/build-catalog-index.ts --if-stale",
     "dev": "next dev",
+    "prebuild": "tsx ../../scripts/build-catalog-index.ts",
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
+    "@svg-hub/catalog": "*",
     "@svg-hub/shared": "*",
+    "@svg-hub/svg-tools": "*",
     "next": "^14.2.35",
     "react": "^18.3.1",
-    "react-dom": "^18.3.1",
-    "@svg-hub/svg-tools": "*"
+    "react-dom": "^18.3.1"
   },
   "devDependencies": {
     "@types/node": "^20.16.11",
@@ -23,6 +26,7 @@
     "@types/react-dom": "^18.3.1",
     "eslint": "^8.57.1",
     "eslint-config-next": "^14.2.35",
+    "tsx": "^4.19.2",
     "typescript": "^5.6.3"
   }
 }

@@ -2050,6 +2050,12 @@ class StateManager {
 
 module.exports = {
   StateManager,
+  // Taxonomy used by the catalog publish/index build (scripts/)
+  BRAND_ECOSYSTEM_DEFINITIONS,
+  STRICT_BRAND_COLLECTIONS,
+  LEGACY_CATEGORY_MAP,
+  normalizeCategoryId,
+  cleanCollectionDisplayName,
   ROOT_DIR,
   DATA_DIR,
   OUTPUT_DIR,

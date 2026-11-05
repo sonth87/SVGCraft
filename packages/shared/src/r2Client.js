@@ -368,7 +368,16 @@ class R2Client {
   /**
    * Upload an SVG string or Buffer to Cloudflare R2 with immutable 1-year Cache-Control
    */
-  async putSvgObject(objectKey, rawSvgContent, { skipIfUploaded = true, autoSaveState = true } = {}) {
+  /**
+   * @param {object} [opts]
+   * @param {boolean} [opts.recordKey=true] false = only update quota counters, don't remember the key in
+   *   r2-sync-state.json (content-addressed uploads keep their sync state in data/catalog instead)
+   */
+  async putSvgObject(
+    objectKey,
+    rawSvgContent,
+    { skipIfUploaded = true, autoSaveState = true, recordKey = true, alreadyMinified = false } = {}
+  ) {
     if (!this.hasCredentials()) {
       throw new Error('Thiếu R2_ACCESS_KEY_ID hoặc R2_SECRET_ACCESS_KEY trong file .env');
     }
@@ -378,7 +387,7 @@ class R2Client {
       return { skipped: true, key: cleanKey, bytes: this.state.uploadedKeys[cleanKey] };
     }
 
-    const minified = minifySvg(rawSvgContent);
+    const minified = alreadyMinified ? String(rawSvgContent) : minifySvg(rawSvgContent);
     const bodyBuf = Buffer.from(minified, 'utf8');
 
     const quotaCheck = this.checkWriteQuota(cleanKey, bodyBuf.length);
@@ -409,12 +418,17 @@ class R2Client {
       throw new Error(`R2 PUT lỗi (${res.status}): ${errText.slice(0, 240)}`);
     }
 
-    const prevBytes = this.state.uploadedKeys[cleanKey] || 0;
-    if (!Object.prototype.hasOwnProperty.call(this.state.uploadedKeys, cleanKey)) {
+    if (recordKey) {
+      const prevBytes = this.state.uploadedKeys[cleanKey] || 0;
+      if (!Object.prototype.hasOwnProperty.call(this.state.uploadedKeys, cleanKey)) {
+        this.state.totalFilesUploaded += 1;
+      }
+      this.state.totalBytesUploaded += bodyBuf.length - prevBytes;
+      this.state.uploadedKeys[cleanKey] = bodyBuf.length;
+    } else {
       this.state.totalFilesUploaded += 1;
+      this.state.totalBytesUploaded += bodyBuf.length;
     }
-    this.state.totalBytesUploaded += bodyBuf.length - prevBytes;
-    this.state.uploadedKeys[cleanKey] = bodyBuf.length;
 
     if (autoSaveState) {
       this.saveState();

@@ -37,19 +37,43 @@ crawl ─► output/ (local, gitignore, như hiện nay)
                 └─ 3. git commit + push ─► Vercel tự deploy
 ```
 
-### `data/catalog/` (commit lên git, ~30–50MB)
+### `data/catalog/` (commit lên git, 61MB, gzip 6,7MB)
 
-- `collections.json`: thông tin tóm tắt các collection
-- `facets.json`: số đếm category, style, loại icon, site, nhóm grid
-- `collections/{site}/{slug}.json`: icon của từng collection. Mỗi icon một dòng để git diff gọn. Collection lớn chia thành nhiều file, mỗi file 500 icon
+- `manifest.json`: tổng số icon, collection, số icon đã lên R2 theo hash
+- `collections.json`: thông tin tóm tắt các collection, mỗi collection một dòng
+- `collections/{site}/{slug}.json`: icon của từng collection, mỗi icon một dòng, sắp theo slug để git diff gọn
+- Định dạng record: `packages/catalog/src/schema.ts`. `files` chỉ ghi khi tên file khác quy tắc `{slug}-{id}.svg` (6.612/243.929 icon)
 
-Mỗi record icon lưu cả `svgHash` (và `lottieHash` nếu có). Đây cũng là **trạng thái đồng bộ R2**: lần publish sau hash nào đã có thì bỏ qua, nên bỏ được `r2-sync-state.json`.
+Mỗi record icon có `hash` theo từng variant, **chỉ khi** object đã nằm trên R2 ở `svg/{hash}.svg`. Đây cũng là **trạng thái đồng bộ R2**: lần publish sau hash nào đã có thì bỏ qua, không cần gọi R2. Icon chưa có hash dùng key R2 cũ `{site}/{collection}/icons/{file}`, nên web chạy được trong lúc chuyển dần.
+
+Khác kế hoạch ban đầu:
+
+- **Không chia file 500 icon.** Chèn một icon sẽ đẩy ranh giới các phần, làm diff lan ra nhiều file. Collection lớn nhất chỉ ~700KB và runtime không đọc file này
+- **Không có `facets.json`.** Số đếm là dữ liệu dẫn xuất, tính lúc build cùng index
+- `r2-sync-state.json` vẫn còn ở máy local, nhưng chỉ để đếm quota R2 (dung lượng, lượt ghi) và chứa danh sách key cũ. Xoá được khi xoá các object key cũ trên R2
 
 **Không commit** các file `metadata.json` gốc của crawler (tổng 241MB).
 
 ### Lúc build
 
-`next build` đọc `data/catalog/` rồi sinh `search/index.bin`: chỉ mục từ khoá → danh sách icon, danh sách icon theo từng giá trị bộ lọc, thứ tự sắp xếp có sẵn, lưu dạng mảng số. File này là dữ liệu dẫn xuất, **không commit**. Mục tiêu: RAM 20–40MB, mỗi truy vấn dưới 10ms, phân trang bằng cursor.
+`prebuild`/`predev` chạy `scripts/build-catalog-index.ts`: đọc `data/catalog/` (~2–3s), sinh vào `apps/web/data/` (gitignore):
+
+- `index.bin` (46MB): các cột số (site, collection, category, style…), chỉ mục từ khoá → danh sách icon, danh sách icon theo từng giá trị bộ lọc, thứ tự A–Z/Z–A có sẵn, thư mục collection/brand, summary
+- `details.bin` (35MB): tags, variant, hash của từng icon. Đọc theo vị trí (pread) khi mở trang chi tiết, không nạp vào RAM
+
+Đo thực tế (243.929 icon), so với bản cũ:
+
+|                        | Cũ (`catalog-index.json.gz` + StateManager) | Mới                                                  |
+| ---------------------- | ------------------------------------------- | ---------------------------------------------------- |
+| Nạp lúc cold start     | ~0,8s, heap ~284MB                          | ~40ms, RSS +65MB                                     |
+| Truy vấn lưới/tìm/lọc  | 100–170ms                                   | 0,05–5ms                                             |
+| Offset tối đa          | 12.000                                      | không giới hạn, có `nextCursor`                      |
+| `/api/catalog/summary` | 335KB                                       | 169KB (bỏ `gridSizes`, rút gọn danh sách collection) |
+| 72 icon trong lưới     | object đầy đủ                               | 27KB, chỉ các trường lưới cần                        |
+
+RAM cao hơn mục tiêu 20–40MB ban đầu, chủ yếu vì chuỗi id/slug/title (14MB) và danh sách token (10MB). Vẫn thấp hơn bản cũ 4 lần, nên chưa tối ưu thêm.
+
+Tìm kiếm: mỗi từ trong truy vấn phải là chuỗi con của một token của icon (title, slug, tên collection, category, style, author, tags). Kết quả giống hệt bản cũ với truy vấn một từ. Truy vấn nhiều từ ("arrow left") cho **nhiều** kết quả hơn bản cũ (khớp đủ các từ, không cần đúng cụm), và icon có title/slug chứa nguyên cụm được xếp trước.
 
 ### Mỗi loại dữ liệu đi từ đâu
 
@@ -83,7 +107,7 @@ apps/web/src/
 packages/
   core/           types, taxonomy, slug
   svg-tools/      đổi màu SVG/Lottie, xuất JSX/Vue/DataURI, biên dịch SVG động (hàm thuần, có test)
-  catalog-index/  sinh index (publish/build) + truy vấn (runtime)
+  catalog/        schema data/catalog, sinh index (build) + truy vấn (runtime)
   storage/        client R2
 apps/crawler/     chỉ crawl → output/
 scripts/publish.ts
@@ -103,7 +127,7 @@ Thay dần từng phần, web vẫn chạy suốt quá trình. Mỗi trang là m
 | #   | Giai đoạn                | Nội dung                                                                                                                                        | Ước lượng | Trạng thái     |
 | --- | ------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------- | --------- | -------------- |
 | 0   | Nền móng                 | TS, lint, Prettier, Vitest, CI. Tách hàm thuần từ `app.js` sang `packages/svg-tools` kèm test                                                   | 2–3 ngày  | Xong (11/2026) |
-| 1   | Dữ liệu                  | `publish` (upload theo hash, sinh `data/catalog/`), `index.bin` lúc build, API cursor, cho `app.js` dùng nguồn mới. Xoá `catalog-index.json.gz` | 3–4 ngày  |                |
+| 1   | Dữ liệu                  | `publish` (upload theo hash, sinh `data/catalog/`), `index.bin` lúc build, API cursor, cho `app.js` dùng nguồn mới. Xoá `catalog-index.json.gz` | 3–4 ngày  | Xong (11/2026) |
 | 2   | Trang chi tiết           | React + SSR, studio, panel Export, color picker có màu gần đây                                                                                  | 5–7 ngày  |                |
 | 3   | Trang collection         | React, cursor                                                                                                                                   | 2–3 ngày  |                |
 | 4   | Catalog, sidebar, topbar | React, bộ lọc trên URL, cuộn vô hạn. **Xoá `app.js`**, chia nhỏ `globals.css`                                                                   | 4–6 ngày  |                |
@@ -123,3 +147,18 @@ Thay dần từng phần, web vẫn chạy suốt quá trình. Mỗi trang là m
 - Next dùng package dạng TypeScript gốc qua `transpilePackages`, đã chạy thử `next build`
 - `npm run check` = format + lint + typecheck + test; `.github/workflows/ci.yml` chạy lệnh này trên push/PR
 - Chưa tách: `compileStandaloneAnimatedSvg` và `exportSvgToPng` cần DOM, sẽ chuyển vào `features/` ở giai đoạn 2
+
+### Giai đoạn 1 — đã làm
+
+- `packages/catalog` (TS, không phụ thuộc DOM hay fs): schema, container nhị phân, build index, engine truy vấn. 23 test trên catalog mẫu
+- `scripts/publish.ts` (`npm run publish`): đọc `output/`, phân loại như `StateManager` cũ, upload SVG mới lên R2 theo hash (có cầu chì quota, `--max-uploads`), ghi `data/catalog/`. Chạy lại an toàn; dừng giữa chừng thì mất tối đa một collection
+- `scripts/build-catalog-index.ts`: chạy trước `next dev`/`next build`
+- 5 API `/api/catalog/*` viết lại bằng TS trên index mới, **giữ nguyên URL và dạng response** nên `app.js` không phải sửa. Thêm `nextCursor` và header `X-Catalog-Build`
+- Đã đối chiếu với `StateManager` cũ trên 40 truy vấn: tổng số và 24 kết quả đầu khớp, trừ các khác biệt có chủ đích ở trên, thứ tự `gridSizes` (theo bản production) và gợi ý "tương tự" (đếm theo token thay vì nguyên tag)
+- Xoá `catalog-index.json.gz`, `build-catalog-index.js`, `sync-to-r2.js`, `catalogServer.js`. Web không còn dùng `StateManager`, chỉ còn `R2Client` và `parseSvgMetadata` từ `@svg-hub/shared`
+
+**Chưa làm, cần bạn quyết định:**
+
+- **Upload theo hash lần đầu:** R2 hiện có đủ 249.425 file theo key cũ (566MB). `npm run publish` sẽ upload lại toàn bộ theo hash, tốn khoảng 249k lượt ghi Class A (free tier 1 triệu/tháng) và thêm ~566MB cho tới khi xoá key cũ. Catalog đang commit được sinh bằng `--no-upload`, mọi icon đang dùng key cũ
+- **`R2_PUBLIC_URL`:** chưa có thì mọi ảnh trong lưới vẫn đi qua `/svg/*` proxy (mỗi ảnh một lượt gọi function)
+- **Lottie:** máy chưa có file Lottie nào trong `output/`, nên `/api/lordicon/lottie` vẫn lấy từ lordicon.com. Upload Lottie theo hash làm khi crawler lưu file Lottie

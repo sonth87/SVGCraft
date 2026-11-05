@@ -1,6 +1,6 @@
 import path from 'path';
 import { NextResponse } from 'next/server';
-import { getR2Client, OUTPUT_DIR } from '@/lib/catalogServer';
+import { getR2Client, OUTPUT_DIR } from '@/lib/storage';
 
 function getFallbackFileNames(safeFile) {
   const candidates = [safeFile];

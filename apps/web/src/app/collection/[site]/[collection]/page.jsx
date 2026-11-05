@@ -1,11 +1,10 @@
 import SvgCraftShell from '@/components/SvgCraftShell';
-import { getStateManager } from '@/lib/catalogServer';
+import { getCatalog } from '@/lib/catalog';
 
 export async function generateMetadata({ params }) {
   try {
     const { site, collection } = params;
-    const stateManager = getStateManager();
-    const data = stateManager.getCollectionDetails(
+    const data = getCatalog().collectionDetails(
       decodeURIComponent(site),
       decodeURIComponent(collection),
       { limit: 1 }
