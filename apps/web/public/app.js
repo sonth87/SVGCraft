@@ -255,6 +255,17 @@
       exportModeHoverSub: 'Plays animation when hovered (:hover)',
       exportModeLoop: 'Animated SVG (Auto Loop)',
       exportModeLoopSub: 'Loops continuously by itself (infinite)',
+      exportPanelTitle: 'Export',
+      exportOptAnimation: 'Animation',
+      exportOptSize: 'Size',
+      exportModeStaticShort: 'Static',
+      exportModeHoverShort: 'On hover',
+      exportModeLoopShort: 'Loop',
+      exportCopyBtn: 'Copy',
+      exportDownloadBtn: 'Download',
+      exportLottieLoading: 'Lottie data is still loading…',
+      exportLottieNote: 'Preview truncated — Copy / Download gives the full JSON with your colors & stroke.',
+      exportFailed: 'Export failed, please try again.',
       hoverRepeatLabel: 'On hover:',
       hoverRepeatOnce: 'Play once',
       hoverRepeatLoop: 'Repeat',
@@ -465,6 +476,17 @@
       exportModeHoverSub: 'Tự chuyển động khi rê chuột (:hover)',
       exportModeLoop: 'SVG Động tự chạy (Auto Loop)',
       exportModeLoopSub: 'Tự chạy lặp liên tục (infinite)',
+      exportPanelTitle: 'Xuất file',
+      exportOptAnimation: 'Chuyển động',
+      exportOptSize: 'Kích thước',
+      exportModeStaticShort: 'Tĩnh',
+      exportModeHoverShort: 'Khi hover',
+      exportModeLoopShort: 'Tự lặp',
+      exportCopyBtn: 'Copy',
+      exportDownloadBtn: 'Tải',
+      exportLottieLoading: 'Dữ liệu Lottie đang tải…',
+      exportLottieNote: 'Bản xem trước đã rút gọn — Copy / Tải sẽ lấy đủ JSON kèm màu & nét đã chỉnh.',
+      exportFailed: 'Xuất file lỗi, vui lòng thử lại.',
       hoverRepeatLabel: 'Khi hover:',
       hoverRepeatOnce: 'Chạy 1 lần',
       hoverRepeatLoop: 'Lặp lại',
@@ -622,6 +644,40 @@
   let lastScrollFetchTs = 0;
   let activeIconsAbortController = null;
   let currentCollections = [];
+
+  // Detail-view export preferences (per viewer convenience only; safe if storage is blocked)
+  const PNG_EXPORT_SIZES = [32, 64, 128, 256, 512];
+  function readExportPref(key, fallback) {
+    try {
+      return window.localStorage.getItem(`svgcraft:export:${key}`) || fallback;
+    } catch {
+      return fallback;
+    }
+  }
+  function writeExportPref(key, value) {
+    try {
+      window.localStorage.setItem(`svgcraft:export:${key}`, value);
+    } catch {
+      // Ignore storage errors (private mode, blocked storage)
+    }
+  }
+  // Set by the open detail view: { copy, download }
+  let activeExportShortcuts = null;
+  window.addEventListener('keydown', (e) => {
+    if (!activeExportShortcuts || e.metaKey || e.ctrlKey || e.altKey || e.repeat) return;
+    const detailEl = document.getElementById('detailView');
+    if (!detailEl || detailEl.style.display === 'none') return;
+    const tgt = e.target;
+    if (tgt && (tgt.isContentEditable || /^(INPUT|TEXTAREA|SELECT)$/.test(tgt.tagName))) return;
+    const key = e.key.toLowerCase();
+    if (key === 'c' && !window.getSelection().toString()) {
+      e.preventDefault();
+      activeExportShortcuts.copy().catch(() => {});
+    } else if (key === 'd') {
+      e.preventDefault();
+      activeExportShortcuts.download().catch(() => {});
+    }
+  });
 
   // Client-side in-memory LRU caches to eliminate duplicate API & SVG network requests
   const apiJsonCache = new Map();
@@ -3384,7 +3440,24 @@
       if (navToken !== detailNavToken) return;
     }
 
-    let activeCodeTab = 'svg';
+    // Unified Export Panel state (format remembered per viewer; PNG size remembered too)
+    let activeCodeTab = readExportPref('format', 'svg');
+    if (!getExportFormats().some((f) => f.id === activeCodeTab)) activeCodeTab = 'svg';
+    let exportPngSize = Number(readExportPref('pngSize', '256'));
+    if (!PNG_EXPORT_SIZES.includes(exportPngSize)) exportPngSize = 256;
+
+    function getExportFormats() {
+      const list = [
+        { id: 'svg', label: 'SVG', icon: ICONS.code },
+        { id: 'jsx', label: 'React', icon: ICONS.react },
+        { id: 'vue', label: 'Vue', icon: ICONS.vue },
+        { id: 'html', label: 'HTML', icon: ICONS.code },
+        { id: 'datauri', label: 'Data URI', icon: ICONS.link },
+        { id: 'png', label: 'PNG', icon: ICONS.image },
+      ];
+      if (isLordicon) list.push({ id: 'lottie', label: 'Lottie', icon: ICONS['play-circle'] });
+      return list;
+    }
 
     // Initialize stageTone from the global topbar previewTone setting
     const globalTone = document.body.dataset.previewTone || 'auto';
@@ -3490,7 +3563,15 @@
     }
 
     function getLangBadgeForTab(tab) {
-      const map = { svg: 'XML / SVG', jsx: 'JSX / TSX', vue: 'Vue SFC', html: 'HTML', datauri: 'Data URI' };
+      const map = {
+        svg: 'XML / SVG',
+        jsx: 'JSX / TSX',
+        vue: 'Vue SFC',
+        html: 'HTML',
+        datauri: 'Data URI',
+        png: 'Image / PNG',
+        lottie: 'Lottie JSON',
+      };
       return map[tab] || 'CODE';
     }
 
@@ -3799,115 +3880,74 @@
             </div>
           </div>
 
-          ${
-            isLordicon
-              ? `
-            <!-- Option A1 On-Demand Animated SVG Export Mode Selector -->
-            <div class="export-mode-bar" id="lordiconExportModeBar">
-              <div class="export-mode-header">
-                <span>⚡ ${escapeHtml(t('exportModeTitle'))}</span>
-              </div>
-              <div class="export-mode-pills">
-                <button type="button" class="export-mode-btn ${svgExportMode === 'static' ? 'active' : ''}" data-svg-export-mode="static">
-                  <span class="export-mode-btn-title">${escapeHtml(t('exportModeStatic'))}</span>
-                  <span class="export-mode-btn-sub">${escapeHtml(t('exportModeStaticSub'))}</span>
-                </button>
-                <button type="button" class="export-mode-btn ${svgExportMode === 'hover' ? 'active' : ''}" data-svg-export-mode="hover">
-                  <span class="export-mode-btn-title">${escapeHtml(t('exportModeHover'))}</span>
-                  <span class="export-mode-btn-sub">${escapeHtml(t('exportModeHoverSub'))}</span>
-                </button>
-                <button type="button" class="export-mode-btn ${svgExportMode === 'loop' ? 'active' : ''}" data-svg-export-mode="loop">
-                  <span class="export-mode-btn-title">${escapeHtml(t('exportModeLoop'))}</span>
-                  <span class="export-mode-btn-sub">${escapeHtml(t('exportModeLoopSub'))}</span>
-                </button>
-              </div>
-            </div>
-          `
-              : ''
-          }
-
-          <!-- Primary Copy & Download Row (thesvg.org style) -->
-          <div class="detail-actions-row">
-            <button type="button" class="btn-action-hero primary" id="btnHeroCopySvg">
-              ${ICONS.copy}
-              <span>Copy SVG</span>
-            </button>
-            <button type="button" class="btn-action-hero" id="btnHeroCopyJsx">
-              ${ICONS.react}
-              <span>Copy JSX</span>
-            </button>
-            <button type="button" class="btn-action-hero" id="btnHeroCopyVue">
-              ${ICONS.vue}
-              <span>Copy Vue</span>
-            </button>
-            <button type="button" class="btn-action-hero" id="btnHeroCopyDataUri">
-              ${ICONS.link}
-              <span>Data URI</span>
-            </button>
-            <button type="button" class="btn-action-hero" id="btnHeroDownloadSvg">
-              ${ICONS.download}
-              <span>${escapeHtml(t('detailDownloadSvgBtn'))}</span>
-            </button>
-          </div>
-
-          <!-- Export PNG Bar (32px - 512px like thesvg.org) -->
-          <div class="png-export-bar">
-            <div class="png-export-title">
-              ${ICONS.image}
-              <span>${escapeHtml(t('detailPngExportTitle'))}</span>
-            </div>
-            <div class="png-size-buttons">
-              ${[32, 64, 128, 256, 512]
-                .map(
-                  (sz) => `
-                  <button type="button" class="btn-png-size" data-export-png="${sz}" title="${escapeHtml(t('detailPngBtnTitle', { size: sz }))}">
-                    ${ICONS.download}
-                    <span>${sz}px</span>
-                  </button>
-                `
-                )
-                .join('')}
-              <button type="button" class="btn-png-size" data-copy-png="256" title="${escapeHtml(t('detailCopyPngTitle'))}">
-                ${ICONS.copy}
-                <span>Copy PNG</span>
-              </button>
-            </div>
-          </div>
-
-          <!-- Interactive Code Studio Tabs (with Syntax Highlighting & Line Numbers) -->
-          <div class="code-studio-card">
+          <!-- Unified Export Panel: pick a format → tweak its options → Copy or Download -->
+          <div class="code-studio-card export-panel" id="exportPanel">
             <div class="code-studio-header">
-              <div class="code-tabs-group" role="tablist">
-                <button type="button" class="code-tab-btn active" data-code-tab="svg">
-                  ${ICONS.code}
-                  <span>SVG XML</span>
-                </button>
-                <button type="button" class="code-tab-btn" data-code-tab="jsx">
-                  ${ICONS.react}
-                  <span>React JSX</span>
-                </button>
-                <button type="button" class="code-tab-btn" data-code-tab="vue">
-                  ${ICONS.vue}
-                  <span>Vue</span>
-                </button>
-                <button type="button" class="code-tab-btn" data-code-tab="html">
-                  ${ICONS.code}
-                  <span>HTML &lt;img&gt;</span>
-                </button>
-                <button type="button" class="code-tab-btn" data-code-tab="datauri">
-                  ${ICONS.link}
-                  <span>Data URI</span>
-                </button>
+              <div class="code-tabs-group" role="tablist" aria-label="${escapeHtml(t('exportPanelTitle'))}">
+                ${getExportFormats()
+                  .map(
+                    (f) => `
+                <button type="button" class="code-tab-btn ${f.id === activeCodeTab ? 'active' : ''}" data-export-format="${f.id}" role="tab" aria-selected="${f.id === activeCodeTab}">
+                  ${f.icon}
+                  <span>${escapeHtml(f.label)}</span>
+                </button>`
+                  )
+                  .join('')}
               </div>
-              <div class="code-header-actions">
-                <span class="code-lang-badge" id="codeLangBadge">XML / SVG</span>
-                <button type="button" class="btn-copy-code-snippet" id="btnCopyActiveCode">
+              <span class="code-lang-badge" id="codeLangBadge">${escapeHtml(getLangBadgeForTab(activeCodeTab))}</span>
+            </div>
+
+            <div class="export-options-row" id="exportOptionsRow">
+              ${
+                isLordicon
+                  ? `
+              <div class="export-option-group" data-export-option="svgMode">
+                <span class="export-option-label">${escapeHtml(t('exportOptAnimation'))}</span>
+                <div class="code-tabs-group">
+                  ${[
+                    ['static', 'exportModeStaticShort', 'exportModeStaticSub'],
+                    ['hover', 'exportModeHoverShort', 'exportModeHoverSub'],
+                    ['loop', 'exportModeLoopShort', 'exportModeLoopSub'],
+                  ]
+                    .map(
+                      ([mode, labelKey, subKey]) => `
+                  <button type="button" class="code-tab-btn ${svgExportMode === mode ? 'active' : ''}" data-svg-export-mode="${mode}" title="${escapeHtml(t(subKey))}">${escapeHtml(t(labelKey))}</button>`
+                    )
+                    .join('')}
+                </div>
+              </div>
+            `
+                  : ''
+              }
+              <div class="export-option-group" data-export-option="pngSize">
+                <span class="export-option-label">${escapeHtml(t('exportOptSize'))}</span>
+                <div class="code-tabs-group">
+                  ${PNG_EXPORT_SIZES.map(
+                    (sz) => `
+                  <button type="button" class="code-tab-btn ${sz === exportPngSize ? 'active' : ''}" data-png-size="${sz}">${sz}px</button>`
+                  ).join('')}
+                </div>
+              </div>
+            </div>
+
+            <pre class="code-studio-pre scroller" id="codeStudioPre"><code></code></pre>
+            <div class="export-png-preview" id="exportPngPreview" style="display:none"></div>
+
+            <div class="export-footer">
+              <span class="export-footer-meta" id="exportFooterMeta"></span>
+              <div class="export-footer-actions">
+                <button type="button" class="btn-copy-code-snippet" id="btnExportCopy" title="${escapeHtml(t('exportCopyBtn'))} (C)">
                   ${ICONS.copy}
-                  <span>${escapeHtml(t('detailCopyCodeBtn'))}</span>
+                  <span>${escapeHtml(t('exportCopyBtn'))}</span>
+                  <kbd class="export-kbd">C</kbd>
+                </button>
+                <button type="button" class="btn-export-download" id="btnExportDownload" title="${escapeHtml(t('exportDownloadBtn'))} (D)">
+                  ${ICONS.download}
+                  <span id="btnExportDownloadLabel">${escapeHtml(t('exportDownloadBtn'))}</span>
+                  <kbd class="export-kbd">D</kbd>
                 </button>
               </div>
             </div>
-            <pre class="code-studio-pre scroller" id="codeStudioPre"><code>${renderHighlightedCodeBlock(getFormattedCodeForTab('svg'), 'svg')}</code></pre>
           </div>
 
           <!-- Metadata Cards Grid -->
@@ -4153,8 +4193,7 @@
       if (stageBytesLabel) stageBytesLabel.textContent = formatBytes(byteLen);
       if (metaFileSizeVal) metaFileSizeVal.textContent = formatBytes(byteLen);
 
-      codeStudioPre.innerHTML = `<code>${renderHighlightedCodeBlock(getFormattedCodeForTab(activeCodeTab), activeCodeTab)}</code>`;
-      if (codeLangBadge) codeLangBadge.textContent = getLangBadgeForTab(activeCodeTab);
+      renderExportPanel();
       if (activeVariantLabel) {
         activeVariantLabel.textContent =
           Array.isArray(lordiconStyles) && lordiconStyles.length
@@ -4567,91 +4606,189 @@
       });
     });
 
-    // Primary Copy / Download Actions (honors Static vs Hover Animated vs Loop Animated SVG export mode!)
-    document.getElementById('btnHeroCopySvg').addEventListener('click', async () => {
-      const finalSvg = await getOrCompileExportSvg();
-      await navigator.clipboard.writeText(finalSvg.trim());
-      await refreshStageAndCode(false);
-      showToast(t('toastSvgCopied'));
-    });
+    // ===================== Unified Export Panel =====================
+    const exportPngPreview = document.getElementById('exportPngPreview');
+    const exportFooterMeta = document.getElementById('exportFooterMeta');
+    const btnExportCopy = document.getElementById('btnExportCopy');
+    const btnExportDownload = document.getElementById('btnExportDownload');
+    const SVG_MODE_FORMATS = new Set(['svg', 'jsx', 'vue', 'datauri']);
 
-    document.getElementById('btnHeroCopyJsx').addEventListener('click', async () => {
-      const finalSvg = await getOrCompileExportSvg();
-      const compName = toPascalCaseComponentName(icon.slug || icon.title);
-      await navigator.clipboard.writeText(svgToJsx(finalSvg, compName));
-      showToast(t('toastJsxCopied', { comp: compName }));
-    });
+    function getCustomizedLottieJsonText() {
+      if (!lordiconLottieData) return '';
+      return JSON.stringify(applyCustomizationsToLottieJson(lordiconLottieData, { colorMap, strokeMode }));
+    }
 
-    document.getElementById('btnHeroCopyVue').addEventListener('click', async () => {
-      const finalSvg = await getOrCompileExportSvg();
-      await navigator.clipboard.writeText(svgToVue(finalSvg));
-      showToast(t('toastVueCopied'));
-    });
-
-    document.getElementById('btnHeroCopyDataUri').addEventListener('click', async () => {
-      const finalSvg = await getOrCompileExportSvg();
-      await navigator.clipboard.writeText(svgToDataUri(finalSvg));
-      showToast(t('toastDataUriCopied'));
-    });
-
-    document.getElementById('btnHeroDownloadSvg').addEventListener('click', async () => {
-      const finalSvg = await getOrCompileExportSvg();
-      const svgBlob = new Blob([finalSvg], { type: 'image/svg+xml;charset=utf-8' });
-      const dlUrl = URL.createObjectURL(svgBlob);
-      const a = document.createElement('a');
-      a.href = dlUrl;
+    function getExportFileBaseName() {
       const modeSuffix =
-        isLordicon && svgExportMode !== 'static'
+        isLordicon && svgExportMode !== 'static' && SVG_MODE_FORMATS.has(activeCodeTab)
           ? `-${activeLordiconFamily}-${activeLordiconStyle}-${svgExportMode}`
           : activeVariant !== 'default'
             ? `-${activeVariant}`
             : '';
-      a.download = `${icon.slug || 'icon'}${modeSuffix}.svg`;
+      return `${icon.slug || 'icon'}${modeSuffix}`;
+    }
+
+    function renderExportPanel() {
+      const fmt = activeCodeTab;
+      detailView.querySelectorAll('[data-export-format]').forEach((b) => {
+        const on = b.dataset.exportFormat === fmt;
+        b.classList.toggle('active', on);
+        b.setAttribute('aria-selected', String(on));
+      });
+      detailView.querySelectorAll('[data-png-size]').forEach((b) => {
+        b.classList.toggle('active', Number(b.dataset.pngSize) === exportPngSize);
+      });
+      // Show only the options that apply to the selected format
+      detailView.querySelectorAll('[data-export-option]').forEach((g) => {
+        const opt = g.dataset.exportOption;
+        const visible = (opt === 'svgMode' && SVG_MODE_FORMATS.has(fmt)) || (opt === 'pngSize' && fmt === 'png');
+        g.style.display = visible ? '' : 'none';
+      });
+      const optionsRow = document.getElementById('exportOptionsRow');
+      if (optionsRow) {
+        const anyVisible = Array.from(optionsRow.querySelectorAll('[data-export-option]')).some(
+          (g) => g.style.display !== 'none'
+        );
+        optionsRow.style.display = anyVisible ? '' : 'none';
+      }
+      if (codeLangBadge) codeLangBadge.textContent = getLangBadgeForTab(fmt);
+      const dlLabel = document.getElementById('btnExportDownloadLabel');
+      const ext = { svg: '.svg', jsx: '.jsx', vue: '.vue', html: '.html', datauri: '.txt', png: '.png', lottie: '.json' }[fmt];
+      if (dlLabel) dlLabel.textContent = `${t('exportDownloadBtn')} ${ext || ''}`.trim();
+
+      if (fmt === 'png') {
+        codeStudioPre.style.display = 'none';
+        exportPngPreview.style.display = '';
+        const displayPx = Math.min(exportPngSize, 160);
+        exportPngPreview.innerHTML = `
+          <div class="export-png-frame" style="width:${displayPx}px;height:${displayPx}px">
+            <img src="${escapeHtml(svgToDataUri(getCustomizedStaticSvg()))}" width="${displayPx}" height="${displayPx}" alt="" />
+          </div>`;
+        exportFooterMeta.textContent = `PNG · ${exportPngSize} × ${exportPngSize}px`;
+        return;
+      }
+
+      exportPngPreview.style.display = 'none';
+      codeStudioPre.style.display = '';
+
+      if (fmt === 'lottie') {
+        const json = getCustomizedLottieJsonText();
+        if (!json) {
+          codeStudioPre.innerHTML = `<code>${escapeHtml(t('exportLottieLoading'))}</code>`;
+          exportFooterMeta.textContent = '';
+          return;
+        }
+        const states = lordiconMotionStates.map((st) => `${st.label} (${st.startFrame}–${st.endFrame})`).join(', ');
+        const summary = [
+          `// Lottie JSON — ${activeLordiconFamily}/${activeLordiconStyle}`,
+          `// ${lordiconLottieData.w}×${lordiconLottieData.h} · ${lordiconLottieData.fr}fps · ${lordiconLottieData.op - lordiconLottieData.ip} frames`,
+          `// Motion states: ${states || '—'}`,
+          `// ${t('exportLottieNote')}`,
+          '',
+          `${json.slice(0, 1200)}${json.length > 1200 ? ' …' : ''}`,
+        ].join('\n');
+        codeStudioPre.innerHTML = `<code>${escapeHtml(summary)}</code>`;
+        exportFooterMeta.textContent = `JSON · ${formatBytes(new Blob([json]).size)}`;
+        return;
+      }
+
+      const code = getFormattedCodeForTab(fmt);
+      codeStudioPre.innerHTML = `<code>${renderHighlightedCodeBlock(code, fmt)}</code>`;
+      exportFooterMeta.textContent = formatBytes(new Blob([code]).size);
+    }
+
+    async function getExportPayload(fmt) {
+      if (SVG_MODE_FORMATS.has(fmt)) await getOrCompileExportSvg();
+      const base = getExportFileBaseName();
+      const compName = toPascalCaseComponentName(icon.slug || icon.title);
+      switch (fmt) {
+        case 'jsx':
+          return { text: getFormattedCodeForTab('jsx'), file: `${compName}.jsx`, mime: 'text/javascript' };
+        case 'vue':
+          return { text: getFormattedCodeForTab('vue'), file: `${compName}.vue`, mime: 'text/plain' };
+        case 'html':
+          return { text: getFormattedCodeForTab('html'), file: `${base}.html`, mime: 'text/html' };
+        case 'datauri':
+          return { text: getFormattedCodeForTab('datauri'), file: `${base}.txt`, mime: 'text/plain' };
+        case 'lottie':
+          return { text: getCustomizedLottieJsonText(), file: `${base}.json`, mime: 'application/json' };
+        case 'svg':
+        default:
+          return { text: getActiveRawSvg().trim(), file: `${base}.svg`, mime: 'image/svg+xml' };
+      }
+    }
+
+    function flashButton(btn) {
+      btn.classList.add('copied');
+      clearTimeout(btn.__flashTimer);
+      btn.__flashTimer = setTimeout(() => btn.classList.remove('copied'), 1400);
+    }
+
+    async function exportCopy() {
+      const fmt = activeCodeTab;
+      if (fmt === 'png') {
+        await exportSvgToPng(getCustomizedStaticSvg(), exportPngSize, icon.slug || 'icon', true);
+        flashButton(btnExportCopy);
+        return;
+      }
+      const { text } = await getExportPayload(fmt);
+      if (!text) {
+        showToast(t('exportLottieLoading'));
+        return;
+      }
+      await navigator.clipboard.writeText(text);
+      renderExportPanel();
+      flashButton(btnExportCopy);
+      showToast(t('toastCodeCopied', { tab: getLangBadgeForTab(fmt) }));
+    }
+
+    async function exportDownload() {
+      const fmt = activeCodeTab;
+      if (fmt === 'png') {
+        await exportSvgToPng(getCustomizedStaticSvg(), exportPngSize, icon.slug || 'icon', false);
+        return;
+      }
+      const { text, file, mime } = await getExportPayload(fmt);
+      if (!text) {
+        showToast(t('exportLottieLoading'));
+        return;
+      }
+      const blob = new Blob([text], { type: `${mime};charset=utf-8` });
+      const dlUrl = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = dlUrl;
+      a.download = file;
       document.body.appendChild(a);
       a.click();
       a.remove();
       setTimeout(() => URL.revokeObjectURL(dlUrl), 1000);
-      showToast(t('toastFileDownloaded', { file: a.download }));
-    });
+      renderExportPanel();
+      showToast(t('toastFileDownloaded', { file }));
+    }
 
-    // PNG Export Buttons (32px, 64px, 128px, 256px, 512px & Copy PNG)
-    detailView.querySelectorAll('[data-export-png]').forEach((btn) => {
+    detailView.querySelectorAll('[data-export-format]').forEach((btn) => {
       btn.addEventListener('click', () => {
-        const sz = Number(btn.dataset.exportPng) || 128;
-        exportSvgToPng(getCustomizedStaticSvg(), sz, icon.slug || 'icon', false);
+        activeCodeTab = btn.dataset.exportFormat;
+        writeExportPref('format', activeCodeTab);
+        renderExportPanel();
       });
     });
 
-    detailView.querySelectorAll('[data-copy-png]').forEach((btn) => {
+    detailView.querySelectorAll('[data-png-size]').forEach((btn) => {
       btn.addEventListener('click', () => {
-        const sz = Number(btn.dataset.copyPng) || 256;
-        exportSvgToPng(getCustomizedStaticSvg(), sz, icon.slug || 'icon', true);
+        exportPngSize = Number(btn.dataset.pngSize) || 256;
+        writeExportPref('pngSize', String(exportPngSize));
+        renderExportPanel();
       });
     });
 
-    // Code Studio Tabs
-    detailView.querySelectorAll('[data-code-tab]').forEach((btn) => {
-      btn.addEventListener('click', () => {
-        activeCodeTab = btn.dataset.codeTab;
-        detailView.querySelectorAll('[data-code-tab]').forEach((b) => b.classList.remove('active'));
-        btn.classList.add('active');
-        codeStudioPre.innerHTML = `<code>${renderHighlightedCodeBlock(getFormattedCodeForTab(activeCodeTab), activeCodeTab)}</code>`;
-        if (codeLangBadge) codeLangBadge.textContent = getLangBadgeForTab(activeCodeTab);
-      });
-    });
+    btnExportCopy.addEventListener('click', () => exportCopy().catch(() => showToast(t('exportFailed'))));
+    btnExportDownload.addEventListener('click', () => exportDownload().catch(() => showToast(t('exportFailed'))));
 
-    const btnCopyActiveCode = document.getElementById('btnCopyActiveCode');
-    btnCopyActiveCode.addEventListener('click', async () => {
-      await getOrCompileExportSvg();
-      await navigator.clipboard.writeText(getFormattedCodeForTab(activeCodeTab));
-      btnCopyActiveCode.classList.add('copied');
-      btnCopyActiveCode.innerHTML = `${ICONS.check}<span>${escapeHtml(t('detailCopiedBtn'))}</span>`;
-      showToast(t('toastCodeCopied', { tab: activeCodeTab.toUpperCase() }));
-      setTimeout(() => {
-        btnCopyActiveCode.classList.remove('copied');
-        btnCopyActiveCode.innerHTML = `${ICONS.copy}<span>${escapeHtml(t('detailCopyCodeBtn'))}</span>`;
-      }, 1600);
-    });
+    // Keyboard shortcuts (C = copy, D = download) for the currently open detail view
+    activeExportShortcuts = { copy: exportCopy, download: exportDownload };
+
+    renderExportPanel();
   }
 
   // Delegate clicks on breadcrumbs, collection links, tags, style/type badges & recommended mini cards inside Detail View
