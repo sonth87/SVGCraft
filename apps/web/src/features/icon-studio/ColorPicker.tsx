@@ -4,8 +4,8 @@
 import dynamic from 'next/dynamic';
 import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
-import { readStorage, writeStorage } from './bridge';
-import type { Translate } from './IconStudio';
+import { readStorage, writeStorage } from '@/features/shared/bridge';
+import type { Translate } from '@/features/shared/bridge';
 import styles from './ColorPicker.module.css';
 
 const ColorPopover = dynamic(() => import('./ColorPopover'), { ssr: false });

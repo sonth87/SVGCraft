@@ -1,4 +1,4 @@
-/** Strings of the icon detail page (moved from public/app.js). Replaced by next-intl in phase 4. */
+/** Strings of the React pages (moved from public/app.js). Replaced by next-intl in phase 4. */
 export const MESSAGES = {
   en: {
     recEmpty: 'No additional icons in this group.',
@@ -69,6 +69,32 @@ export const MESSAGES = {
     exportModeNotePng: 'PNG is always a still image',
     exportModeNoteHtml: 'HTML <img> links the original file',
     exportModeNoteLottie: 'Lottie JSON already contains every motion',
+    colBackCatalog: 'Back to Catalog',
+    colBreadcrumb: 'Collection',
+    colShareTitle: 'Copy collection link',
+    colStatCount: 'Count:',
+    unitIcons: 'icons',
+    colStatLicense: 'License:',
+    colStatAuthor: 'Author:',
+    colSearchPlaceholder: 'Search icons in {name}...',
+    lordiconTopicLabel: 'Animated Categories:',
+    lordiconAllCategories: 'All Categories',
+    colAllStyles: 'All ({count})',
+    sortTitle: 'Sort order',
+    sortAz: 'Name A → Z',
+    sortZa: 'Name Z → A',
+    sortRecent: 'Recently updated',
+    showingPrefix: 'Showing',
+    colEmptySearch: 'No icons match your search in this collection.',
+    colLoadMoreBtn: 'Load more icons in collection ({shown} / {total})',
+    toastColLinkCopied: 'Copied collection link',
+    copySvgTitle: 'Copy raw SVG code',
+    copyJsxTitle: 'Copy React JSX',
+    downloadSvgTitle: 'Download .svg file',
+    favoriteTitle: 'Favorite',
+    toastSvgCopied: 'Copied SVG code to Clipboard',
+    toastJsxCopied: 'Copied <{comp} /> component (JSX)',
+    toastRateLimit: 'Too many requests, please wait a few seconds...',
     pickerHex: 'HEX',
     pickerOpacity: 'Opacity',
     pickerRecent: 'Recent',
@@ -146,6 +172,32 @@ export const MESSAGES = {
     exportModeNotePng: 'PNG luôn là ảnh tĩnh',
     exportModeNoteHtml: 'HTML <img> dùng link file gốc',
     exportModeNoteLottie: 'Lottie JSON đã chứa toàn bộ chuyển động',
+    colBackCatalog: 'Quay lại Kho lưu trữ',
+    colBreadcrumb: 'Bộ sưu tập',
+    colShareTitle: 'Copy liên kết bộ sưu tập',
+    colStatCount: 'Số lượng:',
+    unitIcons: 'icons',
+    colStatLicense: 'Giấy phép:',
+    colStatAuthor: 'Tác giả:',
+    colSearchPlaceholder: 'Tìm icon trong bộ sưu tập {name}...',
+    lordiconTopicLabel: 'Danh mục Icon động:',
+    lordiconAllCategories: 'Tất cả danh mục (All Categories)',
+    colAllStyles: 'Tất cả ({count})',
+    sortTitle: 'Thứ tự sắp xếp',
+    sortAz: 'Tên A → Z',
+    sortZa: 'Tên Z → A',
+    sortRecent: 'Mới cập nhật',
+    showingPrefix: 'Hiển thị',
+    colEmptySearch: 'Không tìm thấy icon nào khớp từ khóa trong bộ sưu tập này.',
+    colLoadMoreBtn: 'Tải thêm icon trong bộ sưu tập ({shown} / {total})',
+    toastColLinkCopied: 'Đã copy đường dẫn bộ sưu tập',
+    copySvgTitle: 'Copy mã SVG gốc',
+    copyJsxTitle: 'Copy React JSX',
+    downloadSvgTitle: 'Tải file .svg',
+    favoriteTitle: 'Yêu thích',
+    toastSvgCopied: 'Đã copy mã SVG vào Clipboard',
+    toastJsxCopied: 'Đã copy component <{comp} /> (JSX)',
+    toastRateLimit: 'Bạn thao tác quá nhanh, vui lòng đợi vài giây...',
     pickerHex: 'HEX',
     pickerOpacity: 'Độ mờ',
     pickerRecent: 'Gần đây',
@@ -155,6 +207,40 @@ export const MESSAGES = {
     exportCompiling: 'Đang biên dịch SVG động…',
   },
 } as const;
+
+export const STYLE_LABELS: Record<'en' | 'vi', Record<string, string>> = {
+  en: {
+    outlined: 'Outlined',
+    filled: 'Filled',
+    duotone: 'Duotone',
+    multicolor: 'Multicolor',
+    monocolor: 'Monocolor',
+  },
+  vi: {
+    outlined: 'Outlined (Nét viền)',
+    filled: 'Filled (Đặc / Glyph)',
+    duotone: 'Duotone (Hai tông màu)',
+    multicolor: 'Multicolor (Đa sắc / Brand)',
+    monocolor: 'Monocolor (Đơn sắc)',
+  },
+};
+
+export const TYPE_LABELS: Record<'en' | 'vi', Record<string, string>> = {
+  en: {
+    'ui-icon': 'UI / System Icon',
+    animated: 'Animated / Motion SVG',
+    'brand-logo': 'Brand / Tech Logo',
+    architecture: 'Cloud Architecture',
+    badge: 'Badge / Auth Button',
+  },
+  vi: {
+    'ui-icon': 'UI / System Icon',
+    animated: 'Animated / Motion SVG',
+    'brand-logo': 'Logo Thương hiệu / Tech',
+    architecture: 'Kiến trúc Cloud',
+    badge: 'Huy hiệu / Nút Xác thực',
+  },
+};
 
 export const CATEGORY_LABELS: Record<'en' | 'vi', Record<string, string>> = {
   en: {

@@ -129,14 +129,14 @@ Thay dần từng phần, web vẫn chạy suốt quá trình. Mỗi trang là m
 | 0   | Nền móng                 | TS, lint, Prettier, Vitest, CI. Tách hàm thuần từ `app.js` sang `packages/svg-tools` kèm test                                                   | 2–3 ngày  | Xong (11/2026) |
 | 1   | Dữ liệu                  | `publish` (upload theo hash, sinh `data/catalog/`), `index.bin` lúc build, API cursor, cho `app.js` dùng nguồn mới. Xoá `catalog-index.json.gz` | 3–4 ngày  | Xong (11/2026) |
 | 2   | Trang chi tiết           | React + SSR, studio, panel Export, color picker có màu gần đây và độ trong suốt                                                                 | 5–7 ngày  | Xong (11/2026) |
-| 3   | Trang collection         | React, cursor                                                                                                                                   | 2–3 ngày  |                |
+| 3   | Trang collection         | React, cursor                                                                                                                                   | 2–3 ngày  | Xong (11/2026) |
 | 4   | Catalog, sidebar, topbar | React, bộ lọc trên URL, cuộn vô hạn. **Xoá `app.js`**, chia nhỏ `globals.css`                                                                   | 4–6 ngày  |                |
 | 5   | Hoàn thiện               | Sitemap 244k trang, rate limit dùng chung, theo dõi lỗi, đo hiệu năng                                                                           | 2–3 ngày  |                |
 
 ### Lưu ý trong giai đoạn chuyển tiếp
 
 - `app.js` không qua bundler nên không import được `packages/svg-tools`. Sau giai đoạn 2, bản trùng duy nhất còn lại là `svgToJsx`/`prettyFormatSvgXml` cho nút copy ở lưới (bản cũ, còn các lỗi JSX đã sửa trong `svg-tools`), hết khi xoá `app.js`.
-- Trang chi tiết là "đảo" React gắn vào `#detailView`; `app.js` vẫn giữ lưới, topbar, sidebar. Hai bên nói chuyện qua `window.svgcraftDetail.open/close`, `window.svgcraftLoadLottie`, event `svgcraft:lang|tone|favorites` và các `data-*` (`data-switch-icon`, `data-open-col`, `data-detail-back`…) do `app.js` bắt click. Xoá hết cầu nối này ở giai đoạn 4.
+- Trang chi tiết là "đảo" React gắn vào `#detailView`; `app.js` vẫn giữ lưới, topbar, sidebar. Trang collection cũng vậy, gắn vào `#collectionView`. Hai bên nói chuyện qua `window.svgcraftDetail`, `window.svgcraftCollection`, `window.svgcraftLoadLottie`, event `svgcraft:lang|tone|favorites|collection-items` và các `data-*` (`data-switch-icon`, `data-open-col`, `data-open-detail`, `data-detail-back`, `data-col-back`…) do `app.js` bắt click. Xoá hết cầu nối này ở giai đoạn 4.
 - Bấm back trên trình duyệt từ trang chi tiết về lưới vẫn tải lại lưới và về đầu trang như trước (`popstate` luôn gọi `loadCatalogData`). Nút "Quay lại" trong trang thì giữ nguyên lưới. Sửa khi viết lại lưới.
 
 ### Giai đoạn 0 — đã làm
@@ -156,6 +156,15 @@ Thay dần từng phần, web vẫn chạy suốt quá trình. Mỗi trang là m
 - 5 API `/api/catalog/*` viết lại bằng TS trên index mới, **giữ nguyên URL và dạng response** nên `app.js` không phải sửa. Thêm `nextCursor` và header `X-Catalog-Build`
 - Đã đối chiếu với `StateManager` cũ trên 40 truy vấn: tổng số và 24 kết quả đầu khớp, trừ các khác biệt có chủ đích ở trên, thứ tự `gridSizes` (theo bản production) và gợi ý "tương tự" (đếm theo token thay vì nguyên tag)
 - Xoá `catalog-index.json.gz`, `build-catalog-index.js`, `sync-to-r2.js`, `catalogServer.js`. Web không còn dùng `StateManager`, chỉ còn `R2Client` và `parseSvgMetadata` từ `@svg-hub/shared`
+
+### Giai đoạn 3 — đã làm
+
+- `apps/web/src/features/collection/`: `CollectionView`, `IconCard` (dùng lại cho lưới ở giai đoạn 4), `CollectionHost`. Chuỗi dịch và icon dùng chung chuyển sang `features/shared/`
+- **SSR:** `/collection/*` trả sẵn tiêu đề và 72 card là link thật tới trang icon, cache ISR. Trang đã lọc trên URL do client tải (server chỉ render trang chưa lọc để giữ được cache). Collection không tồn tại trả 404 thật
+- **Cursor:** "tải thêm" dùng `nextCursor`. Nếu cursor hết hạn do vừa deploy, server trả về từ đầu và client thay danh sách thay vì nối trùng
+- Bộ lọc nằm trên URL (`q`, `style`, `category`, `sort`). `category` là mới: trước đây lọc theo chủ đề không ghi lên URL nên không chia sẻ link được
+- **Quay lại từ icon:** collection được giữ nguyên dưới trang chi tiết nên còn đủ trang đã tải, bộ lọc và vị trí cuộn, không gọi lại API. Trước đây tải lại từ đầu. Áp dụng cho cả nút "Quay lại" và nút back của trình duyệt
+- `app.js` còn ~3.000 dòng: lưới catalog, directory, topbar, sidebar. Hiệu ứng hover Lottie trên card vẫn do `app.js` gắn vào `#collectionView`, chuyển sang React ở giai đoạn 4
 
 ### Giai đoạn 2 — đã làm
 

@@ -1620,34 +1620,6 @@
     }
   }
 
-  function syncCollectionUrl(push = false) {
-    if (!activeCollectionState) return;
-    const basePath = `/collection/${encodeURIComponent(activeCollectionState.slug)}`;
-    const params = new URLSearchParams();
-    if (activeCollectionState.q) params.set('q', activeCollectionState.q);
-    if (activeCollectionState.styleType) params.set('style', activeCollectionState.styleType);
-    if (activeCollectionState.sort && activeCollectionState.sort !== 'az') {
-      params.set('sort', activeCollectionState.sort);
-    }
-    const qs = params.toString();
-    const targetUrl = qs ? `${basePath}?${qs}` : basePath;
-    const currentFull = `${window.location.pathname}${window.location.search}`;
-    if (currentFull === targetUrl) return;
-    if (push) {
-      window.history.pushState(
-        { view: 'collection', collectionSlug: activeCollectionState.slug },
-        '',
-        targetUrl
-      );
-    } else {
-      window.history.replaceState(
-        { view: 'collection', collectionSlug: activeCollectionState.slug },
-        '',
-        targetUrl
-      );
-    }
-  }
-
   function readCatalogFiltersFromUrl() {
     const params = new URLSearchParams(window.location.search);
     const urlView = params.get('view');
@@ -1825,6 +1797,7 @@
   function showCatalogView(pushHistory = false) {
     activeDetailIconKey = null;
     activeCollectionState = null;
+    window.svgcraftCollection.close();
     window.svgcraftDetail.close();
     detailView.style.display = 'none';
     collectionView.style.display = 'none';
@@ -2405,25 +2378,17 @@
   }
 
   async function openCollectionPageImpl(site, collectionSlug, pushHistory = true, initialParams = {}) {
-    const safeSite = 'any';
-    const initQ = initialParams.q || '';
-    const initStyle = initialParams.styleType || '';
-    const initCat = initialParams.category || '';
-    const initSort = initialParams.sort || 'az';
-
-    const queryInit = new URLSearchParams({
-      q: initQ,
-      styleType: initStyle,
-      category: initCat,
-      sort: initSort,
-      limit: String(PAGE_SIZE),
-      offset: '0',
-    });
-
+    const filters = {
+      q: initialParams.q || '',
+      styleType: initialParams.styleType || '',
+      category: initialParams.category || '',
+      sort: initialParams.sort || 'az',
+    };
     let data;
     try {
+      const query = new URLSearchParams({ ...filters, limit: String(PAGE_SIZE) });
       data = await apiFetchJson(
-        `/api/catalog/collection/${encodeURIComponent(safeSite)}/${encodeURIComponent(collectionSlug)}?${queryInit.toString()}`
+        `/api/catalog/collection/any/${encodeURIComponent(collectionSlug)}?${query.toString()}`
       );
     } catch {
       showToast(t('toastColNotFound'));
@@ -2431,21 +2396,20 @@
     }
     const col = data.collection;
     activeDetailIconKey = null;
-    activeCollectionState = {
-      site: 'any',
-      slug: col.slug,
-      name: col.name,
-      q: initQ,
-      styleType: initStyle,
-      category: initCat,
-      sort: initSort,
-      offset: 0,
-      total: data.total || 0,
-      items: data.items || [],
-      isLoading: false,
-    };
+    activeCollectionState = { slug: col.slug, name: col.name, scrollY: 0 };
 
-    syncCollectionUrl(pushHistory);
+    if (pushHistory) {
+      const params = new URLSearchParams();
+      if (filters.q) params.set('q', filters.q);
+      if (filters.styleType) params.set('style', filters.styleType);
+      if (filters.category) params.set('category', filters.category);
+      if (filters.sort !== 'az') params.set('sort', filters.sort);
+      const qs = params.toString();
+      const targetUrl = `/collection/${encodeURIComponent(col.slug)}${qs ? `?${qs}` : ''}`;
+      if (`${window.location.pathname}${window.location.search}` !== targetUrl) {
+        window.history.pushState({ view: 'collection', collectionSlug: col.slug }, '', targetUrl);
+      }
+    }
     updateNavActiveStates();
 
     document.title = `${col.name} — ${t('colPageTitleSuffix')}`;
@@ -2456,237 +2420,51 @@
     brandGlowBackdrop.classList.remove('active');
     window.scrollTo({ top: 0, behavior: 'smooth' });
 
-    const authorLabel =
-      !col.author || /^(thesvg|svg\s*repo)$/i.test(String(col.author).trim()) ? 'Open Source' : col.author;
-
-    const isLordiconStylePack =
-      String(col.slug || '').startsWith('lordicon-') && !String(col.slug || '').startsWith('lordicon-cat-');
-    const lCats = catalogSummary?.lordiconCategories || [];
-
-    collectionView.innerHTML = `
-      <div class="detail-topbar">
-        <div class="detail-breadcrumbs">
-          <button type="button" class="btn-back-catalog" id="btnColBackCatalog">
-            ${ICONS.arrowLeft}
-            <span>${escapeHtml(t('colBackCatalog'))}</span>
-          </button>
-          <span class="crumb-sep">${ICONS.chevronRight}</span>
-          <span style="color:var(--text-muted)">${escapeHtml(t('colBreadcrumb'))}</span>
-          <span class="crumb-sep">${ICONS.chevronRight}</span>
-          <span class="crumb-current">${escapeHtml(col.name)}</span>
-        </div>
-        <div class="detail-nav-actions">
-          <button type="button" class="icon-btn-square" id="btnColShare" title="${escapeHtml(t('colShareTitle'))}">
-            ${ICONS.share}
-          </button>
-        </div>
-      </div>
-
-      <div class="collection-hero-banner">
-        <div class="collection-hero-top">
-          <div class="collection-title-wrap">
-            <div class="collection-folder-badge">
-              ${ICONS.folder}
-            </div>
-            <div>
-              <h1 class="collection-h1">${escapeHtml(col.name)}</h1>
-              <div class="collection-meta-pills">
-                <span class="col-stat-pill">${escapeHtml(t('colStatCount'))} <strong>${(col.totalIconsInCollection || data.total || 0).toLocaleString()} ${escapeHtml(t('unitIcons'))}</strong></span>
-                <span class="col-stat-pill">${escapeHtml(t('colStatLicense'))} <strong>${escapeHtml(col.license || 'MIT / CC0')}</strong></span>
-                <span class="col-stat-pill">${escapeHtml(t('colStatAuthor'))} <strong>${escapeHtml(authorLabel)}</strong></span>
-                ${
-                  col.gridSizes && col.gridSizes.length
-                    ? `<span class="col-stat-pill">Grid: <strong>${escapeHtml(col.gridSizes.slice(0, 3).join(', '))}</strong></span>`
-                    : ''
-                }
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div class="collection-toolbar-bar">
-          <div class="col-local-search">
-            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <circle cx="11" cy="11" r="8"></circle><path d="m21 21-4.3-4.3"></path>
-            </svg>
-            <input type="search" id="colLocalSearchInput" value="${escapeHtml(initQ)}" placeholder="${escapeHtml(t('colSearchPlaceholder', { name: col.name }))}" autocomplete="off" />
-          </div>
-
-          ${
-            isLordiconStylePack && lCats.length
-              ? `
-            <div class="lordicon-cat-select-wrap">
-              <span class="icon-inline" style="color:var(--brand-orange)">${ICONS.waveform}</span>
-              <select id="colLordiconCatSelect" aria-label="${escapeHtml(t('lordiconTopicLabel'))}">
-                <option value="" ${!initCat ? 'selected' : ''}>${escapeHtml(t('lordiconAllCategories'))} (${(col.totalIconsInCollection || 0).toLocaleString()})</option>
-                ${lCats
-                  .map((lc) => {
-                    const lbl = currentLang === 'vi' && lc.labelVi ? `${lc.label} (${lc.labelVi})` : lc.label;
-                    return `<option value="${escapeHtml(lc.id)}" ${initCat === lc.id ? 'selected' : ''}>${escapeHtml(lbl)}</option>`;
-                  })
-                  .join('')}
-              </select>
-            </div>
-          `
-              : ''
-          }
-
-          <div class="col-filter-pills-group" id="colStyleFilterGroup">
-            <button type="button" class="pill-btn ${!initStyle ? 'active' : ''}" data-col-style="">
-              <span>${escapeHtml(t('colAllStyles', { count: (col.totalIconsInCollection || 0).toLocaleString() }))}</span>
-            </button>
-            ${(col.stylesBreakdown || [])
-              .map(
-                (st) => `
-                <button type="button" class="pill-btn ${initStyle === st.id ? 'active' : ''}" data-col-style="${escapeHtml(st.id)}">
-                  ${getStyleIconSvg(st.id)}
-                  <span>${escapeHtml(st.id)} (${st.count})</span>
-                </button>
-              `
-              )
-              .join('')}
-          </div>
-
-          <div style="display:flex;align-items:center;gap:10px">
-            <div class="sort-select-wrap">
-              <select id="colSortSelect" aria-label="${escapeHtml(t('sortTitle'))}">
-                <option value="az" ${initSort === 'az' ? 'selected' : ''}>${escapeHtml(t('sortAz'))}</option>
-                <option value="za" ${initSort === 'za' ? 'selected' : ''}>${escapeHtml(t('sortZa'))}</option>
-                <option value="recent" ${initSort === 'recent' ? 'selected' : ''}>${escapeHtml(t('sortRecent'))}</option>
-              </select>
-            </div>
-            <div class="results-counter">
-              ${escapeHtml(t('showingPrefix'))} <strong id="colShowingCount">${activeCollectionState.items.length}</strong> / <strong id="colTotalCount">${activeCollectionState.total}</strong>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div id="colIconsGrid" class="icons-grid">
-        ${buildIconCardsHtml(activeCollectionState.items)}
-      </div>
-
-      <div id="colLoadMoreWrap" class="load-more-wrap" style="display:${activeCollectionState.items.length < activeCollectionState.total ? 'flex' : 'none'}">
-        <button type="button" id="btnColLoadMore" class="btn-load-more">
-          <span>${escapeHtml(t('colLoadMoreBtn', { shown: activeCollectionState.items.length, total: activeCollectionState.total }))}</span>
-        </button>
-      </div>
-    `;
-
-    // Keep currentItems synced with collection items so Prev/Next inside Detail works seamlessly
-    currentItems = activeCollectionState.items;
-
-    const colIconsGrid = document.getElementById('colIconsGrid');
-    setupLordiconGridHover(colIconsGrid);
-    const colLocalSearchInput = document.getElementById('colLocalSearchInput');
-    const colLordiconCatSelect = document.getElementById('colLordiconCatSelect');
-    const colStyleFilterGroup = document.getElementById('colStyleFilterGroup');
-    const colSortSelect = document.getElementById('colSortSelect');
-    const colShowingCount = document.getElementById('colShowingCount');
-    const colTotalCount = document.getElementById('colTotalCount');
-    const colLoadMoreWrap = document.getElementById('colLoadMoreWrap');
-    const btnColLoadMore = document.getElementById('btnColLoadMore');
-
-    async function fetchCollectionFiltered(resetOffset = true) {
-      if (!activeCollectionState || activeCollectionState.isLoading) return;
-      activeCollectionState.isLoading = true;
-      if (resetOffset) activeCollectionState.offset = 0;
-
-      syncCollectionUrl(false);
-
-      try {
-        const params = new URLSearchParams({
-          q: activeCollectionState.q,
-          styleType: activeCollectionState.styleType,
-          category: activeCollectionState.category || '',
-          sort: activeCollectionState.sort,
-          offset: String(activeCollectionState.offset),
-          limit: String(PAGE_SIZE),
-        });
-        const d = await apiFetchJson(
-          `/api/catalog/collection/${encodeURIComponent(activeCollectionState.site)}/${encodeURIComponent(activeCollectionState.slug)}?${params.toString()}`
-        );
-        const newItems = d.items || [];
-        activeCollectionState.total = d.total || 0;
-
-        if (resetOffset) {
-          activeCollectionState.items = newItems;
-          if (!newItems.length) {
-            colIconsGrid.innerHTML = `<div style="grid-column:1/-1;text-align:center;padding:48px 20px;color:var(--text-muted);border:1px dashed var(--border-subtle);border-radius:14px">${escapeHtml(t('colEmptySearch'))}</div>`;
-          } else {
-            colIconsGrid.innerHTML = buildIconCardsHtml(newItems);
-          }
-        } else {
-          activeCollectionState.items = [...activeCollectionState.items, ...newItems];
-          colIconsGrid.insertAdjacentHTML('beforeend', buildIconCardsHtml(newItems));
-        }
-
-        currentItems = activeCollectionState.items;
-        colShowingCount.textContent = activeCollectionState.items.length.toLocaleString();
-        colTotalCount.textContent = activeCollectionState.total.toLocaleString();
-
-        if (activeCollectionState.items.length < activeCollectionState.total) {
-          colLoadMoreWrap.style.display = 'flex';
-          btnColLoadMore.innerHTML = `<span>${escapeHtml(t('colLoadMoreBtn', { shown: activeCollectionState.items.length, total: activeCollectionState.total }))}</span>`;
-        } else {
-          colLoadMoreWrap.style.display = 'none';
-        }
-      } finally {
-        if (activeCollectionState) activeCollectionState.isLoading = false;
-      }
-    }
-
-    if (colLordiconCatSelect) {
-      colLordiconCatSelect.addEventListener('change', () => {
-        activeCollectionState.category = colLordiconCatSelect.value;
-        fetchCollectionFiltered(true);
-      });
-    }
-
-    document.getElementById('btnColBackCatalog').addEventListener('click', () => {
-      showCatalogView(true);
-    });
-
-    document.getElementById('btnColShare').addEventListener('click', async () => {
-      await navigator.clipboard.writeText(window.location.href);
-      showToast(t('toastColLinkCopied'));
-    });
-
-    let colSearchTimer = null;
-    colLocalSearchInput.addEventListener('input', () => {
-      clearTimeout(colSearchTimer);
-      colSearchTimer = setTimeout(() => {
-        if (!activeCollectionState) return;
-        const nextQ = colLocalSearchInput.value.trim();
-        if (nextQ === activeCollectionState.q) return;
-        activeCollectionState.q = nextQ;
-        fetchCollectionFiltered(true);
-      }, 280);
-    });
-
-    colStyleFilterGroup.addEventListener('click', (e) => {
-      const btn = e.target.closest('[data-col-style]');
-      if (!btn || !activeCollectionState) return;
-      activeCollectionState.styleType = btn.dataset.colStyle;
-      colStyleFilterGroup.querySelectorAll('[data-col-style]').forEach((b) => b.classList.remove('active'));
-      btn.classList.add('active');
-      fetchCollectionFiltered(true);
-    });
-
-    colSortSelect.addEventListener('change', () => {
-      if (!activeCollectionState) return;
-      activeCollectionState.sort = colSortSelect.value;
-      fetchCollectionFiltered(true);
-    });
-
-    btnColLoadMore.addEventListener('click', () => {
-      if (!activeCollectionState || activeCollectionState.items.length >= activeCollectionState.total) return;
-      activeCollectionState.offset += PAGE_SIZE;
-      fetchCollectionFiltered(false);
-    });
-
-    colIconsGrid.addEventListener('click', handleIconCardGridClick);
+    window.svgcraftCollection.open(data, filters);
   }
+
+  /** Back to the collection still mounted under the detail page: same pages, filters and scroll position. */
+  function returnToCollectionView(pushHistory) {
+    const state = activeCollectionState;
+    if (pushHistory) {
+      window.history.pushState(
+        { view: 'collection', collectionSlug: state.slug },
+        '',
+        `/collection/${encodeURIComponent(state.slug)}${state.search || ''}`
+      );
+    }
+    activeDetailIconKey = null;
+    window.svgcraftDetail.close();
+    detailView.style.display = 'none';
+    catalogView.style.display = 'none';
+    collectionView.style.display = 'block';
+    brandGlowBackdrop.classList.remove('active');
+    document.title = `${state.name || state.slug} — ${t('colPageTitleSuffix')}`;
+    updateNavActiveStates();
+    window.scrollTo(0, state.scrollY || 0);
+  }
+
+  // The React collection page reports what is loaded: prev/next on the detail page walks it
+  window.addEventListener('svgcraft:collection-items', () => {
+    if (!activeCollectionState) return;
+    currentItems = window.svgcraftCollectionItems || [];
+    activeCollectionState.search = window.location.search;
+  });
+
+  collectionView.addEventListener('click', (e) => {
+    if (e.target.closest('[data-col-back]')) {
+      showCatalogView(true);
+      return;
+    }
+    const trigger = e.target.closest('[data-open-detail]');
+    // Ctrl/Cmd/middle click on the card's real link opens a new tab as usual
+    if (!trigger || e.metaKey || e.ctrlKey || e.shiftKey || e.button !== 0) return;
+    e.preventDefault();
+    activeCollectionState.scrollY = window.scrollY;
+    const { collectionSlug, idOrSlug } = parseOpenDetailKey(trigger.dataset.openDetail);
+    openDetailPage('any', collectionSlug, idOrSlug, true);
+  });
+  setupLordiconGridHover(collectionView);
 
   // ============================================================================
   // THESVG.ORG-STYLE FULL DETAIL PAGE RENDERER
@@ -2741,8 +2519,8 @@
 
     const backBtn = e.target.closest('[data-detail-back]');
     if (backBtn) {
-      if (activeCollectionState && activeCollectionState.slug === activeDetailIconKey?.split(':')[0]) {
-        openCollectionPage('any', activeCollectionState.slug, true);
+      if (activeCollectionState) {
+        returnToCollectionView(true);
       } else {
         showCatalogView(true);
       }
@@ -2944,12 +2722,8 @@
     try {
       apiJsonCache.clear();
       await loadSummary(true);
-      if (activeCollectionState) {
-        await openCollectionPage('any', activeCollectionState.slug, false, {
-          q: activeCollectionState.q,
-          styleType: activeCollectionState.styleType,
-          sort: activeCollectionState.sort,
-        });
+      if (activeCollectionState && !activeDetailIconKey) {
+        await openCollectionPage('any', activeCollectionState.slug, false, readCollectionUrlFilters());
       } else if (!activeDetailIconKey) {
         await loadCatalogData(true, { bypassCache: true });
       }
@@ -3045,11 +2819,7 @@
       if (activeDetailIconKey) {
         // The React detail page follows the svgcraft:lang event
       } else if (activeCollectionState) {
-        openCollectionPage('any', activeCollectionState.slug, false, {
-          q: activeCollectionState.q,
-          styleType: activeCollectionState.styleType,
-          sort: activeCollectionState.sort,
-        });
+        // The React collection page follows the svgcraft:lang event
       } else {
         if (viewMode === 'collections' || viewMode === 'brands') {
           renderCollectionsDirectoryGrid(currentCollections, false);
@@ -3153,9 +2923,36 @@
     handleInitialOrPopStateRoute();
   });
 
+  function readCollectionUrlFilters() {
+    const params = new URLSearchParams(window.location.search);
+    return {
+      q: params.get('q') || '',
+      styleType: params.get('style') || '',
+      category: params.get('category') || '',
+      sort: params.get('sort') || 'az',
+    };
+  }
+
+  async function openCollectionRoute(col) {
+    // Still mounted under the detail page: just show it again
+    if (activeCollectionState && activeCollectionState.slug === col && activeDetailIconKey) {
+      returnToCollectionView(false);
+      return;
+    }
+    await openCollectionPage('any', col, false, readCollectionUrlFilters());
+  }
+
   async function handleInitialOrPopStateRoute() {
     const path = window.location.pathname;
-    const params = new URLSearchParams(window.location.search);
+
+    // First load of /collection/*: the server already rendered the page
+    if (collectionView.dataset.ssrKey) {
+      activeCollectionState = { slug: collectionView.dataset.ssrKey, scrollY: 0, search: window.location.search };
+      currentItems = window.svgcraftCollectionItems || [];
+      delete collectionView.dataset.ssrKey;
+      updateNavActiveStates();
+      return;
+    }
 
     // First load of /icon/*: the server already rendered the detail page
     if (detailView.dataset.ssrKey) {
@@ -3178,22 +2975,12 @@
     }
     const colLegacyMatch = path.match(/^\/collection\/([^/]+)\/([^/]+)/);
     if (colLegacyMatch) {
-      const [, site, col] = colLegacyMatch.map(decodeURIComponent);
-      await openCollectionPage(site, col, false, {
-        q: params.get('q') || '',
-        styleType: params.get('style') || '',
-        sort: params.get('sort') || 'az',
-      });
+      await openCollectionRoute(decodeURIComponent(colLegacyMatch[2]));
       return;
     }
     const colShortMatch = path.match(/^\/collection\/([^/]+)/);
     if (colShortMatch) {
-      const [, col] = colShortMatch.map(decodeURIComponent);
-      await openCollectionPage('any', col, false, {
-        q: params.get('q') || '',
-        styleType: params.get('style') || '',
-        sort: params.get('sort') || 'az',
-      });
+      await openCollectionRoute(decodeURIComponent(colShortMatch[1]));
       return;
     }
 

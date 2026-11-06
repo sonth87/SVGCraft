@@ -1,14 +1,12 @@
+import { notFound } from 'next/navigation';
 import SvgCraftShell from '@/components/SvgCraftShell';
 import { getCatalog } from '@/lib/catalog';
+import { loadCollectionPage } from '@/lib/collectionPage';
 
 export async function generateMetadata({ params }) {
   try {
     const { site, collection } = params;
-    const data = getCatalog().collectionDetails(
-      decodeURIComponent(site),
-      decodeURIComponent(collection),
-      { limit: 1 }
-    );
+    const data = getCatalog().collectionDetails(decodeURIComponent(site), decodeURIComponent(collection), { limit: 1 });
 
     if (data && data.collection) {
       const col = data.collection;
@@ -32,6 +30,14 @@ export async function generateMetadata({ params }) {
   };
 }
 
-export default function CollectionDetailPage() {
-  return <SvgCraftShell />;
+// First page without filters, rendered on first request and then served from the CDN. Filters in the URL load on the client
+export const revalidate = 86400;
+export function generateStaticParams() {
+  return [];
+}
+
+export default function CollectionPage({ params }) {
+  const data = loadCollectionPage(getCatalog(), decodeURIComponent(params.site), decodeURIComponent(params.collection));
+  if (!data) notFound();
+  return <SvgCraftShell initialCollection={data} />;
 }

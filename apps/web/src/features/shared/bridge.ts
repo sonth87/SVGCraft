@@ -1,8 +1,9 @@
 /**
  * Everything the React detail page shares with the legacy page script (public/app.js) until phase 4:
- * the toast container, localStorage keys, and a few window events. Browser only.
+ * the toast container, localStorage keys, and a few window events.
  */
-import { MESSAGES, CATEGORY_LABELS } from './messages';
+import { useCallback, useSyncExternalStore } from 'react';
+import { CATEGORY_LABELS, MESSAGES, STYLE_LABELS, TYPE_LABELS } from './messages';
 
 const CHECK_ICON =
   '<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg>';
@@ -54,6 +55,15 @@ export function translate(lang: Lang, key: MessageKey, vars: Record<string, stri
   return str;
 }
 
+export type Translate = (key: MessageKey, vars?: Record<string, string | number>) => string;
+
+/** Current language plus its translate function. English on the server, the saved language right after hydration. */
+export function useI18n(): { lang: Lang; t: Translate } {
+  const lang = useSyncExternalStore<Lang>(subscribeLang, readLang, () => 'en');
+  const t = useCallback<Translate>((key, vars) => translate(lang, key, vars), [lang]);
+  return { lang, t };
+}
+
 export const categoryLabel = (lang: Lang, id: string): string =>
   CATEGORY_LABELS[lang]?.[id] ?? CATEGORY_LABELS.en?.[id] ?? id ?? 'General';
 
@@ -99,3 +109,31 @@ export function setBrandGlow(color: string | null): void {
   orb.style.background = `radial-gradient(ellipse 62% 95% at 55% 0%, ${safe}40, transparent 72%)`;
   backdrop.classList.add('active');
 }
+
+export const styleLabel = (lang: Lang, id: string): string => STYLE_LABELS[lang]?.[id] ?? STYLE_LABELS.en?.[id] ?? id;
+export const typeLabel = (lang: Lang, id: string): string => TYPE_LABELS[lang]?.[id] ?? TYPE_LABELS.en?.[id] ?? id;
+
+/** Live favorites for many cards: re-renders on changes from anywhere. Same array until the stored value changes. */
+let favCacheRaw: string | null | undefined;
+let favCacheValue: readonly string[] = [];
+const EMPTY_FAVORITES: readonly string[] = [];
+
+export function subscribeFavorites(cb: () => void): () => void {
+  window.addEventListener('svgcraft:favorites', cb);
+  return () => window.removeEventListener('svgcraft:favorites', cb);
+}
+
+export function favoritesSnapshot(): readonly string[] {
+  const raw = readStorage(FAVORITES_KEY);
+  if (raw !== favCacheRaw) {
+    favCacheRaw = raw;
+    try {
+      favCacheValue = JSON.parse(raw || '[]') as string[];
+    } catch {
+      favCacheValue = EMPTY_FAVORITES;
+    }
+  }
+  return favCacheValue;
+}
+
+export const favoritesServerSnapshot = (): readonly string[] => EMPTY_FAVORITES;

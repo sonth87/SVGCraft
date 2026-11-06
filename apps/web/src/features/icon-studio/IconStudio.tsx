@@ -1,7 +1,7 @@
 'use client';
 
 /** Icon detail page: state of the studio plus the page layout. Navigation clicks are handled by app.js for now. */
-import { useCallback, useDeferredValue, useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react';
+import { useCallback, useDeferredValue, useEffect, useMemo, useRef, useState } from 'react';
 import {
   applyCustomizationsToSvgXml,
   defaultMotionState,
@@ -14,19 +14,16 @@ import type { IconDetailPayload } from '@/lib/iconDetail';
 import {
   categoryLabel,
   isFavorite,
-  readLang,
   setBrandGlow,
   showToast,
-  subscribeLang,
   toggleFavorite,
-  translate,
-  type Lang,
+  useI18n,
   type MessageKey,
-} from './bridge';
+} from '@/features/shared/bridge';
 import ColorPicker from './ColorPicker';
 import { compileAnimatedSvg } from './compile-animated';
 import ExportPanel from './ExportPanel';
-import { categoryIconName, Icon, styleIconName, typeIconName } from './icons';
+import { categoryIconName, Icon, styleIconName, typeIconName } from '@/features/shared/icons';
 import Stage, { type SvgMode } from './Stage';
 
 export interface NavTarget {
@@ -38,7 +35,6 @@ export interface DetailNav {
   prev?: NavTarget | null;
   next?: NavTarget | null;
 }
-export type Translate = (key: MessageKey, vars?: Record<string, string | number>) => string;
 
 const iconHref = (col: string, id: string) => `/icon/${encodeURIComponent(col)}/${encodeURIComponent(id)}`;
 const colHref = (col: string) => `/collection/${encodeURIComponent(col)}`;
@@ -92,8 +88,7 @@ function RecStrip({ items, emptyText }: { items: RecItem[] | undefined; emptyTex
 
 export default function IconStudio({ data, nav }: { data: IconDetailPayload; nav: DetailNav }) {
   const { icon, svgVariantsContent, variantAssetUrls, lordiconStyles, recommendations, rawSvg } = data;
-  const lang = useSyncExternalStore<Lang>(subscribeLang, readLang, () => 'en');
-  const t = useCallback<Translate>((key, vars) => translate(lang, key, vars), [lang]);
+  const { lang, t } = useI18n();
 
   const isLordicon = icon.site === 'lordicon' || icon.collectionSlug.startsWith('lordicon-');
   const [, family = 'system', ...styleParts] = icon.collectionSlug.split('-');

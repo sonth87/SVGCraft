@@ -14,11 +14,11 @@ import {
   toPascalCaseComponentName,
 } from '@svg-hub/svg-tools';
 import type { ColorMap, MotionState, StrokeMode } from '@svg-hub/svg-tools';
-import { readStorage, showToast, writeStorage } from './bridge';
+import { readStorage, showToast, writeStorage } from '@/features/shared/bridge';
 import { copyPng, downloadBlob, svgToPngBlob } from './export-file';
-import { Icon } from './icons';
+import { Icon } from '@/features/shared/icons';
 import type { SvgMode } from './Stage';
-import type { Translate } from './IconStudio';
+import type { Translate } from '@/features/shared/bridge';
 
 const PNG_SIZES = [32, 64, 128, 256, 512];
 const SVG_MODE_FORMATS = new Set(['svg', 'jsx', 'vue', 'datauri']);

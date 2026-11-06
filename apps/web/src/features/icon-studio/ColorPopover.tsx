@@ -5,7 +5,7 @@ import { useEffect, useState } from 'react';
 import { hexToHsva, hsvaToHexa, type HsvaColor } from '@uiw/color-convert';
 import Colorful from '@uiw/react-color-colorful';
 import { normalizeColorValue } from '@svg-hub/svg-tools';
-import type { Translate } from './IconStudio';
+import type { Translate } from '@/features/shared/bridge';
 import styles from './ColorPicker.module.css';
 
 interface ColorPopoverProps {

@@ -2890,8 +2890,8 @@ body[data-preview-tone="light"] .col-dir-thumb-cell {
   gap: 5px;
 }
 
-/* Detail page links styled like the buttons they replace; zero specificity so each class keeps its own color */
-:where(a.crumb-btn, a.meta-stat-link, a.pill-btn, a.rec-mini-card, a.variant-mini-btn) {
+/* Page links styled like the buttons they replace; zero specificity so each class keeps its own color */
+:where(a.crumb-btn, a.meta-stat-link, a.pill-btn, a.rec-mini-card, a.variant-mini-btn, a.icon-preview-area, a.icon-info-area) {
   text-decoration: none;
   color: inherit;
 }

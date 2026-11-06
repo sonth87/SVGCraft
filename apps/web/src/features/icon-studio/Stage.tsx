@@ -4,9 +4,9 @@
 import { useCallback, useEffect, useRef, useState, type CSSProperties } from 'react';
 import { applyCustomizationsToLottieJson, formatBytes } from '@svg-hub/svg-tools';
 import type { ColorMap, MotionState, StrokeMode } from '@svg-hub/svg-tools';
-import { Icon } from './icons';
+import { Icon } from '@/features/shared/icons';
 import { loadLottie, type AnimationItem } from './lottie';
-import type { Translate } from './IconStudio';
+import type { Translate } from '@/features/shared/bridge';
 
 export type SvgMode = 'static' | 'hover' | 'loop';
 const TONES = ['checker', 'dark', 'light', 'auto'] as const;

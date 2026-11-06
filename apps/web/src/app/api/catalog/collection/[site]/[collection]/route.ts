@@ -1,5 +1,6 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { cacheHeaders, getCatalog, readPaging, readText } from '@/lib/catalog';
+import { loadCollectionPage } from '@/lib/collectionPage';
 
 export const dynamic = 'force-dynamic';
 
@@ -7,7 +8,7 @@ export function GET(request: NextRequest, { params }: { params: { site: string; 
   try {
     const search = request.nextUrl.searchParams;
     const index = getCatalog();
-    const data = index.collectionDetails(params.site, params.collection, {
+    const data = loadCollectionPage(index, params.site, params.collection, {
       ...readPaging(search, { defaultLimit: 72, maxLimit: 96 }),
       q: readText(search, 'q'),
       styleType: readText(search, 'styleType'),

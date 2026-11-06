@@ -3,9 +3,10 @@
 import Script from 'next/script';
 import Topbar from './Topbar';
 import Sidebar from './Sidebar';
+import CollectionHost from '@/features/collection/CollectionHost';
 import DetailHost from '@/features/icon-studio/DetailHost';
 
-export default function SvgCraftShell({ initialDetail = null }) {
+export default function SvgCraftShell({ initialDetail = null, initialCollection = null }) {
   return (
     <>
       {/* Ambient Brand Glow (active on Detail Page like thesvg.org) */}
@@ -22,7 +23,11 @@ export default function SvgCraftShell({ initialDetail = null }) {
 
         <main className="main-area">
           {/* ==================== VIEW 1: CATALOG BROWSE VIEW ==================== */}
-          <section id="catalogView" className="catalog-view" style={initialDetail ? { display: 'none' } : undefined}>
+          <section
+            id="catalogView"
+            className="catalog-view"
+            style={initialDetail || initialCollection ? { display: 'none' } : undefined}
+          >
             <div className="hero-bar">
               <div className="hero-copy">
                 <h1 className="hero-title" id="heroHeading">
@@ -387,7 +392,15 @@ export default function SvgCraftShell({ initialDetail = null }) {
           </section>
 
           {/* ==================== VIEW 2: DEDICATED COLLECTION SCREEN ==================== */}
-          <section id="collectionView" className="collection-view" style={{ display: 'none' }} aria-live="polite" />
+          <section
+            id="collectionView"
+            className="collection-view"
+            style={{ display: initialCollection ? 'block' : 'none' }}
+            aria-live="polite"
+            data-ssr-key={initialCollection ? initialCollection.collection.slug : undefined}
+          >
+            <CollectionHost initial={initialCollection} />
+          </section>
 
           {/* ==================== VIEW 3: THESVG.ORG-STYLE DETAIL VIEW ==================== */}
           <section
@@ -404,7 +417,7 @@ export default function SvgCraftShell({ initialDetail = null }) {
 
       <div className="toast-container" id="toastContainer" role="status" aria-live="polite" />
 
-      <Script src="/app.js?v=11" strategy="afterInteractive" />
+      <Script src="/app.js?v=12" strategy="afterInteractive" />
     </>
   );
 }
