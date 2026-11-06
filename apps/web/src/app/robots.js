@@ -22,7 +22,7 @@ export default function robots() {
       {
         userAgent: '*',
         allow: '/',
-        disallow: ['/api/', '/svg/', '/output/'],
+        disallow: ['/api/', '/svg/', '/cdn/'],
       },
     ],
   };

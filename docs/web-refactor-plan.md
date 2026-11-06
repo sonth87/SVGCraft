@@ -159,7 +159,7 @@ Thay dần từng phần, web vẫn chạy suốt quá trình. Mỗi trang là m
 
 ### Giai đoạn 1b — chuyển hẳn sang storage của mình (11/2026)
 
-- **Upload theo hash:** chạy `npm run publish` cho toàn bộ ~249k SVG. Key cũ `{site}/{collection}/icons/{file}` vẫn còn trên R2 (fallback); xoá sau khi production chạy ổn với catalog có hash
+- **Upload theo hash:** đã chạy `npm run publish` cho toàn bộ 243.929 icon (240.456 object sau khi gộp trùng). Web không còn đọc key cũ `{site}/{collection}/icons/{file}`; xoá chúng bằng `npm run r2:delete-legacy -- --yes` (chạy không có `--yes` để đếm trước). Route `/output/*` đã bỏ, `/svg/*` chỉ còn phục vụ `output/` khi dev
 - **Lottie Lordicon lấy hết về:** crawler lưu animation vào `output/lordicon/{col}/lottie/{slug}.json` (đã giải mã từ `.li`), `npm run lordicon:lottie` tải bù cho icon crawl trước đó. `publish` đẩy lên R2 ở `lottie/{hash}.json` (gzip, ~1,8GB thô), catalog ghi `lottie` hash
 - `/api/lordicon/lottie` chỉ đọc `output/` (dev) hoặc R2, **không gọi lordicon.com nữa**. `lordiconStyles` chỉ trả các style đã crawl, bỏ link `media.lordicon.com`
 - **`/cdn/svg/{hash}.svg`, `/cdn/lottie/{hash}.json`:** proxy cùng domain ánh xạ thẳng key R2, dùng khi chưa có `R2_PUBLIC_URL`. URL đổi khi nội dung đổi nên cache vĩnh viễn (`immutable`) ở trình duyệt và CDN của Vercel: mỗi file chỉ tốn một lượt gọi function + một lượt đọc R2 cho mỗi region. `/cdn/*` nằm ngoài middleware nên request trúng cache không chạy code nào
@@ -168,5 +168,5 @@ Thay dần từng phần, web vẫn chạy suốt quá trình. Mỗi trang là m
 **Còn lại:**
 
 - **`R2_PUBLIC_URL`:** cần một domain riêng quản lý DNS trên Cloudflare (không dùng được `*.vercel.app`). Có rồi thì trình duyệt tải thẳng từ Cloudflare, không qua Vercel
-- Xoá key R2 cũ sau khi production ổn định
+- Luôn chạy `npm run publish` có upload trước khi push catalog: icon chưa có hash không hiển thị được trên production
 - `lottie-web` vẫn tải từ cdnjs (thư viện, không phải dữ liệu); tự host khi chuyển sang React ở giai đoạn 2

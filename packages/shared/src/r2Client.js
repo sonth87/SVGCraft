@@ -284,14 +284,18 @@ class R2Client {
   /**
    * Build AWS Signature V4 signed request headers for Cloudflare R2 (`auto` region, `s3` service)
    */
-  _signRequest(method, objectKey, headers = {}, payloadBuffer = Buffer.alloc(0)) {
+  _signRequest(method, objectKey, headers = {}, payloadBuffer = Buffer.alloc(0), query = {}) {
     const cleanKey = String(objectKey).replace(/^\/+/, '');
     const encodedKey = cleanKey
       .split('/')
       .map((segment) => encodeRfc3986(segment))
       .join('/');
 
-    const canonicalUri = `/${encodeRfc3986(this.bucket)}/${encodedKey}`;
+    const canonicalUri = cleanKey ? `/${encodeRfc3986(this.bucket)}/${encodedKey}` : `/${encodeRfc3986(this.bucket)}`;
+    const canonicalQuery = Object.keys(query)
+      .sort()
+      .map((k) => `${encodeRfc3986(k)}=${encodeRfc3986(String(query[k] ?? ''))}`)
+      .join('&');
     const urlObj = new URL(this.endpointOrigin);
     const host = urlObj.host;
 
@@ -321,7 +325,7 @@ class R2Client {
     const canonicalRequest = [
       method.toUpperCase(),
       canonicalUri,
-      '',
+      canonicalQuery,
       canonicalHeaders,
       signedHeaders,
       payloadHash,
@@ -342,7 +346,7 @@ class R2Client {
     const authorization = `${algorithm} Credential=${this.accessKeyId}/${credentialScope}, SignedHeaders=${signedHeaders}, Signature=${signature}`;
 
     return {
-      url: `${this.endpointOrigin}${canonicalUri}`,
+      url: `${this.endpointOrigin}${canonicalUri}${canonicalQuery ? `?${canonicalQuery}` : ''}`,
       headers: {
         ...allHeaders,
         Authorization: authorization,
@@ -475,6 +479,53 @@ class R2Client {
     }
 
     return await res.text();
+  }
+
+  /** One page (≤1000) of ListObjectsV2 under `prefix`: { keys: [{ key, size }], nextToken } */
+  async listObjects(prefix, continuationToken = '') {
+    const query = { 'list-type': '2', prefix, 'max-keys': '1000' };
+    if (continuationToken) query['continuation-token'] = continuationToken;
+    const signed = this._signRequest('GET', '', {}, Buffer.alloc(0), query);
+    const res = await fetch(signed.url, { method: 'GET', headers: signed.headers });
+    this.state.monthlyClassAOps += 1; // ListObjects is a Class A operation
+    const xml = await res.text();
+    if (!res.ok) throw new Error(`R2 LIST lỗi (${res.status}): ${xml.slice(0, 240)}`);
+    const unescape = (t) =>
+      t
+        .replace(/&lt;/g, '<')
+        .replace(/&gt;/g, '>')
+        .replace(/&quot;/g, '"')
+        .replace(/&apos;/g, "'")
+        .replace(/&amp;/g, '&');
+    const keys = [...xml.matchAll(/<Contents>([\s\S]*?)<\/Contents>/g)].map((m) => ({
+      key: unescape((m[1].match(/<Key>([\s\S]*?)<\/Key>/) || [])[1] || ''),
+      size: Number((m[1].match(/<Size>(\d+)<\/Size>/) || [])[1] || 0),
+    }));
+    const truncated = /<IsTruncated>true<\/IsTruncated>/.test(xml);
+    const next = (xml.match(/<NextContinuationToken>([\s\S]*?)<\/NextContinuationToken>/) || [])[1] || '';
+    return { keys, nextToken: truncated ? unescape(next) : '' };
+  }
+
+  /** Delete up to 1000 keys in one DeleteObjects request (free on R2). Returns the number of errors. */
+  async deleteObjects(keys) {
+    if (!keys.length) return 0;
+    const esc = (t) => t.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    const body = Buffer.from(
+      `<?xml version="1.0" encoding="UTF-8"?><Delete><Quiet>true</Quiet>${keys
+        .map((k) => `<Object><Key>${esc(k)}</Key></Object>`)
+        .join('')}</Delete>`,
+      'utf8'
+    );
+    const headers = {
+      'content-type': 'application/xml',
+      'content-md5': crypto.createHash('md5').update(body).digest('base64'),
+      'content-length': String(body.length),
+    };
+    const signed = this._signRequest('POST', '', headers, body, { delete: '' });
+    const res = await fetch(signed.url, { method: 'POST', headers: signed.headers, body });
+    const xml = await res.text();
+    if (!res.ok) throw new Error(`R2 DELETE lỗi (${res.status}): ${xml.slice(0, 240)}`);
+    return (xml.match(/<Error>/g) || []).length;
   }
 
   /** @deprecated use getObjectText */

@@ -30,7 +30,7 @@ export function readLocalOutput(site: string, collection: string, file: string):
   return readLocalFile(path.join(OUTPUT_DIR, site, collection, 'icons', path.basename(file)));
 }
 
-/** SVG text of one icon variant: local output first, then R2 (content-hash key, then legacy key). */
+/** SVG text of one icon variant: local output first (development), then R2 `svg/{hash}.svg`. */
 export async function loadIconSvg(index: CatalogIndex, ord: number, variant = 'default'): Promise<string | null> {
   const icon = index.iconDetail(ord);
   const file = icon.variants[variant]?.replace(/^icons\//, '');
@@ -38,10 +38,11 @@ export async function loadIconSvg(index: CatalogIndex, ord: number, variant = 'd
     const local = readLocalOutput(icon.site, icon.collectionSlug, file);
     if (local) return local;
   }
-  const r2 = getR2Client();
-  for (const key of index.objectKeys(ord, variant)) {
-    const svg = await r2.getObjectText(key).catch(() => null);
-    if (svg && svg.includes('<svg')) return svg;
-  }
-  return null;
+  const key = index.objectKey(ord, variant);
+  const svg = key
+    ? await getR2Client()
+        .getObjectText(key)
+        .catch(() => null)
+    : null;
+  return svg && svg.includes('<svg') ? svg : null;
 }

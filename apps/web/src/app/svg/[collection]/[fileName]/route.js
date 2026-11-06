@@ -1,6 +1,8 @@
+// Development only: serves crawled SVGs from local output/. Production URLs are /cdn/svg/{hash}.svg
+// (or the R2_PUBLIC_URL domain); the pre-hash R2 keys this route used to read are gone.
 import path from 'path';
 import { NextResponse } from 'next/server';
-import { getR2Client, OUTPUT_DIR } from '@/lib/storage';
+import { OUTPUT_DIR } from '@/lib/storage';
 
 function getCandidateFilesForSite(safeFile, siteId) {
   const m = safeFile.match(/^([a-zA-Z0-9-_]+?)(\.[a-zA-Z0-9-_]+)?\.svg$/);
@@ -45,26 +47,6 @@ export async function GET(request, { params }) {
         if (runtimeFs.existsSync(localFilePath)) {
           const svgContent = runtimeFs.readFileSync(localFilePath, 'utf8');
           return new NextResponse(svgContent, {
-            status: 200,
-            headers: {
-              'Content-Type': 'image/svg+xml; charset=utf-8',
-              'Cache-Control': 'public, s-maxage=31536000, max-age=31536000, immutable',
-            },
-          });
-        }
-      }
-    }
-
-    // 2. Serve from Cloudflare R2 (Vercel Production Mode)
-    const r2Client = getR2Client();
-
-    for (const siteId of sitesToTry) {
-      const candidates = getCandidateFilesForSite(safeFile, siteId);
-      for (const candidate of candidates) {
-        const objectKey = `${siteId}/${safeCol}/icons/${candidate}`;
-        const r2Svg = await r2Client.getObjectText(objectKey);
-        if (r2Svg) {
-          return new NextResponse(r2Svg, {
             status: 200,
             headers: {
               'Content-Type': 'image/svg+xml; charset=utf-8',

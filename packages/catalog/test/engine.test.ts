@@ -229,18 +229,17 @@ describe('asset URLs', () => {
   const cdn = CatalogIndex.fromBytes(built.index, { readDetails, assets: { publicUrl: 'https://cdn.test/' } });
   const find = (index: CatalogIndex, slug: string) => index.item(index.findIcon('any', 'family-google', slug));
 
-  it('uses the content-hash key only when the CDN is configured and the object is uploaded', () => {
+  it('hashed objects come from the CDN domain, or the /cdn mirror without one', () => {
     expect(find(cdn, 'google-drive').assetUrl).toBe('https://cdn.test/svg/aaaabbbbccccdddd.svg');
-    expect(find(cdn, 'gmail').assetUrl).toBe('https://cdn.test/thesvg/family-google/icons/gmail-gmail.svg');
+    expect(find(idx, 'google-drive').assetUrl).toBe('/cdn/svg/aaaabbbbccccdddd.svg');
+    const s3 = CatalogIndex.fromBytes(built.index, { assets: { publicUrl: 'https://x.r2.cloudflarestorage.com' } });
+    expect(find(s3, 'google-drive').assetUrl).toBe('/cdn/svg/aaaabbbbccccdddd.svg');
   });
 
-  it('without a CDN: hashed objects via the /cdn proxy, others via the legacy /svg proxy', () => {
-    expect(find(idx, 'google-drive').assetUrl).toBe('/cdn/svg/aaaabbbbccccdddd.svg');
-    // doubled slug-slug names are shortened (the proxy retries both)
+  it('unpublished icons fall back to the local /svg route', () => {
+    // doubled slug-slug names are shortened (the route retries both)
     expect(find(idx, 'gmail').assetUrl).toBe('/svg/family-google/gmail.svg');
-    const s3 = CatalogIndex.fromBytes(built.index, { assets: { publicUrl: 'https://x.r2.cloudflarestorage.com' } });
-    expect(find(s3, 'gmail').assetUrl.startsWith('/svg/')).toBe(true);
-    expect(find(s3, 'google-drive').assetUrl).toBe('/cdn/svg/aaaabbbbccccdddd.svg');
+    expect(find(cdn, 'gmail').assetUrl).toBe('/svg/family-google/gmail.svg');
   });
 
   it('localFirst (development) always uses the /svg proxy, which reads output/ first', () => {
@@ -264,10 +263,11 @@ describe('asset URLs', () => {
     expect(idx.lordiconStyles(plain)).toBeNull();
   });
 
-  it('lists R2 object keys, hash first', () => {
+  it('gives the content-addressed R2 key per variant', () => {
     const ord = idx.findIcon('any', 'family-google', 'google-drive');
-    expect(idx.objectKeys(ord)).toEqual(['svg/aaaabbbbccccdddd.svg', 'thesvg/family-google/icons/google-drive.svg']);
-    expect(idx.objectKeys(ord, 'dark')).toEqual(['thesvg/family-google/icons/google-drive.dark.svg']);
+    expect(idx.objectKey(ord)).toBe('svg/aaaabbbbccccdddd.svg');
+    expect(idx.objectKey(ord, 'dark')).toBeNull();
+    expect(idx.objectKey(idx.findIcon('any', 'family-google', 'gmail'))).toBeNull();
   });
 });
 

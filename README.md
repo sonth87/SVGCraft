@@ -53,6 +53,7 @@ Open `http://localhost:3000`.
 - `npm run start:crawler` — Start the local crawler dashboard (`localhost:3456`)
 - `npm run publish` — After a crawl: upload new/changed SVGs from `output/` to R2 as `svg/{hash}.svg` (Lordicon animations as `lottie/{hash}.json`) and write the catalog JSON to `data/catalog/` (commit it). `-- --no-upload` writes the JSON only
 - `npm run lordicon:lottie` — Download missing Lordicon animation data into `output/lordicon/*/lottie/` (the crawler does this for new icons)
+- `npm run r2:delete-legacy` — Count (or with `-- --yes`, delete) the pre-hash R2 keys `{site}/{collection}/icons/*`
 - `npm run build:index` — Build the search index (`apps/web/data/index.bin`, `details.bin`) from `data/catalog/`. Runs automatically before `dev` and `build`
 - `npm run check` — Format check, lint, typecheck and tests (same as CI)
 

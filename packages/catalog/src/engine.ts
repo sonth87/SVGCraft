@@ -369,16 +369,11 @@ export class CatalogIndex {
     return h ? `lottie/${h}.json` : null;
   }
 
-  /** R2 object keys that may hold this icon's SVG, best first (content hash, then legacy path). */
-  objectKeys(ord: number, variant = 'default'): string[] {
+  /** R2 object key of an icon variant's SVG (`svg/{hash}.svg`), or null before it is published. */
+  objectKey(ord: number, variant = 'default'): string | null {
     const d = this.details(ord);
-    const col = this.header.collections[this.c.col[ord]!]!;
-    const file = d.files[variant] ?? d.files.default;
-    const keys: string[] = [];
-    const hash = d.hash?.[variant];
-    if (hash) keys.push(`svg/${hash}.svg`);
-    if (file) keys.push(`${col.site}/${col.slug}/icons/${file}`);
-    return keys;
+    const hash = d.hash?.[d.files[variant] ? variant : 'default'];
+    return hash ? `svg/${hash}.svg` : null;
   }
 
   related(ord: number, limit = 12): RelatedIcons {
@@ -770,12 +765,9 @@ export class CatalogIndex {
   }
 
   assetUrl(site: string, colSlug: string, file: string, hash: string): string {
-    if (!this.localFirst) {
-      if (hash) return `${this.objectBase}/svg/${hash}.svg`;
-      if (this.publicUrl)
-        return `${this.publicUrl}/${encodeURIComponent(site)}/${encodeURIComponent(colSlug)}/icons/${file}`;
-    }
-    // Same-origin proxy (reads R2 server side). Strip doubled "slug-slug" names, the proxy retries both
+    if (hash && !this.localFirst) return `${this.objectBase}/svg/${hash}.svg`;
+    // Development (or not yet published): /svg/* serves local output/. Strip doubled "slug-slug" names,
+    // the route retries both
     const clean = file.replace(/^([a-zA-Z0-9-_]+?)-\1(\.[a-zA-Z0-9-_]+)?\.svg$/, '$1$2.svg');
     return `/svg/${encodeURIComponent(colSlug)}/${encodeURIComponent(clean)}`;
   }
