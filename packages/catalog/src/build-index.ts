@@ -162,6 +162,7 @@ export function buildCatalogIndex(
     if (rec.raw) details.raw = rec.raw;
     if (rec.tags?.length) details.tags = rec.tags;
     if (rec.hash) details.hash = rec.hash;
+    if (rec.lottie) details.lottie = rec.lottie;
     const detPacked = encoder.encode(JSON.stringify(details));
     detChunks.push(detPacked);
     detBytes += detPacked.length;

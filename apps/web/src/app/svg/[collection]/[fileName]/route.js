@@ -62,7 +62,7 @@ export async function GET(request, { params }) {
       const candidates = getCandidateFilesForSite(safeFile, siteId);
       for (const candidate of candidates) {
         const objectKey = `${siteId}/${safeCol}/icons/${candidate}`;
-        const r2Svg = await r2Client.getSvgObject(objectKey);
+        const r2Svg = await r2Client.getObjectText(objectKey);
         if (r2Svg) {
           return new NextResponse(r2Svg, {
             status: 200,

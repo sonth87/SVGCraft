@@ -39,6 +39,11 @@ export interface CatalogIconRecord {
    * so this doubles as the R2 sync state (no separate state file).
    */
   hash?: Record<string, string>;
+  /**
+   * Content hash of the animation data (Lordicon Lottie JSON). Present only once it is on R2 at
+   * `lottie/{hash}.json`.
+   */
+  lottie?: string;
   /** Crawl time (ISO). Drives the default "recent" order */
   at: string;
 }
@@ -65,6 +70,8 @@ export interface CatalogManifest {
   totalCollections: number;
   /** Icons whose every variant is on R2 under its hash key */
   hashedIcons: number;
+  /** Icons with animation data on R2 */
+  lottieIcons?: number;
 }
 
 /** Crawler naming rule for the default variant file: `{slug}-{id}.svg`. */

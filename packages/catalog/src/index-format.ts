@@ -1,7 +1,7 @@
 /** Types shared by the index builder and the runtime query engine. */
 import type { SiteId } from './schema';
 
-export const INDEX_FORMAT_VERSION = 1;
+export const INDEX_FORMAT_VERSION = 2;
 /** Field separator inside a packed icon record (`id␟slug␟title␟file␟hash`) */
 export const REC_SEP = '\u001f';
 
@@ -103,5 +103,7 @@ export interface IconDetailsRecord {
   tags?: string[];
   files: Record<string, string>;
   hash?: Record<string, string>;
+  /** Lottie content hash (`lottie/{hash}.json` on R2) */
+  lottie?: string;
   at: string;
 }

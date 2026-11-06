@@ -67,7 +67,14 @@ function main() {
 
   if (process.argv.includes('--if-stale') && fs.existsSync(INDEX_FILE) && fs.existsSync(DETAILS_FILE)) {
     const builtAt = fs.statSync(INDEX_FILE).mtimeMs;
-    const sources = [...files, path.join(CATALOG_DIR, 'collections.json'), new URL(import.meta.url).pathname];
+    const catalogSrc = path.join(ROOT, 'packages', 'catalog', 'src');
+    const sources = [
+      ...files,
+      path.join(CATALOG_DIR, 'collections.json'),
+      new URL(import.meta.url).pathname,
+      // A changed index format must rebuild too
+      ...fs.readdirSync(catalogSrc).map((f) => path.join(catalogSrc, f)),
+    ];
     const newest = Math.max(...sources.filter(fs.existsSync).map((f) => fs.statSync(f).mtimeMs));
     if (newest <= builtAt) {
       console.log('[catalog-index] Index đã mới, bỏ qua.');

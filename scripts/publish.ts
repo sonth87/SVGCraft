@@ -2,14 +2,17 @@
 /**
  * Publish crawled icons: `output/` → R2 (content-addressed SVGs) + `data/catalog/` (JSON committed to git).
  *
- *   npm run publish                    upload new/changed SVGs to R2 as svg/{hash}.svg, write data/catalog/
+ *   npm run publish                    upload new/changed SVGs to R2 as svg/{hash}.svg (and Lordicon
+ *                                      animations as lottie/{hash}.json, gzip), write data/catalog/
  *   npm run publish -- --no-upload     only write data/catalog/ (icons not yet on R2 keep their legacy URL)
  *   npm run publish -- --max-uploads=1000 --concurrency=25
  *
- * Sync state lives in the catalog itself: an icon variant has `hash` only once `svg/{hash}.svg` is on R2.
+ * Sync state lives in the catalog itself: an icon variant has `hash` only once `svg/{hash}.svg` is on R2
+ * (`lottie` likewise for `lottie/{hash}.json`).
  * Unchanged files are skipped without any R2 request. Then: review `git diff data/catalog`, commit, push.
  */
 import { createHash } from 'node:crypto';
+import { gzipSync } from 'node:zlib';
 import fs from 'node:fs';
 import { createRequire } from 'node:module';
 import path from 'node:path';
@@ -58,10 +61,18 @@ function parseArgs(): Args {
 const listDirs = (dir: string) =>
   fs.existsSync(dir) ? fs.readdirSync(dir).filter((d) => fs.statSync(path.join(dir, d)).isDirectory()) : [];
 
-const contentHash = (minified: string) => createHash('sha256').update(minified).digest('hex').slice(0, HASH_LENGTH);
+const contentHash = (content: string) => createHash('sha256').update(content).digest('hex').slice(0, HASH_LENGTH);
+const svgKey = (h: string) => `svg/${h}.svg`;
+const lottieKey = (h: string) => `lottie/${h}.json`;
+
+interface PendingObject {
+  body: string | Buffer;
+  contentType: string;
+  contentEncoding?: string;
+}
 
 /** Enriched legacy icon (StateManager.enrichIconRecord output) → catalog record, same rules as the old runtime. */
-function toRecord(ic: Record<string, any>, site: SiteId): Omit<CatalogIconRecord, 'hash'> {
+function toRecord(ic: Record<string, any>, site: SiteId): Omit<CatalogIconRecord, 'hash' | 'lottie'> {
   const slug = String(ic.slug || '');
   const title = String(ic.title || slug);
   const rawCategory = String(ic.rawCategory || '');
@@ -81,7 +92,7 @@ function toRecord(ic: Record<string, any>, site: SiteId): Omit<CatalogIconRecord
   }
 
   const id = String(ic.id || slug);
-  const rec: Omit<CatalogIconRecord, 'hash'> = {
+  const rec: Omit<CatalogIconRecord, 'hash' | 'lottie'> = {
     id,
     slug,
     title,
@@ -112,15 +123,16 @@ function readPrevious(file: string): Map<string, CatalogIconRecord> {
   return map;
 }
 
-/** Every hash already on R2, according to the committed catalog. */
-function collectKnownHashes(): Set<string> {
+/** Every content-addressed object key already on R2, according to the committed catalog. */
+function collectKnownKeys(): Set<string> {
   const known = new Set<string>();
   const root = path.join(CATALOG_DIR, 'collections');
   for (const site of listDirs(root)) {
     for (const f of fs.readdirSync(path.join(root, site))) {
       if (!f.endsWith('.json')) continue;
       for (const [, ic] of readPrevious(path.join(root, site, f))) {
-        for (const h of Object.values(ic.hash ?? {})) known.add(h);
+        for (const h of Object.values(ic.hash ?? {})) known.add(svgKey(h));
+        if (ic.lottie) known.add(lottieKey(ic.lottie));
       }
     }
   }
@@ -146,8 +158,8 @@ async function main() {
     );
   }
 
-  const known = collectKnownHashes();
-  console.log(`[publish] Đã có trên R2 (theo catalog): ${known.size.toLocaleString()} hash`);
+  const known = collectKnownKeys();
+  console.log(`[publish] Đã có trên R2 (theo catalog): ${known.size.toLocaleString()} object`);
 
   const written = new Set<string>();
   const summaries: CatalogCollection[] = [];
@@ -157,6 +169,7 @@ async function main() {
   let stopUploads = '';
   let totalIcons = 0;
   let hashedIcons = 0;
+  let lottieIcons = 0;
 
   for (const site of SITE_IDS) {
     for (const dir of listDirs(path.join(OUTPUT_DIR, site))) {
@@ -169,10 +182,11 @@ async function main() {
       const iconsDir = path.join(OUTPUT_DIR, site, dir, 'icons');
 
       // Hash only when it can matter: uploading, or verifying a previously recorded hash
-      const pending = new Map<string, string>(); // hash → minified svg
+      const pending = new Map<string, PendingObject>(); // object key → body
       const records: CatalogIconRecord[] = entry.enrichedIcons.map((ic: Record<string, any>) => {
         const rec: CatalogIconRecord = toRecord(ic, site);
-        const prevHash = previous.get(rec.id)?.hash ?? {};
+        const prev = previous.get(rec.id);
+        const prevHash = prev?.hash ?? {};
         const hash: Record<string, string> = {};
         for (const [variant, file] of Object.entries(iconFiles(rec))) {
           if (!args.upload && !prevHash[variant]) continue;
@@ -181,38 +195,58 @@ async function main() {
           const minified: string = shared.minifySvg(fs.readFileSync(full, 'utf8'));
           const h = contentHash(minified);
           hash[variant] = h;
-          if (!known.has(h)) pending.set(h, minified);
+          if (!known.has(svgKey(h)))
+            pending.set(svgKey(h), { body: minified, contentType: 'image/svg+xml; charset=utf-8' });
         }
         if (Object.keys(hash).length) rec.hash = hash;
+
+        // Lordicon animation data (written by the crawler / `npm run lordicon:lottie`)
+        if (site === 'lordicon' && (args.upload || prev?.lottie)) {
+          const lottieFile = shared.lottieFilePath(OUTPUT_DIR, dir, rec.slug);
+          if (fs.existsSync(lottieFile)) {
+            const json = fs.readFileSync(lottieFile, 'utf8');
+            const h = contentHash(json);
+            rec.lottie = h;
+            if (!known.has(lottieKey(h)) && args.upload) {
+              pending.set(lottieKey(h), {
+                body: gzipSync(json, { level: 9 }),
+                contentType: 'application/json; charset=utf-8',
+                contentEncoding: 'gzip',
+              });
+            }
+          }
+        }
         return rec;
       });
 
       // Upload missing objects for this collection, then drop hashes that are still not on R2
       if (pending.size && r2 && !stopUploads) {
         const queue = [...pending.keys()].slice(0, Math.max(0, args.maxUploads - uploaded));
-        await runPool(queue, args.concurrency, async (h) => {
+        await runPool(queue, args.concurrency, async (key) => {
           if (stopUploads) return;
+          const obj = pending.get(key)!;
           try {
-            const res = await r2.putSvgObject(`svg/${h}.svg`, pending.get(h), {
-              skipIfUploaded: false,
+            const res = await r2.putObject(key, obj.body, {
+              contentType: obj.contentType,
+              contentEncoding: obj.contentEncoding,
               autoSaveState: false,
               recordKey: false,
-              alreadyMinified: true,
             });
-            known.add(h);
+            known.add(key);
             uploaded++;
             uploadedBytes += res.bytes;
           } catch (err: any) {
             if (err?.code === 'R2_QUOTA_EXCEEDED') stopUploads = err.message;
-            else if (++failed <= 10) console.error(`[publish] Lỗi upload svg/${h}.svg: ${err?.message}`);
+            else if (++failed <= 10) console.error(`[publish] Lỗi upload ${key}: ${err?.message}`);
           }
         });
         if (uploaded >= args.maxUploads && !stopUploads) stopUploads = `đạt --max-uploads=${args.maxUploads}`;
         r2.saveState();
       }
       for (const rec of records) {
+        if (rec.lottie && !known.has(lottieKey(rec.lottie))) delete rec.lottie;
         if (!rec.hash) continue;
-        for (const [v, h] of Object.entries(rec.hash)) if (!known.has(h)) delete rec.hash[v];
+        for (const [v, h] of Object.entries(rec.hash)) if (!known.has(svgKey(h))) delete rec.hash[v];
         if (Object.keys(rec.hash).length === 0) delete rec.hash;
       }
 
@@ -238,6 +272,7 @@ async function main() {
       hashedIcons += records.filter(
         (r) => r.hash && Object.keys(r.hash).length === Object.keys(iconFiles(r)).length
       ).length;
+      lottieIcons += records.filter((r) => r.lottie).length;
       if (uploaded > 0 && uploaded % 1000 < pending.size) {
         console.log(
           `[publish] Đã upload ${uploaded.toLocaleString()} file (${(uploadedBytes / 1048576).toFixed(1)} MB)`
@@ -266,12 +301,14 @@ async function main() {
     totalIcons,
     totalCollections: summaries.length,
     hashedIcons,
+    lottieIcons,
   };
   fs.writeFileSync(path.join(CATALOG_DIR, 'manifest.json'), `${JSON.stringify(manifest, null, 2)}\n`);
 
   console.log('[publish] Xong');
   console.log(`  Collection : ${summaries.length.toLocaleString()} (xoá ${removed})`);
   console.log(`  Icon       : ${totalIcons.toLocaleString()} (đã lên R2 theo hash: ${hashedIcons.toLocaleString()})`);
+  console.log(`  Animation  : ${lottieIcons.toLocaleString()} icon có Lottie trên R2`);
   console.log(
     `  Upload mới : ${uploaded.toLocaleString()} file, ${(uploadedBytes / 1048576).toFixed(1)} MB, lỗi ${failed}`
   );

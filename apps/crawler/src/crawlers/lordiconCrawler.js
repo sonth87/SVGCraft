@@ -1,4 +1,6 @@
-const { extractTagsFromText } = require('@svg-hub/shared');
+const fs = require('fs');
+const path = require('path');
+const { extractTagsFromText, OUTPUT_DIR, decodeLordiconLi, lottieFilePath } = require('@svg-hub/shared');
 const { BaseCrawler } = require('./baseCrawler');
 const { naturalRandom, sleep } = require('../utils/humanSimulator');
 
@@ -162,8 +164,12 @@ function parseLordiconApiPayload(payload = {}) {
       }
     }
     const activeHeader = headers[hCursor] || {};
-    const mainCategory = String(activeHeader.title || currentMainTitle || '').trim().toLowerCase();
-    const subCategory = String(activeHeader.subtitle || '').trim().toLowerCase();
+    const mainCategory = String(activeHeader.title || currentMainTitle || '')
+      .trim()
+      .toLowerCase();
+    const subCategory = String(activeHeader.subtitle || '')
+      .trim()
+      .toLowerCase();
 
     const raw = rawIcons[pos];
     if (!raw || raw.index === undefined || !raw.name) continue;
@@ -254,11 +260,7 @@ class LordiconCrawler extends BaseCrawler {
       }
 
       if (this.human && this.human.config.enableMouseMovement && step % 2 === 0) {
-        await this.human.moveMouseSmoothly(
-          naturalRandom(260, 1150),
-          naturalRandom(200, 680),
-          10
-        );
+        await this.human.moveMouseSmoothly(naturalRandom(260, 1150), naturalRandom(200, 680), 10);
       }
     }
 
@@ -325,10 +327,24 @@ class LordiconCrawler extends BaseCrawler {
     return parseLordiconApiPayload(data);
   }
 
+  /** Download an icon's `.li`, decode it and store `lottie/{slug}.json`. Missing files: `npm run lordicon:lottie`. */
+  async saveLottie(collectionSlug, iconSlug, lottieUrl) {
+    const file = lottieFilePath(OUTPUT_DIR, collectionSlug, iconSlug);
+    if (fs.existsSync(file)) return;
+    try {
+      const res = await fetch(lottieUrl, { headers: { Accept: '*/*' } });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      const json = JSON.stringify(decodeLordiconLi(await res.text()));
+      fs.mkdirSync(path.dirname(file), { recursive: true });
+      fs.writeFileSync(file, json);
+    } catch (err) {
+      this.log(`⚠️ Lỗi tải animation "${iconSlug}" (${lottieUrl}): ${err.message}`, 'warn');
+    }
+  }
+
   async runCrawl() {
     const selectedCategory = this.options.category || 'all';
-    const maxCollections =
-      Number(this.options.maxCollectionsPerPage) || Number(this.options.maxListPages) || 0;
+    const maxCollections = Number(this.options.maxCollectionsPerPage) || Number(this.options.maxListPages) || 0;
     const skipCompleted = this.options.skipCompletedCollections !== false;
 
     let targetPacks = LORDICON_PACKS;
@@ -362,12 +378,7 @@ class LordiconCrawler extends BaseCrawler {
       const expectedTotal = existingColMeta?.collection?.totalIcons || 0;
       const isMarkedCompleted = currentSiteState.completedCollections.includes(pack.slug);
 
-      if (
-        skipCompleted &&
-        isMarkedCompleted &&
-        expectedTotal > 0 &&
-        alreadyDownloadedCount >= expectedTotal
-      ) {
+      if (skipCompleted && isMarkedCompleted && expectedTotal > 0 && alreadyDownloadedCount >= expectedTotal) {
         this.log(
           `⏭️ Bỏ qua "${pack.name}" (${pack.slug}) vì đã tải hoàn tất (${alreadyDownloadedCount}/${expectedTotal} SVG).`,
           'info'
@@ -469,16 +480,8 @@ class LordiconCrawler extends BaseCrawler {
         await this.checkPauseOrStop();
         const batch = pendingItems.slice(b, b + BATCH_SIZE);
 
-        if (
-          this.human &&
-          this.human.config.enableMouseMovement &&
-          Math.floor(b / BATCH_SIZE) % 3 === 0
-        ) {
-          await this.human.moveMouseSmoothly(
-            naturalRandom(280, 1120),
-            naturalRandom(220, 680),
-            8
-          );
+        if (this.human && this.human.config.enableMouseMovement && Math.floor(b / BATCH_SIZE) % 3 === 0) {
+          await this.human.moveMouseSmoothly(naturalRandom(280, 1120), naturalRandom(220, 680), 8);
         }
 
         const firstInBatch = batch[0];
@@ -498,21 +501,23 @@ class LordiconCrawler extends BaseCrawler {
 
               const rawCategory = item.subCategory || item.mainCategory || 'animation';
               const iconTags = Array.from(
-                new Set([
-                  ...pack.tags,
-                  item.mainCategory,
-                  item.subCategory,
-                  item.premium ? 'pro' : 'free',
-                  ...extractTagsFromText(
-                    item.title,
-                    item.name,
+                new Set(
+                  [
+                    ...pack.tags,
                     item.mainCategory,
                     item.subCategory,
-                    pack.family,
-                    pack.style,
-                    'animation animated lordicon'
-                  ),
-                ].filter(Boolean))
+                    item.premium ? 'pro' : 'free',
+                    ...extractTagsFromText(
+                      item.title,
+                      item.name,
+                      item.mainCategory,
+                      item.subCategory,
+                      pack.family,
+                      pack.style,
+                      'animation animated lordicon'
+                    ),
+                  ].filter(Boolean)
+                )
               );
 
               const iconRecord = this.stateManager.saveIconSvg(
@@ -539,6 +544,9 @@ class LordiconCrawler extends BaseCrawler {
                 },
                 svgContent
               );
+
+              // Animation data (Lottie) — the web app serves it from R2, never from lordicon.com
+              await this.saveLottie(pack.slug, item.slug, lottieUrl);
 
               this.stateManager.updateSiteState(this.siteId, (st) => {
                 st.totalIconsDownloaded = (st.totalIconsDownloaded || 0) + 1;

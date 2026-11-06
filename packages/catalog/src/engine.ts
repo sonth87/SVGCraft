@@ -19,6 +19,13 @@ import type { SiteId } from './schema';
 export interface AssetUrlConfig {
   /** Public CDN origin of the R2 bucket (custom domain), e.g. `https://cdn.example.com` */
   publicUrl?: string;
+  /**
+   * Same-origin proxy that mirrors the R2 content-addressed keys (`{proxyBase}/svg/{hash}.svg`),
+   * used when there is no public CDN origin. Default `/cdn`.
+   */
+  proxyBase?: string;
+  /** Development: point SVGs at the `/svg/*` route, which serves local `output/` first */
+  localFirst?: boolean;
 }
 
 export interface IconListItem {
@@ -46,6 +53,8 @@ export interface IconDetail extends IconListItem {
   author: string;
   license: string;
   downloadedAt: string;
+  /** Lottie animation JSON (Lordicon), `null` when the icon has none on R2 */
+  lottieUrl: string | null;
 }
 
 export interface Page<T> {
@@ -165,6 +174,9 @@ export class CatalogIndex {
   private readonly wordCache = new Map<string, Uint32Array>();
   private readonly colsBySlug = new Map<string, number[]>();
   private readonly publicUrl: string;
+  /** Where content-addressed objects are served from: the CDN origin, or the same-origin proxy */
+  private readonly objectBase: string;
+  private readonly localFirst: boolean;
 
   private constructor(
     bytes: Uint8Array,
@@ -205,6 +217,8 @@ export class CatalogIndex {
     const pub = (assets.publicUrl ?? '').trim().replace(/\/+$/, '');
     // The S3 API endpoint is private; never hand it to browsers
     this.publicUrl = /\.r2\.cloudflarestorage\.com/i.test(pub) ? '' : pub;
+    this.objectBase = this.publicUrl || (assets.proxyBase ?? '/cdn').replace(/\/+$/, '');
+    this.localFirst = Boolean(assets.localFirst);
   }
 
   static fromBytes(
@@ -339,6 +353,7 @@ export class CatalogIndex {
       author: col.author,
       license: col.license,
       downloadedAt: details.at,
+      lottieUrl: details.lottie ? `${this.objectBase}/lottie/${details.lottie}.json` : null,
     };
   }
 
@@ -346,6 +361,12 @@ export class CatalogIndex {
     if (!this.readDetails) throw new Error('details.bin reader not configured');
     const bytes = this.readDetails(this.c.detOff[ord]!, this.c.detOff[ord + 1]!);
     return JSON.parse(this.decoder.decode(bytes)) as IconDetailsRecord;
+  }
+
+  /** R2 object key of the icon's Lottie animation, or null. */
+  lottieKey(ord: number): string | null {
+    const h = this.details(ord).lottie;
+    return h ? `lottie/${h}.json` : null;
   }
 
   /** R2 object keys that may hold this icon's SVG, best first (content hash, then legacy path). */
@@ -441,7 +462,6 @@ export class CatalogIndex {
     if (col.site !== 'lordicon' && !/^lordicon-/i.test(col.slug)) return null;
     const self = this.item(ord);
     const baseSlug = self.slug.replace(/^\d+-/, '');
-    const targetFamily = /^lordicon-/i.test(col.slug) ? (col.slug.split('-')[1] ?? '') : '';
 
     return LORDICON_STYLE_DEFS.flatMap((sd) => {
       const colIdx = (this.colsBySlug.get(sd.colSlug) ?? [])[0];
@@ -456,25 +476,21 @@ export class CatalogIndex {
           }
         }
       }
-      if (sibling < 0 && sd.family !== targetFamily) return [];
-      const sib = sibling >= 0 ? this.item(sibling) : null;
-      const resolvedSlug = sib ? sib.slug : self.slug;
-      const cdnSvgUrl = `https://media.lordicon.com/icons/${sd.family}/${sd.style}/${resolvedSlug}.svg`;
-      const assetUrl = sib ? sib.assetUrl : cdnSvgUrl;
+      // Only styles we actually have: everything is served from our own storage
+      if (sibling < 0) return [];
+      const sib = this.item(sibling);
       return [
         {
           ...sd,
           collectionSlug: sd.colSlug,
-          iconSlug: resolvedSlug,
-          iconId: sib ? sib.id : self.id,
+          iconSlug: sib.slug,
+          iconId: sib.id,
           isCurrent: sd.colSlug === col.slug,
-          isCrawled: Boolean(sib),
-          isLocal: Boolean(sib),
-          assetUrl,
-          localAssetUrl: assetUrl,
-          svgUrl: assetUrl,
-          cdnSvgUrl,
-          cdnLiUrl: `https://media.lordicon.com/icons/${sd.family}/${sd.style}/${resolvedSlug}.li`,
+          isCrawled: true,
+          isLocal: true,
+          assetUrl: sib.assetUrl,
+          localAssetUrl: sib.assetUrl,
+          svgUrl: sib.assetUrl,
         },
       ];
     });
@@ -754,9 +770,11 @@ export class CatalogIndex {
   }
 
   assetUrl(site: string, colSlug: string, file: string, hash: string): string {
-    if (this.publicUrl && hash) return `${this.publicUrl}/svg/${hash}.svg`;
-    if (this.publicUrl)
-      return `${this.publicUrl}/${encodeURIComponent(site)}/${encodeURIComponent(colSlug)}/icons/${file}`;
+    if (!this.localFirst) {
+      if (hash) return `${this.objectBase}/svg/${hash}.svg`;
+      if (this.publicUrl)
+        return `${this.publicUrl}/${encodeURIComponent(site)}/${encodeURIComponent(colSlug)}/icons/${file}`;
+    }
     // Same-origin proxy (reads R2 server side). Strip doubled "slug-slug" names, the proxy retries both
     const clean = file.replace(/^([a-zA-Z0-9-_]+?)-\1(\.[a-zA-Z0-9-_]+)?\.svg$/, '$1$2.svg');
     return `/svg/${encodeURIComponent(colSlug)}/${encodeURIComponent(clean)}`;

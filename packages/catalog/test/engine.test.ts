@@ -112,7 +112,15 @@ const lordicon: CatalogCollectionFile = {
   updatedAt: '2026-01-05T00:00:00Z',
   count: 1,
   icons: [
-    icon({ id: '19', slug: '19-magnifier', title: 'Magnifier', cat: 'popular', lc: 'popular', type: 'animated' }),
+    icon({
+      id: '19',
+      slug: '19-magnifier',
+      title: 'Magnifier',
+      cat: 'popular',
+      lc: 'popular',
+      type: 'animated',
+      lottie: '1234567890abcdef',
+    }),
   ],
 };
 
@@ -226,12 +234,34 @@ describe('asset URLs', () => {
     expect(find(cdn, 'gmail').assetUrl).toBe('https://cdn.test/thesvg/family-google/icons/gmail-gmail.svg');
   });
 
-  it('falls back to the same-origin proxy and never exposes the S3 API endpoint', () => {
-    expect(find(idx, 'google-drive').assetUrl).toBe('/svg/family-google/google-drive.svg');
+  it('without a CDN: hashed objects via the /cdn proxy, others via the legacy /svg proxy', () => {
+    expect(find(idx, 'google-drive').assetUrl).toBe('/cdn/svg/aaaabbbbccccdddd.svg');
     // doubled slug-slug names are shortened (the proxy retries both)
     expect(find(idx, 'gmail').assetUrl).toBe('/svg/family-google/gmail.svg');
     const s3 = CatalogIndex.fromBytes(built.index, { assets: { publicUrl: 'https://x.r2.cloudflarestorage.com' } });
     expect(find(s3, 'gmail').assetUrl.startsWith('/svg/')).toBe(true);
+    expect(find(s3, 'google-drive').assetUrl).toBe('/cdn/svg/aaaabbbbccccdddd.svg');
+  });
+
+  it('localFirst (development) always uses the /svg proxy, which reads output/ first', () => {
+    const dev = CatalogIndex.fromBytes(built.index, { assets: { publicUrl: 'https://cdn.test', localFirst: true } });
+    expect(find(dev, 'google-drive').assetUrl).toBe('/svg/family-google/google-drive.svg');
+  });
+
+  it('exposes the Lottie animation of Lordicon icons from our own storage only', () => {
+    const ord = idx.findIcon('lordicon', 'lordicon-system-outline', '19-magnifier');
+    expect(idx.iconDetail(ord).lottieUrl).toBe('/cdn/lottie/1234567890abcdef.json');
+    expect(idx.lottieKey(ord)).toBe('lottie/1234567890abcdef.json');
+    const viaCdn = CatalogIndex.fromBytes(built.index, { readDetails, assets: { publicUrl: 'https://cdn.test' } });
+    expect(viaCdn.iconDetail(ord).lottieUrl).toBe('https://cdn.test/lottie/1234567890abcdef.json');
+    const plain = idx.findIcon('any', 'ui-pack', 'smartphone');
+    expect(idx.iconDetail(plain).lottieUrl).toBeNull();
+    expect(idx.lottieKey(plain)).toBeNull();
+    // Styles we did not crawl are left out instead of linking to lordicon.com
+    const styles = idx.lordiconStyles(ord)!;
+    expect(styles.map((st) => st.colSlug)).toEqual(['lordicon-system-outline']);
+    expect(JSON.stringify(styles)).not.toContain('lordicon.com');
+    expect(idx.lordiconStyles(plain)).toBeNull();
   });
 
   it('lists R2 object keys, hash first', () => {

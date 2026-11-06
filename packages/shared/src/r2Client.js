@@ -43,10 +43,7 @@ function loadEnvFiles() {
         if (eqIdx <= 0) continue;
         const key = line.slice(0, eqIdx).trim();
         let val = line.slice(eqIdx + 1).trim();
-        if (
-          (val.startsWith('"') && val.endsWith('"')) ||
-          (val.startsWith("'") && val.endsWith("'"))
-        ) {
+        if ((val.startsWith('"') && val.endsWith('"')) || (val.startsWith("'") && val.endsWith("'"))) {
           val = val.slice(1, -1);
         }
         if (process.env[key] === undefined || process.env[key] === '') {
@@ -105,11 +102,7 @@ class R2Client {
   constructor(options = {}) {
     loadEnvFiles();
 
-    const rawEndpoint = (
-      options.endpoint ||
-      process.env.R2_ENDPOINT ||
-      DEFAULT_R2_S3_URL
-    ).trim();
+    const rawEndpoint = (options.endpoint || process.env.R2_ENDPOINT || DEFAULT_R2_S3_URL).trim();
 
     let endpointOrigin = '';
     let pathBucket = '';
@@ -321,9 +314,7 @@ class R2Client {
       .map((k) => k.toLowerCase())
       .sort();
 
-    const canonicalHeaders = sortedHeaderKeys
-      .map((k) => `${k}:${String(allHeaders[k]).trim()}\n`)
-      .join('');
+    const canonicalHeaders = sortedHeaderKeys.map((k) => `${k}:${String(allHeaders[k]).trim()}\n`).join('');
 
     const signedHeaders = sortedHeaderKeys.join(';');
 
@@ -338,21 +329,15 @@ class R2Client {
 
     const algorithm = 'AWS4-HMAC-SHA256';
     const credentialScope = `${dateStamp}/${region}/${service}/aws4_request`;
-    const stringToSign = [
-      algorithm,
-      amzDate,
-      credentialScope,
-      sha256Hex(Buffer.from(canonicalRequest, 'utf8')),
-    ].join('\n');
+    const stringToSign = [algorithm, amzDate, credentialScope, sha256Hex(Buffer.from(canonicalRequest, 'utf8'))].join(
+      '\n'
+    );
 
     const kDate = hmacSha256(`AWS4${this.secretAccessKey}`, dateStamp);
     const kRegion = hmacSha256(kDate, region);
     const kService = hmacSha256(kRegion, service);
     const kSigning = hmacSha256(kService, 'aws4_request');
-    const signature = crypto
-      .createHmac('sha256', kSigning)
-      .update(stringToSign, 'utf8')
-      .digest('hex');
+    const signature = crypto.createHmac('sha256', kSigning).update(stringToSign, 'utf8').digest('hex');
 
     const authorization = `${algorithm} Credential=${this.accessKeyId}/${credentialScope}, SignedHeaders=${signedHeaders}, Signature=${signature}`;
 
@@ -365,30 +350,42 @@ class R2Client {
     };
   }
 
-  /**
-   * Upload an SVG string or Buffer to Cloudflare R2 with immutable 1-year Cache-Control
-   */
-  /**
-   * @param {object} [opts]
-   * @param {boolean} [opts.recordKey=true] false = only update quota counters, don't remember the key in
-   *   r2-sync-state.json (content-addressed uploads keep their sync state in data/catalog instead)
-   */
+  /** Upload an SVG (minified unless `alreadyMinified`); see putObject for the options. */
   async putSvgObject(
     objectKey,
     rawSvgContent,
     { skipIfUploaded = true, autoSaveState = true, recordKey = true, alreadyMinified = false } = {}
   ) {
-    if (!this.hasCredentials()) {
-      throw new Error('Thiếu R2_ACCESS_KEY_ID hoặc R2_SECRET_ACCESS_KEY trong file .env');
-    }
-
     const cleanKey = String(objectKey).replace(/^\/+/, '');
     if (skipIfUploaded && this.isAlreadyUploaded(cleanKey)) {
       return { skipped: true, key: cleanKey, bytes: this.state.uploadedKeys[cleanKey] };
     }
-
     const minified = alreadyMinified ? String(rawSvgContent) : minifySvg(rawSvgContent);
-    const bodyBuf = Buffer.from(minified, 'utf8');
+    return this.putObject(cleanKey, minified, {
+      contentType: 'image/svg+xml; charset=utf-8',
+      autoSaveState,
+      recordKey,
+    });
+  }
+
+  /**
+   * Upload any immutable object (SVG, Lottie JSON, …) with a 1-year immutable Cache-Control.
+   * @param {object} [opts]
+   * @param {string} opts.contentType
+   * @param {string} [opts.contentEncoding] e.g. 'gzip' when `content` is pre-compressed
+   * @param {boolean} [opts.recordKey=true] false = only update quota counters, don't remember the key in
+   *   r2-sync-state.json (content-addressed uploads keep their sync state in data/catalog instead)
+   */
+  async putObject(
+    objectKey,
+    content,
+    { contentType, contentEncoding = '', autoSaveState = true, recordKey = true } = {}
+  ) {
+    if (!this.hasCredentials()) {
+      throw new Error('Thiếu R2_ACCESS_KEY_ID hoặc R2_SECRET_ACCESS_KEY trong file .env');
+    }
+    const cleanKey = String(objectKey).replace(/^\/+/, '');
+    const bodyBuf = Buffer.isBuffer(content) ? content : Buffer.from(String(content), 'utf8');
 
     const quotaCheck = this.checkWriteQuota(cleanKey, bodyBuf.length);
     if (!quotaCheck.allowed) {
@@ -398,10 +395,11 @@ class R2Client {
     }
 
     const extraHeaders = {
-      'content-type': 'image/svg+xml; charset=utf-8',
+      'content-type': contentType || 'application/octet-stream',
       'cache-control': 'public, max-age=31536000, immutable',
       'content-length': String(bodyBuf.length),
     };
+    if (contentEncoding) extraHeaders['content-encoding'] = contentEncoding;
 
     const signed = this._signRequest('PUT', cleanKey, extraHeaders, bodyBuf);
 
@@ -441,10 +439,8 @@ class R2Client {
     };
   }
 
-  /**
-   * Fetch an SVG object from R2 via signed S3 GET (used when proxying through Vercel Edge Cache)
-   */
-  async getSvgObject(objectKey) {
+  /** Fetch a text object (SVG, Lottie JSON) via signed S3 GET; null when missing. */
+  async getObjectText(objectKey) {
     const cleanKey = String(objectKey).replace(/^\/+/, '');
 
     // If publicUrl is configured, fetch via public CDN first (0 Class B ops if cached at Cloudflare Edge!)
@@ -479,6 +475,11 @@ class R2Client {
     }
 
     return await res.text();
+  }
+
+  /** @deprecated use getObjectText */
+  getSvgObject(objectKey) {
+    return this.getObjectText(objectKey);
   }
 }
 

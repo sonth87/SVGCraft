@@ -157,8 +157,16 @@ Thay dần từng phần, web vẫn chạy suốt quá trình. Mỗi trang là m
 - Đã đối chiếu với `StateManager` cũ trên 40 truy vấn: tổng số và 24 kết quả đầu khớp, trừ các khác biệt có chủ đích ở trên, thứ tự `gridSizes` (theo bản production) và gợi ý "tương tự" (đếm theo token thay vì nguyên tag)
 - Xoá `catalog-index.json.gz`, `build-catalog-index.js`, `sync-to-r2.js`, `catalogServer.js`. Web không còn dùng `StateManager`, chỉ còn `R2Client` và `parseSvgMetadata` từ `@svg-hub/shared`
 
-**Chưa làm, cần bạn quyết định:**
+### Giai đoạn 1b — chuyển hẳn sang storage của mình (11/2026)
 
-- **Upload theo hash lần đầu:** R2 hiện có đủ 249.425 file theo key cũ (566MB). `npm run publish` sẽ upload lại toàn bộ theo hash, tốn khoảng 249k lượt ghi Class A (free tier 1 triệu/tháng) và thêm ~566MB cho tới khi xoá key cũ. Catalog đang commit được sinh bằng `--no-upload`, mọi icon đang dùng key cũ
-- **`R2_PUBLIC_URL`:** chưa có thì mọi ảnh trong lưới vẫn đi qua `/svg/*` proxy (mỗi ảnh một lượt gọi function)
-- **Lottie:** máy chưa có file Lottie nào trong `output/`, nên `/api/lordicon/lottie` vẫn lấy từ lordicon.com. Upload Lottie theo hash làm khi crawler lưu file Lottie
+- **Upload theo hash:** chạy `npm run publish` cho toàn bộ ~249k SVG. Key cũ `{site}/{collection}/icons/{file}` vẫn còn trên R2 (fallback); xoá sau khi production chạy ổn với catalog có hash
+- **Lottie Lordicon lấy hết về:** crawler lưu animation vào `output/lordicon/{col}/lottie/{slug}.json` (đã giải mã từ `.li`), `npm run lordicon:lottie` tải bù cho icon crawl trước đó. `publish` đẩy lên R2 ở `lottie/{hash}.json` (gzip, ~1,8GB thô), catalog ghi `lottie` hash
+- `/api/lordicon/lottie` chỉ đọc `output/` (dev) hoặc R2, **không gọi lordicon.com nữa**. `lordiconStyles` chỉ trả các style đã crawl, bỏ link `media.lordicon.com`
+- **`/cdn/svg/{hash}.svg`, `/cdn/lottie/{hash}.json`:** proxy cùng domain ánh xạ thẳng key R2, dùng khi chưa có `R2_PUBLIC_URL`. URL đổi khi nội dung đổi nên cache vĩnh viễn (`immutable`) ở trình duyệt và CDN của Vercel: mỗi file chỉ tốn một lượt gọi function + một lượt đọc R2 cho mỗi region. `/cdn/*` nằm ngoài middleware nên request trúng cache không chạy code nào
+- Dev (`next dev`): ảnh lưới vẫn dùng `/svg/*` để đọc `output/` trên máy trước
+
+**Còn lại:**
+
+- **`R2_PUBLIC_URL`:** cần một domain riêng quản lý DNS trên Cloudflare (không dùng được `*.vercel.app`). Có rồi thì trình duyệt tải thẳng từ Cloudflare, không qua Vercel
+- Xoá key R2 cũ sau khi production ổn định
+- `lottie-web` vẫn tải từ cdnjs (thư viện, không phải dữ liệu); tự host khi chuyển sang React ở giai đoạn 2

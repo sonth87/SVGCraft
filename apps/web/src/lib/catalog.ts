@@ -34,7 +34,8 @@ function load(): Loaded {
       fs.readSync(fd, buf, 0, buf.length, start);
       return buf;
     },
-    assets: { publicUrl: process.env.R2_PUBLIC_URL },
+    // Dev: grid SVGs via /svg/* (serves local output/ first); otherwise the CDN domain or /cdn/* mirror
+    assets: { publicUrl: process.env.R2_PUBLIC_URL, localFirst: process.env.NODE_ENV === 'development' },
   });
   return { index, mtimeMs, fd };
 }
