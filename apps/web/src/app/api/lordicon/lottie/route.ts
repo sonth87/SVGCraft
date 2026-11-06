@@ -7,7 +7,8 @@
  *   GET /api/lordicon/lottie?family=wired&style=flat&slug=54-image-mountain[&includeSvg=1]
  */
 import { NextResponse } from 'next/server';
-import { extractLordiconMotionStates, lottieFilePath } from '@svg-hub/shared';
+import { lottieFilePath } from '@svg-hub/shared';
+import { extractLordiconMotionStates } from '@svg-hub/svg-tools';
 import { cacheHeaders, getCatalog } from '@/lib/catalog';
 import { getR2Client, loadIconSvg, OUTPUT_DIR, readLocalFile } from '@/lib/storage';
 

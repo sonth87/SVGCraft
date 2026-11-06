@@ -1,9 +1,9 @@
 /** Static SVG customization (colors, stroke weight, background). Pure string transforms, no DOM. */
-import { expandShortHex } from './color';
+import { expandShortHex, normalizeColorValue, toSvgColor } from './color';
 
 export type StrokeMode = 'light' | 'regular' | 'bold';
 
-/** Map of original hex → replacement hex, e.g. `{ '#121331': '#ff0000' }`. */
+/** Map of original hex → replacement, `#rrggbb` or `#rrggbbaa`, e.g. `{ '#121331': '#ff000080' }`. */
 export type ColorMap = Record<string, string>;
 
 export interface SvgCustomizeOptions {
@@ -42,6 +42,22 @@ export function normalizeSvgForInlineAndExport(svg = ''): string {
   return out;
 }
 
+/**
+ * Remove active content from third-party SVGs before they are inlined into our pages:
+ * `<script>`, `<foreignObject>`, `on*` handlers and `javascript:` links.
+ */
+export function sanitizeSvg(svg = ''): string {
+  return svg
+    .replace(/<(script|foreignObject)\b[^>]*\/>/gi, '')
+    .replace(/<script\b[\s\S]*?(?:<\/script\s*>|$)/gi, '')
+    .replace(/<foreignObject\b[\s\S]*?(?:<\/foreignObject\s*>|$)/gi, '')
+    .replace(/<[a-zA-Z][^>]*>/g, (tag) =>
+      tag
+        .replace(/[\s/]on[a-z]+\s*=\s*(?:"[^"]*"|'[^']*'|[^\s>]+)/gi, '')
+        .replace(/\b((?:xlink:)?href)\s*=\s*(["'])\s*javascript:[^"']*\2/gi, '$1=$2#$2')
+    );
+}
+
 function scaleStroke(numStr: string, mult: number): number | null {
   const val = parseFloat(numStr);
   if (Number.isNaN(val) || val <= 0) return null;
@@ -72,7 +88,7 @@ export function applyCustomizationsToSvgXml(
 
   // 1. Colors — replace through temporary tokens so swaps (A→B, B→A) don't collide
   const entries = Object.entries(colorMap).filter(
-    ([orig, next]) => orig && next && orig.toLowerCase() !== next.toLowerCase()
+    ([orig, next]) => orig && next && normalizeColorValue(orig) !== normalizeColorValue(next)
   );
   if (entries.length > 0) {
     entries.forEach(([orig], idx) => {
@@ -86,13 +102,13 @@ export function applyCustomizationsToSvgXml(
       }
     });
     entries.forEach(([, next], idx) => {
-      out = out.replace(new RegExp(`__SVGCRAFT_CLR_${idx}__`, 'g'), next);
+      out = out.replace(new RegExp(`__SVGCRAFT_CLR_${idx}__`, 'g'), toSvgColor(next));
     });
 
     // Monochrome `currentColor` icons: the first color well recolors currentColor
     const firstEntry = entries[0];
     if (firstEntry && !/#(?:[0-9a-fA-F]{3}|[0-9a-fA-F]{6})\b/.test(baseSvg)) {
-      out = out.replace(/\bcurrentColor\b/g, firstEntry[1]);
+      out = out.replace(/\bcurrentColor\b/g, toSvgColor(firstEntry[1]));
     }
   }
 
@@ -112,7 +128,7 @@ export function applyCustomizationsToSvgXml(
   // 3. Background
   if (!bgTransparent && bgColor) {
     const [x, y, w, h] = readViewBox(out);
-    const bgRect = `<rect class="svgcraft-bg" x="${x}" y="${y}" width="${w}" height="${h}" fill="${bgColor}"/>`;
+    const bgRect = `<rect class="svgcraft-bg" x="${x}" y="${y}" width="${w}" height="${h}" fill="${toSvgColor(bgColor)}"/>`;
     out = out.replace(/<svg\b[^>]*>/i, (openTag) => `${openTag}${bgRect}`);
   }
 

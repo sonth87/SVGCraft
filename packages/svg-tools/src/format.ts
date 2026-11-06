@@ -44,3 +44,54 @@ export function prettyFormatSvgXml(rawXml = ''): string {
   }
   return out.join('\n');
 }
+
+const CODE_TOKEN =
+  /(<!--[\s\S]*?-->)|("[^"]*"|'[^']*')|(<\/?[a-zA-Z0-9:_-]+|\/>|>)|(\b(?:export|function|return|const|let|var|from|import|default|template|script|style)\b)|(\b[a-zA-Z_:][a-zA-Z0-9_:.-]*(?==))|(\{\.\.\.props\})|(\b\d+(?:\.\d+)?\b)/g;
+
+/** One line of code → HTML with `tok-*` spans. Every piece of the input is escaped. */
+export function highlightCodeLine(rawLine: string, tab = 'svg'): string {
+  if (tab === 'datauri') {
+    const m = rawLine.match(/^(data:image\/svg\+xml;utf8,)(.*)$/);
+    if (m) return `<span class="tok-kw">${escapeHtml(m[1])}</span><span class="tok-str">${escapeHtml(m[2])}</span>`;
+    return `<span class="tok-str">${escapeHtml(rawLine)}</span>`;
+  }
+
+  let result = '';
+  let lastIdx = 0;
+  for (const match of rawLine.matchAll(CODE_TOKEN)) {
+    const full = match[0];
+    const index = match.index ?? 0;
+    if (index > lastIdx) result += escapeHtml(rawLine.slice(lastIdx, index));
+    const [, comment, str, tagBracket, kw, attr, spreadProps, num] = match;
+    if (comment) result += `<span class="tok-comm">${escapeHtml(full)}</span>`;
+    else if (str) result += `<span class="tok-str">${escapeHtml(full)}</span>`;
+    else if (tagBracket) {
+      if (full === '>' || full === '/>') {
+        result += `<span class="tok-punc">${escapeHtml(full)}</span>`;
+      } else {
+        const prefix = full.startsWith('</') ? '</' : '<';
+        result += `<span class="tok-punc">${escapeHtml(prefix)}</span><span class="tok-tag">${escapeHtml(full.slice(prefix.length))}</span>`;
+      }
+    } else if (kw) result += `<span class="tok-kw">${escapeHtml(full)}</span>`;
+    else if (attr) result += `<span class="tok-attr">${escapeHtml(full)}</span>`;
+    else if (spreadProps) {
+      result += `<span class="tok-punc">{</span><span class="tok-kw">...</span><span class="tok-fn">props</span><span class="tok-punc">}</span>`;
+    } else if (num) result += `<span class="tok-num">${escapeHtml(full)}</span>`;
+    else result += escapeHtml(full);
+    lastIdx = index + full.length;
+  }
+  if (lastIdx < rawLine.length) result += escapeHtml(rawLine.slice(lastIdx));
+  return result;
+}
+
+/** Whole snippet → HTML table of numbered, highlighted lines (`.code-lines-table`). */
+export function highlightCodeBlock(code = '', tab = 'svg'): string {
+  const rows = String(code)
+    .split('\n')
+    .map(
+      (line, idx) =>
+        `<div class="code-line"><span class="code-ln">${idx + 1}</span><span class="code-lc">${highlightCodeLine(line, tab) || ' '}</span></div>`
+    )
+    .join('');
+  return `<div class="code-lines-table">${rows}</div>`;
+}

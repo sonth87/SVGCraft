@@ -3,8 +3,9 @@
 import Script from 'next/script';
 import Topbar from './Topbar';
 import Sidebar from './Sidebar';
+import DetailHost from '@/features/icon-studio/DetailHost';
 
-export default function SvgCraftShell() {
+export default function SvgCraftShell({ initialDetail = null }) {
   return (
     <>
       {/* Ambient Brand Glow (active on Detail Page like thesvg.org) */}
@@ -21,7 +22,7 @@ export default function SvgCraftShell() {
 
         <main className="main-area">
           {/* ==================== VIEW 1: CATALOG BROWSE VIEW ==================== */}
-          <section id="catalogView" className="catalog-view">
+          <section id="catalogView" className="catalog-view" style={initialDetail ? { display: 'none' } : undefined}>
             <div className="hero-bar">
               <div className="hero-copy">
                 <h1 className="hero-title" id="heroHeading">
@@ -208,7 +209,10 @@ export default function SvgCraftShell() {
                         autoComplete="off"
                       />
                     </div>
-                    <div id="filterCollectionOptions" className="dropdown-options-list scroller collection-scroll-list" />
+                    <div
+                      id="filterCollectionOptions"
+                      className="dropdown-options-list scroller collection-scroll-list"
+                    />
                   </div>
                 </div>
 
@@ -386,13 +390,21 @@ export default function SvgCraftShell() {
           <section id="collectionView" className="collection-view" style={{ display: 'none' }} aria-live="polite" />
 
           {/* ==================== VIEW 3: THESVG.ORG-STYLE DETAIL VIEW ==================== */}
-          <section id="detailView" className="detail-view" style={{ display: 'none' }} aria-live="polite" />
+          <section
+            id="detailView"
+            className="detail-view"
+            style={{ display: initialDetail ? 'block' : 'none' }}
+            aria-live="polite"
+            data-ssr-key={initialDetail ? `${initialDetail.icon.collectionSlug}:${initialDetail.icon.id}` : undefined}
+          >
+            <DetailHost initial={initialDetail} />
+          </section>
         </main>
       </div>
 
       <div className="toast-container" id="toastContainer" role="status" aria-live="polite" />
 
-      <Script src="/app.js?v=10" strategy="afterInteractive" />
+      <Script src="/app.js?v=11" strategy="afterInteractive" />
     </>
   );
 }

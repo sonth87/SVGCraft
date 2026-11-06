@@ -3,3 +3,4 @@ export * from './svg-customize';
 export * from './lottie-customize';
 export * from './format';
 export * from './codegen';
+export * from './lottie-states';

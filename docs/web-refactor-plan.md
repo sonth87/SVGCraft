@@ -128,16 +128,16 @@ Thay dần từng phần, web vẫn chạy suốt quá trình. Mỗi trang là m
 | --- | ------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------- | --------- | -------------- |
 | 0   | Nền móng                 | TS, lint, Prettier, Vitest, CI. Tách hàm thuần từ `app.js` sang `packages/svg-tools` kèm test                                                   | 2–3 ngày  | Xong (11/2026) |
 | 1   | Dữ liệu                  | `publish` (upload theo hash, sinh `data/catalog/`), `index.bin` lúc build, API cursor, cho `app.js` dùng nguồn mới. Xoá `catalog-index.json.gz` | 3–4 ngày  | Xong (11/2026) |
-| 2   | Trang chi tiết           | React + SSR, studio, panel Export, color picker có màu gần đây                                                                                  | 5–7 ngày  |                |
+| 2   | Trang chi tiết           | React + SSR, studio, panel Export, color picker có màu gần đây và độ trong suốt                                                                 | 5–7 ngày  | Xong (11/2026) |
 | 3   | Trang collection         | React, cursor                                                                                                                                   | 2–3 ngày  |                |
 | 4   | Catalog, sidebar, topbar | React, bộ lọc trên URL, cuộn vô hạn. **Xoá `app.js`**, chia nhỏ `globals.css`                                                                   | 4–6 ngày  |                |
 | 5   | Hoàn thiện               | Sitemap 244k trang, rate limit dùng chung, theo dõi lỗi, đo hiệu năng                                                                           | 2–3 ngày  |                |
 
 ### Lưu ý trong giai đoạn chuyển tiếp
 
-- `app.js` không qua bundler nên không import được `packages/svg-tools`. Cho tới giai đoạn 4 sẽ có **hai bản** của các hàm xử lý. Sửa bug ở bản nào thì phải sửa cả bản kia. Test của `svg-tools` là chuẩn để đối chiếu.
-- `packages/svg-tools/test/parity.legacy.test.ts` chạy cùng đầu vào qua cả hai bản (màu, SVG, Lottie) và báo lỗi nếu kết quả khác nhau. Xoá file này cùng lúc xoá `app.js`.
-- Phần sinh code (JSX, Vue, HTML, format) **cố ý khác** bản cũ vì đã sửa lỗi: JSX hợp lệ cho `style="…"` và `<style>` của SVG động, link `<img>` không còn bị ghép origin vào trước link CDN, SVG minified được xuống dòng khi format. Bản trong `app.js` vẫn còn các lỗi này cho tới giai đoạn 2.
+- `app.js` không qua bundler nên không import được `packages/svg-tools`. Sau giai đoạn 2, bản trùng duy nhất còn lại là `svgToJsx`/`prettyFormatSvgXml` cho nút copy ở lưới (bản cũ, còn các lỗi JSX đã sửa trong `svg-tools`), hết khi xoá `app.js`.
+- Trang chi tiết là "đảo" React gắn vào `#detailView`; `app.js` vẫn giữ lưới, topbar, sidebar. Hai bên nói chuyện qua `window.svgcraftDetail.open/close`, `window.svgcraftLoadLottie`, event `svgcraft:lang|tone|favorites` và các `data-*` (`data-switch-icon`, `data-open-col`, `data-detail-back`…) do `app.js` bắt click. Xoá hết cầu nối này ở giai đoạn 4.
+- Bấm back trên trình duyệt từ trang chi tiết về lưới vẫn tải lại lưới và về đầu trang như trước (`popstate` luôn gọi `loadCatalogData`). Nút "Quay lại" trong trang thì giữ nguyên lưới. Sửa khi viết lại lưới.
 
 ### Giai đoạn 0 — đã làm
 
@@ -157,6 +157,17 @@ Thay dần từng phần, web vẫn chạy suốt quá trình. Mỗi trang là m
 - Đã đối chiếu với `StateManager` cũ trên 40 truy vấn: tổng số và 24 kết quả đầu khớp, trừ các khác biệt có chủ đích ở trên, thứ tự `gridSizes` (theo bản production) và gợi ý "tương tự" (đếm theo token thay vì nguyên tag)
 - Xoá `catalog-index.json.gz`, `build-catalog-index.js`, `sync-to-r2.js`, `catalogServer.js`. Web không còn dùng `StateManager`, chỉ còn `R2Client` và `parseSvgMetadata` từ `@svg-hub/shared`
 
+### Giai đoạn 2 — đã làm
+
+- `apps/web/src/features/icon-studio/`: `IconStudio` (state + layout), `Stage`, `ExportPanel`, `ColorPicker`/`ColorPopover`, `compile-animated`, `export-file`. Giữ nguyên class CSS cũ trong `globals.css`, chỉ color picker dùng CSS Module; chia `globals.css` ở giai đoạn 4
+- **SSR:** `/icon/*` là Server Component, HTML có sẵn tiêu đề, SVG, tag và link icon liên quan. ISR (`revalidate` 1 ngày, render lần đầu theo yêu cầu). Icon không tồn tại trả 404 thật
+- **Color picker:** `@uiw/react-color-colorful` (chỉ tải khi mở lần đầu), có độ trong suốt, HEX, màu gốc của icon, 12 màu gần đây (`localStorage`). Trong SVG màu trong suốt ghi thành `rgba()`; trong Lottie thì nhân vào opacity của shape vì Lottie bỏ qua alpha của màu
+- `lottie-web` tự host (chunk riêng, chỉ tải cho icon động), bỏ cdnjs. Animation tải thẳng từ `/cdn/lottie/{hash}.json` hoặc CDN, API `/api/lordicon/lottie` chỉ là dự phòng. **Khi có `R2_PUBLIC_URL`:** bật CORS cho bucket để khỏi rơi vào dự phòng
+- `sanitizeSvg` bỏ `<script>`, `<foreignObject>`, `on*`, `javascript:` khỏi SVG của bên thứ ba: giờ SVG nằm trong HTML từ server, `<script>` sẽ chạy thật nếu không lọc
+- `app.js` từ 5.267 còn ~3.200 dòng. Bỏ `parity.legacy.test.ts` vì không còn bản trùng để đối chiếu
+- Sửa kèm: xuất PNG không còn đổi nhầm `stroke-width` khi thẻ `<svg>` thiếu `width`; SVG động không còn nhân độ dày nét hai lần
+- **Khác kế hoạch:** chưa dùng Zustand, `nuqs`, TanStack Query, `next-intl`. State của studio gói gọn trong một component nên `useState` là đủ; các thư viện kia dành cho lưới và bộ lọc ở giai đoạn 4. Chuỗi dịch của trang chi tiết tạm để ở `messages.ts`
+
 ### Giai đoạn 1b — chuyển hẳn sang storage của mình (11/2026)
 
 - **Upload theo hash:** đã chạy `npm run publish` cho toàn bộ 243.929 icon (240.456 object sau khi gộp trùng). Web không còn đọc key cũ `{site}/{collection}/icons/{file}`; xoá chúng bằng `npm run r2:delete-legacy -- --yes` (chạy không có `--yes` để đếm trước). Route `/output/*` đã bỏ, `/svg/*` chỉ còn phục vụ `output/` khi dev
@@ -169,4 +180,3 @@ Thay dần từng phần, web vẫn chạy suốt quá trình. Mỗi trang là m
 
 - **`R2_PUBLIC_URL`:** cần một domain riêng quản lý DNS trên Cloudflare (không dùng được `*.vercel.app`). Có rồi thì trình duyệt tải thẳng từ Cloudflare, không qua Vercel
 - Luôn chạy `npm run publish` có upload trước khi push catalog: icon chưa có hash không hiển thị được trên production
-- `lottie-web` vẫn tải từ cdnjs (thư viện, không phải dữ liệu); tự host khi chuyển sang React ở giai đoạn 2

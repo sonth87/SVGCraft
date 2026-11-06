@@ -1,5 +1,7 @@
+import { notFound } from 'next/navigation';
 import SvgCraftShell from '@/components/SvgCraftShell';
 import { getCatalog } from '@/lib/catalog';
+import { loadIconDetail } from '@/lib/iconDetail';
 
 export async function generateMetadata({ params }) {
   try {
@@ -30,6 +32,15 @@ export async function generateMetadata({ params }) {
   };
 }
 
-export default function IconDetailPage() {
-  return <SvgCraftShell />;
+// Rendered on first request, then served from the CDN until the next deploy or the daily refresh
+export const revalidate = 86400;
+export function generateStaticParams() {
+  return [];
+}
+
+export default async function IconDetailPage({ params }) {
+  const index = getCatalog();
+  const ord = index.findIcon(decodeURIComponent(params.site), decodeURIComponent(params.collection), decodeURIComponent(params.idOrSlug));
+  if (ord < 0) notFound();
+  return <SvgCraftShell initialDetail={await loadIconDetail(index, ord)} />;
 }

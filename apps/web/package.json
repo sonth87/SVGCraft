@@ -16,6 +16,9 @@
     "@svg-hub/catalog": "*",
     "@svg-hub/shared": "*",
     "@svg-hub/svg-tools": "*",
+    "@uiw/color-convert": "^2.10.3",
+    "@uiw/react-color-colorful": "^2.10.3",
+    "lottie-web": "^5.12.2",
     "next": "^14.2.35",
     "react": "^18.3.1",
     "react-dom": "^18.3.1"

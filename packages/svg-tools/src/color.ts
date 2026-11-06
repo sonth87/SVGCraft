@@ -26,9 +26,44 @@ export function expandShortHex(hex: string | null | undefined = ''): string | nu
   return null;
 }
 
+/**
+ * Parse an editor color: `#rgb`, `#rrggbb` or `#rrggbbaa` → 6-digit hex + alpha (0..1), `null` when invalid.
+ * Alpha keeps 2 decimals, which is more than an 8-bit channel distinguishes visually.
+ */
+export function parseColor(value: string | null | undefined): { hex: string; alpha: number } | null {
+  const clean = String(value ?? '')
+    .trim()
+    .toLowerCase();
+  if (/^#[0-9a-f]{8}$/.test(clean)) {
+    return { hex: clean.slice(0, 7), alpha: Number((parseInt(clean.slice(7), 16) / 255).toFixed(2)) };
+  }
+  const hex = expandShortHex(clean);
+  return hex ? { hex, alpha: 1 } : null;
+}
+
+/** Canonical editor value: lowercase `#rrggbb`, or `#rrggbbaa` only when not fully opaque. */
+export function normalizeColorValue(value: string | null | undefined): string | null {
+  const parsed = parseColor(value);
+  if (!parsed) return null;
+  if (parsed.alpha >= 1) return parsed.hex;
+  return String(value).trim().toLowerCase();
+}
+
+/**
+ * Color as written into SVG output. Translucent colors become `rgba()`, which design tools and SVG renderers
+ * read more reliably than 8-digit hex.
+ */
+export function toSvgColor(value: string): string {
+  const parsed = parseColor(value);
+  if (!parsed) return value;
+  if (parsed.alpha >= 1) return parsed.hex;
+  const channel = (from: number) => parseInt(parsed.hex.slice(from, from + 2), 16);
+  return `rgba(${channel(1)},${channel(3)},${channel(5)},${parsed.alpha})`;
+}
+
 /** `#ff8000` → `[1, 0.502, 0]` (Lottie color space, 4-decimal precision). */
 export function hexToNormalizedRgbArray(hex: string): RgbTriplet | null {
-  const clean = expandShortHex(hex);
+  const clean = parseColor(hex)?.hex;
   if (!clean) return null;
   const channel = (from: number) => Number((parseInt(clean.slice(from, from + 2), 16) / 255).toFixed(4));
   return [channel(1), channel(3), channel(5)];

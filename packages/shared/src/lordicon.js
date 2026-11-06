@@ -46,48 +46,6 @@ function decodeLordiconLi(text) {
   return lottie;
 }
 
-/** Motion states from the Lottie markers (`default:hover-pinch`, `loop-spin`, …). */
-function extractLordiconMotionStates(lottie = {}) {
-  const markers = Array.isArray(lottie.markers) ? lottie.markers : [];
-  const totalFrames = Number(lottie.op) || 60;
-  const startFrameDefault = Number(lottie.ip) || 0;
-
-  if (markers.length === 0) {
-    return [
-      {
-        id: 'default',
-        label: 'Default Motion',
-        rawName: 'default',
-        isDefault: true,
-        startFrame: startFrameDefault,
-        endFrame: totalFrames,
-        durationFrames: Math.max(1, totalFrames - startFrameDefault),
-      },
-    ];
-  }
-
-  return markers.map((m, idx) => {
-    const rawName = String(m.cm || `state-${idx + 1}`).trim();
-    const isDefault = rawName.startsWith('default:');
-    const cleaned = rawName.replace(/^default:/i, '').replace(/:[\d.]+$/, '');
-    const startFrame = Math.max(0, Math.round(Number(m.tm) || 0));
-    const durationFrames = Math.max(1, Math.round(Number(m.dr) || 30));
-    return {
-      id: cleaned || `state-${idx + 1}`,
-      label: cleaned
-        .split(/[-_]+/)
-        .filter(Boolean)
-        .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
-        .join(' '),
-      rawName,
-      isDefault,
-      startFrame,
-      endFrame: startFrame + durationFrames,
-      durationFrames,
-    };
-  });
-}
-
 module.exports = {
   LORDICON_MEDIA_BASE,
   lordiconLiUrl,
@@ -95,5 +53,4 @@ module.exports = {
   lottieFileName,
   lottieFilePath,
   decodeLordiconLi,
-  extractLordiconMotionStates,
 };

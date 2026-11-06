@@ -7,16 +7,6 @@ declare module '@svg-hub/shared' {
     getObjectText(objectKey: string): Promise<string | null>;
     getQuotaSummary(): Record<string, unknown>;
   }
-  export interface LordiconMotionState {
-    id: string;
-    label: string;
-    rawName: string;
-    isDefault: boolean;
-    startFrame: number;
-    endFrame: number;
-    durationFrames: number;
-  }
-  export function extractLordiconMotionStates(lottie: unknown): LordiconMotionState[];
   export function parseLordiconCollectionSlug(slug: string): { family: string; style: string } | null;
   export function lottieFilePath(outputDir: string, collectionSlug: string, iconSlug: string): string;
   export function parseSvgMetadata(svg: string): {
