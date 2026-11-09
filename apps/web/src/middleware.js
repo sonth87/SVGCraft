@@ -34,12 +34,7 @@ function getClientIp(request) {
 
 function isLocalRequest(request, ip) {
   if (process.env.NODE_ENV === 'development') return true;
-  if (
-    ip === '127.0.0.1' ||
-    ip === '::1' ||
-    ip === 'localhost' ||
-    ip.endsWith(':127.0.0.1')
-  ) {
+  if (ip === '127.0.0.1' || ip === '::1' || ip === 'localhost' || ip.endsWith(':127.0.0.1')) {
     return true;
   }
   const host = (request.headers.get('host') || '').toLowerCase();
@@ -74,8 +69,7 @@ function checkRateLimit(ip, bucket, now) {
   }
 
   const isGlobalSpike =
-    globalWindow.burstCount > GLOBAL_BURST_SPIKE_THRESHOLD ||
-    globalWindow.minuteCount > GLOBAL_MINUTE_SPIKE_THRESHOLD;
+    globalWindow.burstCount > GLOBAL_BURST_SPIKE_THRESHOLD || globalWindow.minuteCount > GLOBAL_MINUTE_SPIKE_THRESHOLD;
 
   // Base limits per IP (automatically halved during a global traffic spike)
   const scale = isGlobalSpike ? 0.5 : 1;
@@ -209,9 +203,7 @@ export function middleware(request) {
 
   const isApiRoute = pathname.startsWith('/api/');
   const isAssetRoute =
-    pathname.startsWith('/output/') ||
-    pathname.startsWith('/svg/') ||
-    pathname.startsWith('/api/lordicon/');
+    pathname.startsWith('/output/') || pathname.startsWith('/svg/') || pathname.startsWith('/api/lordicon/');
 
   // 2. Protect /api/*, /svg/*, and /output/* from bots, cross-origin hotlinking, and direct URL scraping
   if (isApiRoute || isAssetRoute) {
@@ -249,11 +241,7 @@ export function middleware(request) {
     }
 
     // 3. Apply Sliding-Window Rate Limiter & Spike Circuit Breaker
-    const bucket = isAssetRoute
-      ? 'asset'
-      : pathname.startsWith('/api/catalog/icon/')
-        ? 'detail'
-        : 'api';
+    const bucket = isAssetRoute ? 'asset' : pathname.startsWith('/api/catalog/icon/') ? 'detail' : 'api';
 
     const rl = checkRateLimit(ip, bucket, now);
 

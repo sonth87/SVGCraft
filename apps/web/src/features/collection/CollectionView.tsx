@@ -1,19 +1,26 @@
 'use client';
 
-/** Collection page: filters live in the URL, pages load by cursor. Navigation clicks are handled by app.js for now. */
-import { useEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react';
+/** Collection page: filters live in the URL, pages load by cursor, and the list survives a visit to an icon page. */
+import { useEffect, useLayoutEffect, useMemo, useRef, useState, useSyncExternalStore } from 'react';
+import type { IconListItem } from '@svg-hub/catalog';
 import type { CollectionPayload } from '@/lib/collectionPage';
+import { apiJson } from '../shared/api';
+import { favoritesServerSnapshot, favoritesSnapshot, showToast, subscribeFavorites, useI18n } from '../shared/bridge';
+import { Icon, styleIconName } from '../shared/icons';
+import { LineIcon } from '../shared/line-icons';
 import {
-  favoritesServerSnapshot,
-  favoritesSnapshot,
-  showToast,
-  subscribeFavorites,
-  useI18n,
-} from '@/features/shared/bridge';
-import { Icon, styleIconName } from '@/features/shared/icons';
-import { IconCard } from './IconCard';
+  catalogReturnHref,
+  restoreScroll,
+  savedScroll,
+  setNavList,
+  useAppRouter,
+  useSearch,
+  writeUrl,
+} from '../shared/nav';
+import { IconCard } from '../catalog/IconCard';
+import { usePagedList } from '../catalog/usePagedList';
 
-export interface CollectionFilters {
+interface CollectionFilters {
   q: string;
   styleType: string;
   category: string;
@@ -22,8 +29,8 @@ export interface CollectionFilters {
 
 const NO_FILTERS: CollectionFilters = { q: '', styleType: '', category: '', sort: 'az' };
 
-export function readFiltersFromUrl(): CollectionFilters {
-  const params = new URLSearchParams(window.location.search);
+function parseSearch(search: string): CollectionFilters {
+  const params = new URLSearchParams(search);
   return {
     q: params.get('q') ?? '',
     styleType: params.get('style') ?? '',
@@ -32,7 +39,7 @@ export function readFiltersFromUrl(): CollectionFilters {
   };
 }
 
-function filtersToSearch(f: CollectionFilters): string {
+function toSearch(f: CollectionFilters): string {
   const params = new URLSearchParams();
   if (f.q) params.set('q', f.q);
   if (f.styleType) params.set('style', f.styleType);
@@ -42,112 +49,75 @@ function filtersToSearch(f: CollectionFilters): string {
   return qs ? `?${qs}` : '';
 }
 
-declare global {
-  interface Window {
-    /** What the detail page's prev/next walks through; read by app.js */
-    svgcraftCollectionItems?: CollectionPayload['items'];
-  }
-}
-
-interface CollectionViewProps {
-  data: CollectionPayload;
-  /** Filters `data` was fetched with; `null` for the server render, which is always the unfiltered first page */
-  filters: CollectionFilters | null;
-}
-
-export default function CollectionView({ data, filters: initialFilters }: CollectionViewProps) {
+export default function CollectionView({ data }: { data: CollectionPayload }) {
   const { lang, t } = useI18n();
+  const router = useAppRouter();
+  const search = useSearch();
   const col = data.collection;
   const favorites = useSyncExternalStore(subscribeFavorites, favoritesSnapshot, favoritesServerSnapshot);
   const favSet = useMemo(() => new Set(favorites), [favorites]);
 
-  const [filters, setFilters] = useState<CollectionFilters>(initialFilters ?? NO_FILTERS);
-  const [searchText, setSearchText] = useState(filters.q);
-  const [page, setPage] = useState({ items: data.items, total: data.total, nextCursor: data.nextCursor });
-  const [loadingMore, setLoadingMore] = useState(false);
-  const loadedKey = useRef(JSON.stringify(initialFilters ?? NO_FILTERS));
-
-  const apiUrl = (f: CollectionFilters, cursor?: string | null) => {
-    const params = new URLSearchParams({ q: f.q, styleType: f.styleType, category: f.category, sort: f.sort });
-    if (cursor) params.set('cursor', cursor);
-    return `/api/catalog/collection/any/${encodeURIComponent(col.slug)}?${params.toString()}`;
-  };
-  const fetchPage = async (url: string, signal?: AbortSignal) => {
-    const res = await fetch(url, { signal, headers: { 'x-svgcraft-client': 'web-v2' } });
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
-    return (await res.json()) as CollectionPayload;
-  };
-
-  // A server-rendered page opened with filters in its URL
-  useEffect(() => {
-    if (initialFilters) return;
-    const fromUrl = readFiltersFromUrl();
-    setFilters(fromUrl);
-    setSearchText(fromUrl.q);
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- first load only
-  }, []);
-
-  // Filter change → new first page, URL follows
-  useEffect(() => {
-    const key = JSON.stringify(filters);
-    if (key === loadedKey.current) return;
-    const ctrl = new AbortController();
-    fetchPage(apiUrl(filters), ctrl.signal)
-      .then((res) => {
-        loadedKey.current = key;
-        window.history.replaceState(
-          { view: 'collection', collectionSlug: col.slug },
-          '',
-          `/collection/${encodeURIComponent(col.slug)}${filtersToSearch(filters)}`
-        );
-        setPage({ items: res.items, total: res.total, nextCursor: res.nextCursor });
-      })
-      .catch(() => {
-        /* aborted by a newer filter, or a failed request: the current page stays */
+  const filters = useMemo(() => parseSearch(search), [search]);
+  const key = JSON.stringify([col.slug, filters]);
+  const list = usePagedList<IconListItem>({
+    key,
+    group: col.slug,
+    initial: { key: JSON.stringify([col.slug, NO_FILTERS]), page: data },
+    load: (cursor, signal, bypassCache) => {
+      const params = new URLSearchParams({
+        q: filters.q,
+        styleType: filters.styleType,
+        category: filters.category,
+        sort: filters.sort,
       });
-    return () => ctrl.abort();
-    // eslint-disable-next-line react-hooks/exhaustive-deps -- apiUrl is derived from filters and the slug
-  }, [filters, col.slug]);
+      if (cursor) params.set('cursor', cursor);
+      return apiJson<CollectionPayload>(`/api/catalog/collection/any/${encodeURIComponent(col.slug)}?${params}`, {
+        signal,
+        bypassCache,
+      });
+    },
+  });
+
+  const setFilters = (patch: Partial<CollectionFilters>) =>
+    writeUrl(`/collection/${encodeURIComponent(col.slug)}${toSearch({ ...filters, ...patch })}`, true);
 
   // Search as you type
+  const [text, setText] = useState(filters.q);
+  const lastQ = useRef(filters.q);
   useEffect(() => {
-    const timer = setTimeout(() => {
-      const q = searchText.trim();
-      setFilters((f) => (f.q === q ? f : { ...f, q }));
-    }, 280);
+    lastQ.current = filters.q;
+    setText(filters.q);
+  }, [filters.q]);
+  useEffect(() => {
+    const q = text.trim();
+    if (q === lastQ.current) return;
+    const timer = setTimeout(() => setFilters({ q }), 280);
     return () => clearTimeout(timer);
-  }, [searchText]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- setFilters reads the latest filters when the debounce fires
+  }, [text]);
 
-  // Prev/next on the detail page walks the loaded items
+  // Prev/next on the icon page walks what is loaded here
   useEffect(() => {
-    window.svgcraftCollectionItems = page.items;
-    window.dispatchEvent(new Event('svgcraft:collection-items'));
-  }, [page.items]);
+    setNavList(list.items);
+  }, [list.items]);
 
-  const loadMore = async () => {
-    if (!page.nextCursor || loadingMore) return;
-    setLoadingMore(true);
-    try {
-      const res = await fetchPage(apiUrl(filters, page.nextCursor));
-      // A deploy between pages invalidates the cursor and the server restarts at offset 0
-      setPage((p) => ({
-        items: res.offset === 0 ? res.items : [...p.items, ...res.items],
-        total: res.total,
-        nextCursor: res.nextCursor,
-      }));
-    } finally {
-      setLoadingMore(false);
-    }
-  };
+  // Back from an icon: same pages, same scroll position
+  const scrolled = useRef(false);
+  useLayoutEffect(() => {
+    if (scrolled.current || list.loading) return;
+    scrolled.current = true;
+    const y = savedScroll(`${window.location.pathname}${window.location.search}`);
+    if (y !== undefined) restoreScroll(y);
+  }, [list.loading]);
 
   const total = col.totalIconsInCollection || data.total || 0;
   const author = !col.author || /^(thesvg|svg\s*repo)$/i.test(String(col.author).trim()) ? 'Open Source' : col.author;
 
   return (
-    <>
+    <section id="collectionView" className="collection-view" aria-live="polite">
       <div className="detail-topbar">
         <div className="detail-breadcrumbs">
-          <button type="button" className="btn-back-catalog" data-col-back="">
+          <button type="button" className="btn-back-catalog" onClick={() => router.back(catalogReturnHref())}>
             <Icon name="arrowLeft" />
             <span>{t('colBackCatalog')}</span>
           </button>
@@ -207,25 +177,14 @@ export default function CollectionView({ data, filters: initialFilters }: Collec
 
         <div className="collection-toolbar-bar">
           <div className="col-local-search">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <circle cx="11" cy="11" r="8" />
-              <path d="m21 21-4.3-4.3" />
-            </svg>
+            <LineIcon name="search" size={16} />
             <input
               type="search"
               id="colLocalSearchInput"
-              value={searchText}
+              value={text}
               placeholder={t('colSearchPlaceholder', { name: col.name })}
               autoComplete="off"
-              onChange={(e) => setSearchText(e.target.value)}
+              onChange={(e) => setText(e.target.value)}
             />
           </div>
 
@@ -238,7 +197,7 @@ export default function CollectionView({ data, filters: initialFilters }: Collec
                 id="colLordiconCatSelect"
                 aria-label={t('lordiconTopicLabel')}
                 value={filters.category}
-                onChange={(e) => setFilters((f) => ({ ...f, category: e.target.value }))}
+                onChange={(e) => setFilters({ category: e.target.value })}
               >
                 <option value="">
                   {t('lordiconAllCategories')} ({total.toLocaleString('en-US')})
@@ -256,7 +215,7 @@ export default function CollectionView({ data, filters: initialFilters }: Collec
             <button
               type="button"
               className={`pill-btn ${filters.styleType ? '' : 'active'}`}
-              onClick={() => setFilters((f) => ({ ...f, styleType: '' }))}
+              onClick={() => setFilters({ styleType: '' })}
             >
               <span>{t('colAllStyles', { count: total.toLocaleString('en-US') })}</span>
             </button>
@@ -265,8 +224,7 @@ export default function CollectionView({ data, filters: initialFilters }: Collec
                 key={st.id}
                 type="button"
                 className={`pill-btn ${filters.styleType === st.id ? 'active' : ''}`}
-                data-col-style={st.id}
-                onClick={() => setFilters((f) => ({ ...f, styleType: st.id }))}
+                onClick={() => setFilters({ styleType: st.id })}
               >
                 <Icon name={styleIconName(st.id)} />
                 <span>
@@ -282,7 +240,7 @@ export default function CollectionView({ data, filters: initialFilters }: Collec
                 id="colSortSelect"
                 aria-label={t('sortTitle')}
                 value={filters.sort}
-                onChange={(e) => setFilters((f) => ({ ...f, sort: e.target.value }))}
+                onChange={(e) => setFilters({ sort: e.target.value })}
               >
                 <option value="az">{t('sortAz')}</option>
                 <option value="za">{t('sortZa')}</option>
@@ -290,15 +248,19 @@ export default function CollectionView({ data, filters: initialFilters }: Collec
               </select>
             </div>
             <div className="results-counter">
-              {t('showingPrefix')} <strong>{page.items.length.toLocaleString('en-US')}</strong> /{' '}
-              <strong>{page.total.toLocaleString('en-US')}</strong>
+              {t('showingPrefix')} <strong>{list.items.length.toLocaleString('en-US')}</strong> /{' '}
+              <strong>{list.total.toLocaleString('en-US')}</strong>
             </div>
           </div>
         </div>
       </div>
 
-      <div id="colIconsGrid" className="icons-grid">
-        {page.items.length === 0 ? (
+      <div
+        id="colIconsGrid"
+        className="icons-grid"
+        style={list.loading && list.items.length > 0 ? { opacity: 0.55, transition: 'opacity 0.15s' } : undefined}
+      >
+        {!list.loading && list.items.length === 0 && (
           <div
             style={{
               gridColumn: '1 / -1',
@@ -311,30 +273,35 @@ export default function CollectionView({ data, filters: initialFilters }: Collec
           >
             {t('colEmptySearch')}
           </div>
-        ) : (
-          page.items.map((item, index) => {
-            const key = `${item.collectionSlug}:${item.id || item.slug}`;
-            return (
-              <IconCard
-                key={key}
-                item={item}
-                index={index}
-                favorite={favSet.has(key) || favSet.has(`${item.site}:${key}`)}
-                lang={lang}
-                t={t}
-              />
-            );
-          })
         )}
+        {list.items.map((item, index) => {
+          const itemKey = `${item.collectionSlug}:${item.id || item.slug}`;
+          return (
+            <IconCard
+              key={itemKey}
+              item={item}
+              index={index}
+              favorite={favSet.has(itemKey) || favSet.has(`${item.site}:${itemKey}`)}
+              lang={lang}
+              t={t}
+            />
+          );
+        })}
       </div>
 
-      {page.nextCursor && (
+      {list.hasMore && (
         <div className="load-more-wrap" style={{ display: 'flex' }}>
-          <button type="button" id="btnColLoadMore" className="btn-load-more" disabled={loadingMore} onClick={loadMore}>
-            <span>{t('colLoadMoreBtn', { shown: page.items.length, total: page.total })}</span>
+          <button
+            type="button"
+            id="btnColLoadMore"
+            className="btn-load-more"
+            disabled={list.loadingMore}
+            onClick={() => void list.loadMore()}
+          >
+            <span>{t('colLoadMoreBtn', { shown: list.items.length, total: list.total })}</span>
           </button>
         </div>
       )}
-    </>
+    </section>
   );
 }

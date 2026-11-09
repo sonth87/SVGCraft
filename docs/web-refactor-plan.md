@@ -130,14 +130,12 @@ Thay dần từng phần, web vẫn chạy suốt quá trình. Mỗi trang là m
 | 1   | Dữ liệu                  | `publish` (upload theo hash, sinh `data/catalog/`), `index.bin` lúc build, API cursor, cho `app.js` dùng nguồn mới. Xoá `catalog-index.json.gz` | 3–4 ngày  | Xong (11/2026) |
 | 2   | Trang chi tiết           | React + SSR, studio, panel Export, color picker có màu gần đây và độ trong suốt                                                                 | 5–7 ngày  | Xong (11/2026) |
 | 3   | Trang collection         | React, cursor                                                                                                                                   | 2–3 ngày  | Xong (11/2026) |
-| 4   | Catalog, sidebar, topbar | React, bộ lọc trên URL, cuộn vô hạn. **Xoá `app.js`**, chia nhỏ `globals.css`                                                                   | 4–6 ngày  |                |
+| 4   | Catalog, sidebar, topbar | React, bộ lọc trên URL, cuộn vô hạn. **Xoá `app.js`**, chia nhỏ `globals.css`                                                                   | 4–6 ngày  | Xong (11/2026) |
 | 5   | Hoàn thiện               | Sitemap 244k trang, rate limit dùng chung, theo dõi lỗi, đo hiệu năng                                                                           | 2–3 ngày  |                |
 
-### Lưu ý trong giai đoạn chuyển tiếp
+### Giai đoạn chuyển tiếp (đã kết thúc ở giai đoạn 4)
 
-- `app.js` không qua bundler nên không import được `packages/svg-tools`. Sau giai đoạn 2, bản trùng duy nhất còn lại là `svgToJsx`/`prettyFormatSvgXml` cho nút copy ở lưới (bản cũ, còn các lỗi JSX đã sửa trong `svg-tools`), hết khi xoá `app.js`.
-- Trang chi tiết là "đảo" React gắn vào `#detailView`; `app.js` vẫn giữ lưới, topbar, sidebar. Trang collection cũng vậy, gắn vào `#collectionView`. Hai bên nói chuyện qua `window.svgcraftDetail`, `window.svgcraftCollection`, `window.svgcraftLoadLottie`, event `svgcraft:lang|tone|favorites|collection-items` và các `data-*` (`data-switch-icon`, `data-open-col`, `data-open-detail`, `data-detail-back`, `data-col-back`…) do `app.js` bắt click. Xoá hết cầu nối này ở giai đoạn 4.
-- Bấm back trên trình duyệt từ trang chi tiết về lưới vẫn tải lại lưới và về đầu trang như trước (`popstate` luôn gọi `loadCatalogData`). Nút "Quay lại" trong trang thì giữ nguyên lưới. Sửa khi viết lại lưới.
+Trong giai đoạn 2–3, trang chi tiết và trang collection là "đảo" React gắn vào khung do `public/app.js` quản lý, hai bên nói chuyện qua `window.svgcraft*`, event `svgcraft:*` và các `data-*`. Giai đoạn 4 xoá `app.js` cùng toàn bộ cầu nối đó; `packages/svg-tools` không còn bản trùng nào cần đối chiếu.
 
 ### Giai đoạn 0 — đã làm
 
@@ -156,6 +154,27 @@ Thay dần từng phần, web vẫn chạy suốt quá trình. Mỗi trang là m
 - 5 API `/api/catalog/*` viết lại bằng TS trên index mới, **giữ nguyên URL và dạng response** nên `app.js` không phải sửa. Thêm `nextCursor` và header `X-Catalog-Build`
 - Đã đối chiếu với `StateManager` cũ trên 40 truy vấn: tổng số và 24 kết quả đầu khớp, trừ các khác biệt có chủ đích ở trên, thứ tự `gridSizes` (theo bản production) và gợi ý "tương tự" (đếm theo token thay vì nguyên tag)
 - Xoá `catalog-index.json.gz`, `build-catalog-index.js`, `sync-to-r2.js`, `catalogServer.js`. Web không còn dùng `StateManager`, chỉ còn `R2Client` và `parseSvgMetadata` từ `@svg-hub/shared`
+
+### Giai đoạn 4 — đã làm
+
+- **`app.js` đã xoá** (5.267 dòng → 0). Thư mục `apps/web/public/` không còn gì. Không còn `<script>` nào ngoài bundle của Next
+- **Khung dùng chung** (`features/shell/AppChrome`) nằm trong `app/layout.jsx` nên topbar, sidebar, toast và thanh tiến trình **không bị dựng lại khi chuyển trang**. Mỗi trang là một route thật: `/` (`CatalogPage`), `/collection/*` (`CollectionView`), `/icon/*` (`IconStudio`), đều là Server Component bọc một component client
+- **Điều hướng bằng router của Next** (`<Link prefetch={false}>` + `router.push`). Thẻ icon là link thật, nên bấm chuột giữa / Ctrl-click mở tab mới đúng như link bình thường. `prefetch={false}` vì trang có 72 thẻ trong tầm nhìn; thay vào đó prefetch khi con trỏ dừng 150ms trên thẻ
+- **Bộ lọc nằm hoàn toàn trên URL** (`features/catalog/filters.ts`, có test): từ khoá, danh mục, kiểu, loại, collection, chữ cái, sắp xếp, yêu thích, chế độ xem. Đổi bộ lọc trên trang chủ dùng `history.replaceState/pushState` (không gọi server). `useSearch()` là một store của URL, rỗng lúc render server để HTML khớp với bản đã cache
+- **Danh sách giữ lại khi quay về** (`usePagedList`): tối đa 24 danh sách, kèm mọi trang đã tải. Back trình duyệt và nút "Quay lại" đều khôi phục đúng danh sách và vị trí cuộn, không gọi lại API. Nút "Quay lại" trên trang icon về đúng danh sách đã mở icon, dù đã bấm trước/sau nhiều lần; mở trang icon trực tiếp thì về catalog
+- **Đổi bộ lọc không còn nháy trắng:** danh sách cũ ở lại (mờ đi) tới khi danh sách mới về
+- **SSR:** `/` có sẵn 72 icon (link thật) và sidebar; phân loại + số đếm đi theo trang (~8KB). 1.578 tên collection chỉ tải khi mở dropdown hoặc ô tìm kiếm
+- **CSS chia 6 file** trong `src/styles/` (base, topbar, shell, catalog, detail, collection), giữ nguyên thứ tự cascade: ảnh chụp 5 trang × sáng/tối × desktop/mobile **trùng từng byte** trước và sau khi chia
+- JS trang đầu: 122KB gzip (mục tiêu < 150KB)
+
+**Khác bản cũ, có chủ đích:**
+
+- **Yêu thích:** trước đây chỉ lọc trong 72 icon đầu của kết quả nên phần lớn yêu thích không hiện. Giờ lấy đúng các icon đã thích qua `POST /api/catalog/favorites`
+- Bộ đếm hiện số thật ("72 / 243.929") thay cho chuỗi cố định "500,000+". Tiêu đề trang, ô tìm kiếm và mô tả vẫn ghi "500,000+" (nội dung quảng bá, chưa đổi)
+- Topbar tự cao lên khi các thẻ lọc trong ô tìm kiếm xuống dòng (màn hẹp), trước đây tràn ra ngoài
+- Hover Lottie trên thẻ lấy animation qua `/api/lordicon/lottie` (cache 1 ngày). Danh sách thẻ chưa có hash animation nên chưa tải thẳng từ `/cdn/lottie/` như trang chi tiết
+
+**Còn lại:** Playwright vào CI (hiện kiểm tra bằng script cục bộ), `next-intl` (chuỗi dịch đang ở `features/shared/messages.ts`), `nuqs`/TanStack Query nếu cần (`useSearch` + `usePagedList` hiện đủ dùng).
 
 ### Giai đoạn 3 — đã làm
 

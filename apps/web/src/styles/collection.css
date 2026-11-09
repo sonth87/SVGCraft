@@ -1,0 +1,135 @@
+/* Collection page */
+
+/* ============================================================================
+   DEDICATED COLLECTION SCREEN VIEW (#collectionView)
+   ============================================================================ */
+.collection-view {
+  animation: fadeInDetail 0.18s ease-out;
+}
+
+.collection-hero-banner {
+  border-radius: 18px;
+  border: 1px solid var(--border-subtle);
+  background: linear-gradient(135deg, rgba(249, 115, 22, 0.09), rgba(99, 102, 241, 0.06));
+  padding: 20px 22px;
+  margin-bottom: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.collection-hero-top {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.collection-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.collection-folder-badge {
+  width: 48px;
+  height: 48px;
+  border-radius: 14px;
+  background: var(--brand-orange-soft);
+  border: 1px solid var(--brand-orange-border);
+  color: var(--brand-orange);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.collection-folder-badge svg {
+  width: 24px;
+  height: 24px;
+}
+
+.collection-h1 {
+  font-size: 1.5rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+
+.collection-meta-pills {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+  margin-top: 6px;
+}
+
+.col-stat-pill {
+  font-size: 0.74rem;
+  font-weight: 600;
+  padding: 3px 9px;
+  border-radius: 999px;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-muted);
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.col-stat-pill strong {
+  color: var(--text-main);
+}
+
+.collection-toolbar-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding-top: 14px;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.col-local-search {
+  position: relative;
+  flex: 1;
+  min-width: 240px;
+  max-width: 420px;
+  display: flex;
+  align-items: center;
+}
+
+.col-local-search svg {
+  position: absolute;
+  left: 11px;
+  width: 15px;
+  height: 15px;
+  color: var(--text-muted);
+  pointer-events: none;
+}
+
+.col-local-search input {
+  width: 100%;
+  height: 36px;
+  padding: 0 12px 0 34px;
+  border-radius: 10px;
+  border: 1px solid var(--border-subtle);
+  background: var(--bg-surface);
+  color: var(--text-main);
+  font-size: 0.82rem;
+  outline: none;
+}
+
+.col-local-search input:focus {
+  border-color: var(--brand-orange);
+  box-shadow: 0 0 0 3px var(--brand-orange-soft);
+}
+
+.col-filter-pills-group {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}

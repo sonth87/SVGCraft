@@ -1,6 +1,5 @@
 /**
- * Everything the React detail page shares with the legacy page script (public/app.js) until phase 4:
- * the toast container, localStorage keys, and a few window events.
+ * Small browser-side helpers shared by the pages: toasts, localStorage preferences, language, favorites.
  */
 import { useCallback, useSyncExternalStore } from 'react';
 import { CATEGORY_LABELS, MESSAGES, STYLE_LABELS, TYPE_LABELS } from './messages';
@@ -64,8 +63,11 @@ export function useI18n(): { lang: Lang; t: Translate } {
   return { lang, t };
 }
 
-export const categoryLabel = (lang: Lang, id: string): string =>
-  CATEGORY_LABELS[lang]?.[id] ?? CATEGORY_LABELS.en?.[id] ?? id ?? 'General';
+export const categoryLabel = (lang: Lang, id: string, fallback = ''): string => {
+  const clean = String(id || '').replace(/^lordicon:/, '');
+  if (!clean) return fallback || 'General';
+  return CATEGORY_LABELS[lang]?.[clean] ?? CATEGORY_LABELS.en?.[clean] ?? (fallback || clean);
+};
 
 // --- Favorites ---------------------------------------------------------------
 
@@ -84,7 +86,7 @@ export const isFavorite = (keys: string[]): boolean => {
   return keys.some((k) => favs.has(k));
 };
 
-/** Toggle and tell app.js, which keeps its own copy for the grid. Returns the new state. */
+/** Toggle a favorite and tell every card and counter listening. Returns the new state. */
 export function toggleFavorite(keys: string[]): boolean {
   const favs = readFavorites();
   const wasOn = keys.some((k) => favs.has(k));
@@ -110,8 +112,10 @@ export function setBrandGlow(color: string | null): void {
   backdrop.classList.add('active');
 }
 
-export const styleLabel = (lang: Lang, id: string): string => STYLE_LABELS[lang]?.[id] ?? STYLE_LABELS.en?.[id] ?? id;
-export const typeLabel = (lang: Lang, id: string): string => TYPE_LABELS[lang]?.[id] ?? TYPE_LABELS.en?.[id] ?? id;
+export const styleLabel = (lang: Lang, id: string, fallback = ''): string =>
+  STYLE_LABELS[lang]?.[id] ?? STYLE_LABELS.en?.[id] ?? (fallback || id);
+export const typeLabel = (lang: Lang, id: string, fallback = ''): string =>
+  TYPE_LABELS[lang]?.[id] ?? TYPE_LABELS.en?.[id] ?? (fallback || id);
 
 /** Live favorites for many cards: re-renders on changes from anywhere. Same array until the stored value changes. */
 let favCacheRaw: string | null | undefined;

@@ -1,5 +1,5 @@
 import { notFound } from 'next/navigation';
-import SvgCraftShell from '@/components/SvgCraftShell';
+import CollectionView from '@/features/collection/CollectionView';
 import { getCatalog } from '@/lib/catalog';
 import { loadCollectionPage } from '@/lib/collectionPage';
 
@@ -22,5 +22,5 @@ export function generateStaticParams() {
 export default function CollectionPage({ params }) {
   const data = loadCollectionPage(getCatalog(), 'any', decodeURIComponent(params.site));
   if (!data) notFound();
-  return <SvgCraftShell initialCollection={data} />;
+  return <CollectionView key={data.collection.slug} data={data} />;
 }

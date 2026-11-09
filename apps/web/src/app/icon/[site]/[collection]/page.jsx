@@ -1,5 +1,5 @@
 import { notFound } from 'next/navigation';
-import SvgCraftShell from '@/components/SvgCraftShell';
+import IconStudio from '@/features/icon-studio/IconStudio';
 import { getCatalog } from '@/lib/catalog';
 import { loadIconDetail } from '@/lib/iconDetail';
 
@@ -45,5 +45,6 @@ export default async function IconDetailPage({ params }) {
   const index = getCatalog();
   const ord = index.findIcon('any', decodeURIComponent(params.site), decodeURIComponent(params.collection));
   if (ord < 0) notFound();
-  return <SvgCraftShell initialDetail={await loadIconDetail(index, ord)} />;
+  const data = await loadIconDetail(index, ord);
+  return <IconStudio key={`${data.icon.collectionSlug}:${data.icon.id}`} data={data} />;
 }

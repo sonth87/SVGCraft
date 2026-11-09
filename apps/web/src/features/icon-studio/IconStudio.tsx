@@ -1,7 +1,8 @@
 'use client';
 
-/** Icon detail page: state of the studio plus the page layout. Navigation clicks are handled by app.js for now. */
+/** Icon detail page: state of the studio plus the page layout. */
 import { useCallback, useDeferredValue, useEffect, useMemo, useRef, useState } from 'react';
+import Link from 'next/link';
 import {
   applyCustomizationsToSvgXml,
   defaultMotionState,
@@ -25,16 +26,8 @@ import { compileAnimatedSvg } from './compile-animated';
 import ExportPanel from './ExportPanel';
 import { categoryIconName, Icon, styleIconName, typeIconName } from '@/features/shared/icons';
 import Stage, { type SvgMode } from './Stage';
-
-export interface NavTarget {
-  collectionSlug: string;
-  id?: string;
-  slug: string;
-}
-export interface DetailNav {
-  prev?: NavTarget | null;
-  next?: NavTarget | null;
-}
+import { catalogLink } from '@/features/catalog/filters';
+import { catalogReturnHref, getNavList, useAppRouter } from '@/features/shared/nav';
 
 const iconHref = (col: string, id: string) => `/icon/${encodeURIComponent(col)}/${encodeURIComponent(id)}`;
 const colHref = (col: string) => `/collection/${encodeURIComponent(col)}`;
@@ -56,11 +49,11 @@ function RecStrip({ items, emptyText }: { items: RecItem[] | undefined; emptyTex
   return (
     <div className="rec-strip">
       {items.map((item) => (
-        <a
+        <Link
           key={`${item.collectionSlug}:${item.id}`}
           className="rec-mini-card"
           href={iconHref(item.collectionSlug, item.id || item.slug)}
-          data-switch-icon={`${item.collectionSlug}:${item.id || item.slug}`}
+          prefetch={false}
         >
           {/* eslint-disable-next-line @next/next/no-img-element -- immutable CDN SVG, no optimization needed */}
           <img src={item.assetUrl} alt={item.title} loading="lazy" />
@@ -80,13 +73,13 @@ function RecStrip({ items, emptyText }: { items: RecItem[] | undefined; emptyTex
           <div style={{ fontSize: '0.66rem', color: 'var(--text-dim)' }}>
             {item.category} · {item.styleType}
           </div>
-        </a>
+        </Link>
       ))}
     </div>
   );
 }
 
-export default function IconStudio({ data, nav }: { data: IconDetailPayload; nav: DetailNav }) {
+export default function IconStudio({ data }: { data: IconDetailPayload }) {
   const { icon, svgVariantsContent, variantAssetUrls, lordiconStyles, recommendations, rawSvg } = data;
   const { lang, t } = useI18n();
 
@@ -248,28 +241,36 @@ export default function IconStudio({ data, nav }: { data: IconDetailPayload; nav
   const byteSize = useMemo(() => new TextEncoder().encode(currentSvg).length, [currentSvg]);
   const author =
     !icon.author || /^(thesvg|svg\s*repo)$/i.test(String(icon.author).trim()) ? 'Open Source' : icon.author;
-  const navHref = (target?: NavTarget | null) =>
-    target ? iconHref(target.collectionSlug, target.id || target.slug) : undefined;
-  const navKey = (target?: NavTarget | null) =>
-    target ? `${target.collectionSlug}:${target.id || target.slug}` : undefined;
+  const router = useAppRouter();
+  const goCatalog = (filters: Parameters<typeof catalogLink>[0]) => router.push(catalogLink(filters));
+
+  // Prev / next walk the list the user came from (catalog or collection)
+  const navList = getNavList();
+  const navIndex = navList.findIndex(
+    (it) => it.collectionSlug === icon.collectionSlug && (it.id || it.slug) === (icon.id || icon.slug)
+  );
+  const toNav = (target: (typeof navList)[number] | undefined) =>
+    target ? iconHref(target.collectionSlug, target.id || target.slug) : '';
+  const prevHref = navIndex > 0 ? toNav(navList[navIndex - 1]) : '';
+  const nextHref = navIndex >= 0 ? toNav(navList[navIndex + 1]) : '';
 
   return (
     <>
       <div className="detail-topbar">
         <div className="detail-breadcrumbs">
-          <button type="button" className="btn-back-catalog" data-detail-back="">
+          <button type="button" className="btn-back-catalog" onClick={() => router.backToList(catalogReturnHref())}>
             <Icon name="arrowLeft" />
             <span>{t('detailBack')}</span>
           </button>
-          <button type="button" className="crumb-btn" data-crumb-cat={icon.category}>
+          <button type="button" className="crumb-btn" onClick={() => goCatalog({ category: icon.category })}>
             {catLabel}
           </button>
           <span className="crumb-sep">
             <Icon name="chevronRight" />
           </span>
-          <a className="crumb-btn" href={colHref(icon.collectionSlug)} data-open-col={icon.collectionSlug}>
+          <Link className="crumb-btn" href={colHref(icon.collectionSlug)} prefetch={false}>
             {icon.collectionName}
-          </a>
+          </Link>
           <span className="crumb-sep">
             <Icon name="chevronRight" />
           </span>
@@ -280,20 +281,18 @@ export default function IconStudio({ data, nav }: { data: IconDetailPayload; nav
           <button
             type="button"
             className="icon-btn-square"
-            disabled={!nav.prev}
+            disabled={!prevHref}
             title={t('detailPrevTitle')}
-            data-switch-icon={navKey(nav.prev)}
-            data-href={navHref(nav.prev)}
+            onClick={() => router.push(prevHref)}
           >
             <Icon name="chevronLeft" />
           </button>
           <button
             type="button"
             className="icon-btn-square"
-            disabled={!nav.next}
+            disabled={!nextHref}
             title={t('detailNextTitle')}
-            data-switch-icon={navKey(nav.next)}
-            data-href={navHref(nav.next)}
+            onClick={() => router.push(nextHref)}
           >
             <Icon name="chevronRight" />
           </button>
@@ -413,11 +412,11 @@ export default function IconStudio({ data, nav }: { data: IconDetailPayload; nav
             <div className="variants-strip-grid">
               {hasStyles
                 ? lordiconStyles.map((st) => (
-                    <a
+                    <Link
                       key={st.colSlug}
                       className={`variant-mini-btn ${st.isCurrent ? 'active' : ''}`}
                       href={iconHref(st.collectionSlug, st.iconId)}
-                      data-switch-icon={st.isCurrent ? undefined : `${st.collectionSlug}:${st.iconId}`}
+                      prefetch={false}
                       onClick={st.isCurrent ? (e) => e.preventDefault() : undefined}
                     >
                       <span className="variant-mini-thumb">
@@ -427,7 +426,7 @@ export default function IconStudio({ data, nav }: { data: IconDetailPayload; nav
                       <span className="variant-mini-name" title={st.label}>
                         {st.label}
                       </span>
-                    </a>
+                    </Link>
                   ))
                 : variantKeys.map((key) => (
                     <button
@@ -480,17 +479,17 @@ export default function IconStudio({ data, nav }: { data: IconDetailPayload; nav
               <code className="detail-slug-code">{icon.slug}</code>
             </div>
             <div className="detail-badges-row" style={{ marginTop: 10 }}>
-              <button type="button" className="pill-btn active" data-crumb-cat={icon.category}>
+              <button type="button" className="pill-btn active" onClick={() => goCatalog({ category: icon.category })}>
                 <Icon name={categoryIconName(icon.category)} />
                 <span>{catLabel}</span>
               </button>
-              <button type="button" className="pill-btn" data-jump-style={icon.styleType}>
+              <button type="button" className="pill-btn" onClick={() => goCatalog({ styleType: icon.styleType })}>
                 <Icon name={styleIconName(icon.styleType)} />
                 <span>
                   {t('detailStylePrefix')} {icon.styleType}
                 </span>
               </button>
-              <button type="button" className="pill-btn" data-jump-type={icon.iconType}>
+              <button type="button" className="pill-btn" onClick={() => goCatalog({ iconType: icon.iconType })}>
                 <Icon name={typeIconName(icon.iconType)} />
                 <span>{icon.iconType}</span>
               </button>
@@ -526,12 +525,12 @@ export default function IconStudio({ data, nav }: { data: IconDetailPayload; nav
           <div className="detail-meta-grid">
             <div className="meta-stat-card">
               <span className="meta-stat-label">{t('metaCollection')}</span>
-              <a className="meta-stat-link" href={colHref(icon.collectionSlug)} data-open-col={icon.collectionSlug}>
+              <Link className="meta-stat-link" href={colHref(icon.collectionSlug)} prefetch={false}>
                 <Icon name="folder" />
                 <span style={{ overflow: 'hidden', textOverflow: 'ellipsis', whiteSpace: 'nowrap' }}>
                   {icon.collectionName}
                 </span>
-              </a>
+              </Link>
             </div>
             <div className="meta-stat-card">
               <span className="meta-stat-label">{t('metaGridSize')}</span>
@@ -561,7 +560,7 @@ export default function IconStudio({ data, nav }: { data: IconDetailPayload; nav
                   key={tag}
                   type="button"
                   className="pill-btn"
-                  data-jump-tag={tag}
+                  onClick={() => goCatalog({ q: tag })}
                   style={{ fontSize: '0.75rem', padding: '4px 10px' }}
                 >
                   #{tag}
@@ -604,10 +603,10 @@ export default function IconStudio({ data, nav }: { data: IconDetailPayload; nav
             </span>
             <span>{t('recSameColTitle', { collection: icon.collectionName })}</span>
           </h2>
-          <a className="pill-btn" href={colHref(icon.collectionSlug)} data-open-col={icon.collectionSlug}>
+          <Link className="pill-btn" href={colHref(icon.collectionSlug)} prefetch={false}>
             <span>{t('recViewAllCol')}</span>
             <Icon name="chevronRight" />
-          </a>
+          </Link>
         </div>
         <RecStrip items={recommendations?.sameCollection} emptyText={t('recEmpty')} />
       </div>
